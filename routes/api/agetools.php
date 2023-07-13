@@ -28,6 +28,7 @@ Route::group(['middleware' => 'auth:api'], function () {
                 Route::get('filters', 'getFilters');
                 Route::get('data', 'getData');
                 Route::post('download-excel', 'downloadExcel');
+                Route::post('schedule-available', 'getScheduleAvailable');
             });
             Route::controller(\App\Http\Controllers\AgeTools\Tools\Schedule\Note\ExecutedController::class)->prefix('notes')->group(function () {
 

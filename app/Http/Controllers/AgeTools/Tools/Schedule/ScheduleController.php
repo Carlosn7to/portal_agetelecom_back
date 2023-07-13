@@ -141,8 +141,8 @@ class ScheduleController extends Controller
                 it.title as "type_note",
                 p.name AS "name_client",
                 CASE
-                    WHEN EXTRACT(HOUR FROM s.start_date) < 12 THEN \'Manhã\'
-                    WHEN EXTRACT(HOUR FROM s.start_date) >= 12 AND EXTRACT(HOUR FROM s.start_date) < 18 THEN \'Tarde\'
+                    WHEN EXTRACT(HOUR FROM s.start_date) < 12 THEN \'manha\'
+                    WHEN EXTRACT(HOUR FROM s.start_date) >= 12 AND EXTRACT(HOUR FROM s.start_date) < 18 THEN \'tarde\'
                     ELSE \'Noite\'
                 END AS "Turn",
                 cpa.neighborhood  as "region",
@@ -204,8 +204,8 @@ class ScheduleController extends Controller
                 ai.protocol as "protocol",
                         it.title as "type_note",
                         CASE
-                            WHEN EXTRACT(HOUR FROM s.start_date) < 12 THEN \'Manhã\'
-                            WHEN EXTRACT(HOUR FROM s.start_date) >= 12 AND EXTRACT(HOUR FROM s.start_date) < 18 THEN \'Tarde\'
+                            WHEN EXTRACT(HOUR FROM s.start_date) < 12 THEN \'manha\'
+                            WHEN EXTRACT(HOUR FROM s.start_date) >= 12 AND EXTRACT(HOUR FROM s.start_date) < 18 THEN \'tarde\'
                             ELSE \'Noite\'
                         END AS "Turn",
                         cpa.neighborhood  as "region",
@@ -243,5 +243,341 @@ class ScheduleController extends Controller
 
     }
 
+
+    public function getScheduleAvailable(Request $request)
+    {
+        $query = 'SELECT
+                it.id as "tipo_solicitacao_id",
+                it.title as "tipo_solicitacao",
+                p."name",
+                CASE
+                    WHEN EXTRACT(HOUR FROM s.start_date) >= 6 AND EXTRACT(HOUR FROM s.start_date) < 12 THEN \'manha\'
+                    WHEN EXTRACT(HOUR FROM s.start_date) >= 12 AND EXTRACT(HOUR FROM s.start_date) < 18 THEN \'tarde\'
+                    WHEN EXTRACT(HOUR FROM s.start_date) >= 18 AND EXTRACT(HOUR FROM s.start_date) < 24 THEN \'Noite\'
+                    ELSE \'Madrugada\'
+                END AS turno
+            FROM
+                erp.schedules s
+                left join erp.assignments a on a.id = s.assignment_id
+                left join erp.assignment_incidents ai on ai.assignment_id = a.id
+                left join erp.incident_types it on it.id = ai.incident_type_id
+                left JOIN erp.contract_service_tags cst ON cst.id = ai.contract_service_tag_id
+                left join erp.contracts c on c.id = cst.contract_id
+                left join erp.people p on p.id = c.client_id
+                ';
+
+        // Adiciona uma cláusula WHERE para filtrar pela data da agenda
+        $query .= ' where DATE(s.start_date) = \''.$request->dateSchedule.'\''; // 2021-05-10
+
+        // Executa a consulta e obtém o resultado
+        $result = DB::connection('pgsql')->select($query);
+
+
+        $data = collect($result)->unique('name');
+
+        $typeNotes = $data->unique('tipo_solicitacao')->pluck('tipo_solicitacao');
+
+
+        $turns = $data->unique('turno')->pluck('turno');
+
+        $counts = [];
+
+        foreach ($result as $key => $value) {
+            $typeNotes = $this->formmatedTypeNote($value->tipo_solicitacao);
+            $turns = $value->turno;
+            $name = $value->name;
+
+            if (!isset($counts[$typeNotes])) {
+                $counts[$typeNotes] = [
+                    'id' => $value->tipo_solicitacao_id,
+                    $turns => [
+                        'agendadas' => 0,
+                        'clients' => []
+                    ]
+                ];
+            }
+
+            if (!isset($counts[$typeNotes][$turns])) {
+                $counts[$typeNotes][$turns] = ['agendadas' => 0, 'clients' => []];
+            }
+
+            if (!in_array($name, $counts[$typeNotes][$turns]['clients'])) {
+                $counts[$typeNotes][$turns]['clients'][] = $name;
+                $counts[$typeNotes][$turns]['agendadas']++;
+            }
+        }
+
+
+
+
+        $response = [
+            'Instalação' => [
+                'manha' => 0,
+                'tarde' => 0
+            ],
+            'Mudança de endereço' => [
+                'manha' => 0,
+                'tarde' => 0
+            ],
+            'Visita técnica' => [
+                'manha' => 0,
+                'tarde' => 0
+            ],
+            'B2B' => [
+                'manha' => 0,
+                'tarde' => 0
+            ]
+        ];
+
+
+        foreach ($counts as $key => $value) {
+
+            foreach ($value as $key2 => $value2) {
+
+
+                if($value2 == 1089) {
+
+                    if(isset($value['manha'])) {
+                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                    }
+                }
+
+                if($value2 == 1011) {
+                    if(isset($value['manha'])) {
+                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1020) {
+                    if(isset($value['manha'])) {
+                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                    }
+                }
+
+
+                if($value2 == 1089) {
+                    if(isset($value['manha'])) {
+                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                    }                }
+
+                if($value2 == 1058) {
+
+                    if(isset($value['manha'])) {
+                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                    }                }
+
+                if($value2 == 1071) {
+
+                    if(isset($value['manha'])) {
+                        $response['Mudança de endereço']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Mudança de endereço']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 15) {
+
+                    if(isset($value['manha'])) {
+                        $response['Mudança de endereço']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Mudança de endereço']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+
+                if($value2 == 1045) {
+
+                    if(isset($value['manha'])) {
+                        $response['Mudança de endereço']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Mudança de endereço']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1088) {
+
+                    if(isset($value['manha'])) {
+                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1067) {
+
+                    if(isset($value['manha'])) {
+                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1081) {
+
+                    if(isset($value['manha'])) {
+                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1082) {
+
+                    if(isset($value['manha'])) {
+                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1036) {
+
+                    if(isset($value['manha'])) {
+                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1074) {
+
+                    if(isset($value['manha'])) {
+                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1080) {
+
+                    if(isset($value['manha'])) {
+                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1089) {
+
+                    if(isset($value['manha'])) {
+                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+                if($value2 == 1087) {
+
+                    if(isset($value['manha'])) {
+                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+
+                if($value2 == 1091) {
+
+                    if(isset($value['manha'])) {
+                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                    }
+
+                }
+
+
+                if($value2 == 1090) {
+                    if(isset($value['manha'])) {
+                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                    }
+
+                    if(isset($value['tarde'])) {
+                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                    }
+                }
+
+
+            }
+
+        }
+
+
+
+        return $response;
+
+    }
+
+
+    public function formmatedTypeNote($string)
+    {
+
+        $result = trim($string);
+        $result = str_replace(' ', '', $string);
+        $result = preg_replace('/[^a-zA-ZÀ-ÿ\s]/u', '', $result);
+
+
+        return $result;
+
+    }
 
 }
