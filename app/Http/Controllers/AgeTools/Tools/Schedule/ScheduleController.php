@@ -247,24 +247,29 @@ class ScheduleController extends Controller
     public function getScheduleAvailable(Request $request)
     {
         $query = 'SELECT
-                it.id as "tipo_solicitacao_id",
-                it.title as "tipo_solicitacao",
-                p."name",
-                CASE
-                    WHEN EXTRACT(HOUR FROM s.start_date) >= 6 AND EXTRACT(HOUR FROM s.start_date) < 12 THEN \'manha\'
-                    WHEN EXTRACT(HOUR FROM s.start_date) >= 12 AND EXTRACT(HOUR FROM s.start_date) < 18 THEN \'tarde\'
-                    WHEN EXTRACT(HOUR FROM s.start_date) >= 18 AND EXTRACT(HOUR FROM s.start_date) < 24 THEN \'Noite\'
-                    ELSE \'Madrugada\'
-                END AS turno
-            FROM
-                erp.schedules s
-                left join erp.assignments a on a.id = s.assignment_id
-                left join erp.assignment_incidents ai on ai.assignment_id = a.id
-                left join erp.incident_types it on it.id = ai.incident_type_id
-                left JOIN erp.contract_service_tags cst ON cst.id = ai.contract_service_tag_id
-                left join erp.contracts c on c.id = cst.contract_id
-                left join erp.people p on p.id = c.client_id
-                ';
+                    it.id as "tipo_solicitacao_id",
+                    it.title as "tipo_solicitacao",
+                    p."name",
+                    (
+                        select t2.title  from erp.reports r
+                        left join erp.teams t2 on t2.id = r.team_id
+                        where r.assignment_id = a.id order by r.id desc limit 1
+                    ) as "team",
+                    CASE
+                        WHEN EXTRACT(HOUR FROM s.start_date) >= 6 AND EXTRACT(HOUR FROM s.start_date) < 12 THEN \'manha\'
+                        WHEN EXTRACT(HOUR FROM s.start_date) >= 12 AND EXTRACT(HOUR FROM s.start_date) < 18 THEN \'tarde\'
+                        WHEN EXTRACT(HOUR FROM s.start_date) >= 18 AND EXTRACT(HOUR FROM s.start_date) < 24 THEN \'Noite\'
+                        ELSE \'Madrugada\'
+                    END AS turno
+                FROM
+                    erp.schedules s
+                    left join erp.assignments a on a.id = s.assignment_id
+                    left join erp.assignment_incidents ai on ai.assignment_id = a.id
+                    left join erp.incident_types it on it.id = ai.incident_type_id
+                    left JOIN erp.contract_service_tags cst ON cst.id = ai.contract_service_tag_id
+                    left join erp.contracts c on c.id = cst.contract_id
+                    left join erp.people p on p.id = c.client_id
+                    left join erp.teams t on t.id = a.team_id';
 
         // Adiciona uma cláusula WHERE para filtrar pela data da agenda
         $query .= ' where DATE(s.start_date) = \''.$request->dateSchedule.'\''; // 2021-05-10
@@ -277,10 +282,12 @@ class ScheduleController extends Controller
 
         $typeNotes = $data->unique('tipo_solicitacao')->pluck('tipo_solicitacao');
 
+        $teams = $data->unique('team')->pluck('team');
 
         $turns = $data->unique('turno')->pluck('turno');
 
         $counts = [];
+        $countsTeams = [];
 
         foreach ($result as $key => $value) {
             $typeNotes = $this->formmatedTypeNote($value->tipo_solicitacao);
@@ -297,6 +304,7 @@ class ScheduleController extends Controller
                 ];
             }
 
+
             if (!isset($counts[$typeNotes][$turns])) {
                 $counts[$typeNotes][$turns] = ['agendadas' => 0, 'clients' => []];
             }
@@ -308,26 +316,78 @@ class ScheduleController extends Controller
         }
 
 
+        foreach ($result as $key => $value) {
+            $team = $value->team;
+            $turns = $value->turno;
+            $name = $value->name;
+
+            if (!isset($countsTeams[$team])) {
+                $countsTeams[$team] = [
+                    $turns => [
+                        'agendadas' => 0,
+                        'clients' => []
+                    ]
+                ];
+            }
+
+
+            if (!isset($countsTeams[$team][$turns])) {
+                $countsTeams[$team][$turns] = ['agendadas' => 0, 'clients' => []];
+            }
+
+            if (!in_array($name, $countsTeams[$team][$turns]['clients'])) {
+                $countsTeams[$team][$turns]['clients'][] = $name;
+                $countsTeams[$team][$turns]['agendadas']++;
+            }
+        }
+
+
 
 
         $response = [
             'Instalação' => [
-                'manha' => 0,
-                'tarde' => 0
+                'manha' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
+                'tarde' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
             ],
             'Mudança de endereço' => [
-                'manha' => 0,
-                'tarde' => 0
+                'manha' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
+                'tarde' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
             ],
             'Visita técnica' => [
-                'manha' => 0,
-                'tarde' => 0
+                'manha' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
+                'tarde' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
             ],
             'B2B' => [
-                'manha' => 0,
-                'tarde' => 0
+                'manha' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
+                'tarde' => [
+                    'count' => 0,
+                    'clients' => []
+                ],
             ]
         ];
+
+
 
 
         foreach ($counts as $key => $value) {
@@ -338,63 +398,85 @@ class ScheduleController extends Controller
                 if($value2 == 1089) {
 
                     if(isset($value['manha'])) {
-                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['clients'][] = $value['manha']['clients'];
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
                 }
 
                 if($value2 == 1011) {
                     if(isset($value['manha'])) {
-                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
 
                 if($value2 == 1020) {
                     if(isset($value['manha'])) {
-                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
                 }
 
 
                 if($value2 == 1089) {
                     if(isset($value['manha'])) {
-                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }                }
 
                 if($value2 == 1058) {
 
                     if(isset($value['manha'])) {
-                        $response['Instalação']['manha'] += $value['manha']['agendadas'];
+                        $response['Instalação']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Instalação']['tarde']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Instalação']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Instalação']['manha']['clients'][] = $value['tarde']['clients'];
+
                     }                }
 
                 if($value2 == 1071) {
 
                     if(isset($value['manha'])) {
-                        $response['Mudança de endereço']['manha'] += $value['manha']['agendadas'];
+                        $response['Mudança de endereço']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Mudança de endereço']['manha']['clients'][] = $value['manha']['clients'];
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Mudança de endereço']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Mudança de endereço']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Mudança de endereço']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -402,11 +484,15 @@ class ScheduleController extends Controller
                 if($value2 == 15) {
 
                     if(isset($value['manha'])) {
-                        $response['Mudança de endereço']['manha'] += $value['manha']['agendadas'];
+                        $response['Mudança de endereço']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Mudança de endereço']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Mudança de endereço']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Mudança de endereço']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Mudança de endereço']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -415,11 +501,15 @@ class ScheduleController extends Controller
                 if($value2 == 1045) {
 
                     if(isset($value['manha'])) {
-                        $response['Mudança de endereço']['manha'] += $value['manha']['agendadas'];
+                        $response['Mudança de endereço']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Mudança de endereço']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Mudança de endereço']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Mudança de endereço']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Mudança de endereço']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -427,11 +517,15 @@ class ScheduleController extends Controller
                 if($value2 == 1088) {
 
                     if(isset($value['manha'])) {
-                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -439,11 +533,15 @@ class ScheduleController extends Controller
                 if($value2 == 1067) {
 
                     if(isset($value['manha'])) {
-                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -451,11 +549,15 @@ class ScheduleController extends Controller
                 if($value2 == 1081) {
 
                     if(isset($value['manha'])) {
-                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -463,11 +565,15 @@ class ScheduleController extends Controller
                 if($value2 == 1082) {
 
                     if(isset($value['manha'])) {
-                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -475,11 +581,14 @@ class ScheduleController extends Controller
                 if($value2 == 1036) {
 
                     if(isset($value['manha'])) {
-                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['clients'][] = $value['manha']['clients'];
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -487,11 +596,15 @@ class ScheduleController extends Controller
                 if($value2 == 1074) {
 
                     if(isset($value['manha'])) {
-                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -499,11 +612,15 @@ class ScheduleController extends Controller
                 if($value2 == 1080) {
 
                     if(isset($value['manha'])) {
-                        $response['Visita técnica']['manha'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['Visita técnica']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['Visita técnica']['tarde'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['Visita técnica']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -511,11 +628,15 @@ class ScheduleController extends Controller
                 if($value2 == 1089) {
 
                     if(isset($value['manha'])) {
-                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -523,11 +644,15 @@ class ScheduleController extends Controller
                 if($value2 == 1087) {
 
                     if(isset($value['manha'])) {
-                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -536,11 +661,15 @@ class ScheduleController extends Controller
                 if($value2 == 1091) {
 
                     if(isset($value['manha'])) {
-                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
 
                 }
@@ -548,11 +677,15 @@ class ScheduleController extends Controller
 
                 if($value2 == 1090) {
                     if(isset($value['manha'])) {
-                        $response['B2B']['manha'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['count'] += $value['manha']['agendadas'];
+                        $response['B2B']['manha']['clients'][] = $value['manha']['clients'];
+
                     }
 
                     if(isset($value['tarde'])) {
-                        $response['B2B']['tarde'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['count'] += $value['tarde']['agendadas'];
+                        $response['B2B']['tarde']['clients'][] = $value['tarde']['clients'];
+
                     }
                 }
 
