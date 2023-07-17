@@ -128,7 +128,6 @@ class CollaboratorMetaController extends Controller
         $success = new Collection();
 
 
-
         foreach($array[0] as $k => $v) {
 
             $errors = [];
@@ -149,7 +148,7 @@ class CollaboratorMetaController extends Controller
                     'colaborador_id' => $collaborator->id,
                     'mes_competencia' => $request->month,
                     'ano_competencia' => $request->year,
-                    'meta' => $v['meta'],
+                    'meta' => $v[1],
                     'modified_by' => 1
                 ]);
 
@@ -180,13 +179,35 @@ class CollaboratorMetaController extends Controller
 
         $collabs = [];
         $errors = [];
+        $meta = 29;
+
+
 
         foreach($array[0] as $key => $value) {
             $collabs[] = [
                 'name' => trim($value[0]),
-                'admmission' => $value[2],
+                'function' => trim($value[1]),
+                'channel' => trim($value[2]),
+                'admmission' => Carbon::createFromFormat('d/m/Y', $value[3])->format('m'),
+                'meta' => 0
             ];
         }
+
+        foreach($collabs as $key => $value) {
+            if(str_contains($value['channel'],"Comercial - PAP") ||
+                str_contains($value['channel'], "Comercial - QUIOQUE") ||
+                $value['channel'] === 'Comercial') {
+
+                if($value['admmission'] === '04') {
+                    $collabs[$key]['meta'] = $meta * 0.75;
+                } elseif ($value['admmission'] === '05') {
+                    $collabs[$key]['meta'] = $meta * 0.5;
+                }
+
+            }
+        }
+
+
 
         foreach($collabs as $key => $v) {
 
@@ -198,18 +219,10 @@ class CollaboratorMetaController extends Controller
                     ->where('ano_competencia', $request->year)
                     ->first();
 
-                $date = Carbon::createFromFormat('d/m/Y', $v['admmission'])->format('m');
-                $meta = 0;
-
-                if($date === '03') {
-                    $meta = 18.75;
-                } elseif ($date === '04') {
-                    $meta = 12.5;
-                }
 
                 if(isset($collab->id)) {
                     $collab->update([
-                        'meta' => $meta
+                        'meta' => $v['meta']
                     ]);
                 } else {
                     $collab = new CollaboratorMeta();
@@ -218,7 +231,7 @@ class CollaboratorMetaController extends Controller
                         'colaborador_id' => $collaborator->id,
                         'mes_competencia' => $request->month,
                         'ano_competencia' => $request->year,
-                        'meta' => $meta,
+                        'meta' => $v['meta'],
                         'modified_by' => 1
                     ]);
 
@@ -230,7 +243,9 @@ class CollaboratorMetaController extends Controller
 
         }
 
-        return $errors;
+        foreach($errors as $key => $value) {
+           echo mb_convert_case($value['name'], MB_CASE_TITLE, 'UTF-8') . ' - ' . $value['channel'] . ' - ' . $value['admmission'] . '<br>';
+        }
 
 
     }

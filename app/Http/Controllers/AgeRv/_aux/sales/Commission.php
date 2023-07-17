@@ -70,15 +70,17 @@ class Commission
                     'max' => 120,
                     'value' => 0.7
                 ],
-//                7 => [
-//                    'min' => 121,
-//                    'max' => 2000,
-//                    'value' => 1
-//                ],
+                7 => [
+                    'min' => 121,
+                    'max' => 2000,
+                    'value' => 1
+                ],
             ];
 
             foreach($tracks as $key => $value) {
                 if($this->metaPercent >= $value['min'] && $this->metaPercent <= $value['max']) {
+                    $trackValue = $value['value'];
+                }elseif ($this->metaPercent > $value['max']) {
                     $trackValue = $value['value'];
                 }
             }
