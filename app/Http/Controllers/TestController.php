@@ -11,6 +11,7 @@ use App\Http\Controllers\Ixc\Api\WebserviceClient;
 use App\Http\Controllers\Mail\Billing\EquipDivideController;
 use App\Http\Requests\AgeControl\ConductorStoreRequest;
 use App\Ldap\UserLdap;
+use App\Mail\AgeCommunicate\Base\SendMailBillingRule;
 use App\Mail\BaseManagement\SendPromotion;
 use App\Mail\Portal\SendNewUser;
 use App\Mail\SendBlackFiber;
@@ -68,7 +69,197 @@ class TestController extends Controller
     {
         set_time_limit(200000);
 
-        return "break";
+        $templates = [
+            0 => [
+                'template' => 'after_expiration_75d',
+                'subject' => 'Seu CPF será negativado... evite isso!',
+                'rule' => 0
+            ],
+            1 => [
+                'template' => 'after_expiration_80d',
+                'subject' => 'Seu CPF será negativado... evite isso!',
+                'rule' => 0
+            ],
+            2 => [
+                'template' => 'after_expiration_85d',
+                'subject' => 'Seu CPF será negativado... evite isso!',
+                'rule' => 0
+            ],
+            3 => [
+                'template' => 'alert_suspencion',
+                'subject' => 'Esse é o nosso último aviso! Não fique sem internet!',
+                'rule' => 0
+            ],
+            4 => [
+                'template' => 'delay_2d',
+                'subject' => 'Aviso importante sobre sua internet!',
+                'rule' => 0
+            ],
+            5 => [
+                'template' => 'delay_6d',
+                'subject' => 'ALERTA! Evite suspensões e bloqueios na sua internet Age Telecom',
+                'rule' => 0
+            ],
+            6 => [
+                'template' => 'missing_3d',
+                'subject' => 'Fique atento! Faltam apenas 3 dias',
+                'rule' => 0
+            ],
+            7 => [
+                'template' => 'missing_4d',
+                'subject' => 'Lembrete Importante: vencimento da sua fatura em 4 dias',
+                'rule' => 0
+            ],
+            8 => [
+                'template' => 'missing_5d',
+                'subject' => 'Lembrete - Vencimento da sua fatura Age Telecom em 5 dias',
+                'rule' => 0
+            ],
+            9 => [
+                'template' => 'negative',
+                'subject' => 'Essa é a sua chance de evitar a negativação do seu CPF',
+                'rule' => 0
+            ],
+            10 => [
+                'template' => 'suspended_sign',
+                'subject' => '[ALERTA] Aviso de suspensão de sinal',
+                'rule' => 0
+            ],
+            11 => [
+                'template' => 'today',
+                'subject' => 'Último dia! Pague seu boleto hoje.',
+                'rule' => 0
+            ],
+            12 => [
+                'template' => 'tomorrow',
+                'subject' => 'É Amanhã! Evite juros e multas desnecessárias!',
+                'rule' => 0
+            ],
+        ];
+
+        foreach($templates as $key => $value) {
+
+            Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
+                ->send(new SendMailBillingRule($value['template'], $value['subject']));
+
+            return $value;
+        }
+
+
+
+        return true;
+
+        $query = '
+        SELECT DISTINCT
+            c.id as contract_id,
+            p.name AS name_client,
+            c.v_stage as status,
+            c.v_status as situacao,
+            c.date as data_contrato,
+            c.beginning_date as data_ativacao,
+            c.beginning_date as data_vigencia,
+            c.amount AS valor,
+            p_seller.name AS vendedor,
+            p_supervisor.name AS supervisor,
+            c.cancellation_date AS data_cancelamento,
+            CASE
+             WHEN sp.title <> \'\' THEN sp.title
+             WHEN c.v_status = \'Cancelado\' THEN COALESCE(cst.title, cst2.title)
+            END AS plano
+        FROM
+            erp.contracts c
+        LEFT JOIN
+            erp.contract_assignment_activations caa ON caa.contract_id = c.id
+        LEFT JOIN
+            erp.authentication_contracts ac ON ac.contract_id = c.id
+        LEFT JOIN
+            erp.people p ON p.id = c.client_id
+        LEFT JOIN
+            erp.service_products sp ON ac.service_product_id = sp.id
+        LEFT JOIN
+            erp.people p_seller ON c.seller_1_id = p_seller.id
+        LEFT JOIN
+            erp.people p_supervisor ON c.seller_2_id = p_supervisor.id
+        LEFT JOIN
+            erp.contract_service_tags cst ON cst.contract_id = c.id AND cst.title LIKE \'PLANO COMBO%\'
+        LEFT JOIN
+            erp.contract_service_tags cst2 ON cst2.contract_id = c.id AND cst2.title LIKE \'PLANO%\' AND cst2.title NOT LIKE \'%COMBO%\'
+        WHERE (caa.contract_id = c.id OR ac.user LIKE \'ALCL%\') and p_supervisor.name = \'B2B\' and c.v_stage = \'Aprovado\'';
+
+
+        $data = DB::connection('pgsql')->select($query);
+
+        $data = collect($data);
+
+
+        $result = [];
+
+
+//        foreach($data as $key => $value) {
+//            $monthCompetence = Carbon::parse($value->data_ativacao)->format('m/Y');
+//
+//            $result[] = [
+//                'id_contrato' => $value->contract_id,
+//                'activation_day' => $value->data_ativacao,
+//                'seller' => $value->vendedor,
+//                'plan' => $value->plano,
+//                'name' => $value->name_client,
+//                'comissionable' => true,
+//                'competence' => $monthCompetence,
+//                'values_payment' => $this->calcFirstAndSecondMonth($value->data_ativacao, $value->valor, $value->contract_id),
+//            ];
+//        }
+
+//        return $result;
+
+
+
+
+
+
+        foreach($data as $key => $value) {
+            $query = 'select
+                        frt2.title,
+                        frt.amount,
+                        frt2.competence
+                    from erp.financial_receipt_titles frt
+                    left join erp.financial_receivable_titles frt2 on frt.financial_receivable_title_id = frt2.id
+                    where frt.financer_nature_id = 59
+                      and frt2.title like \'FAT%\'
+                      and frt2.contract_id = '.$value->contract_id.'
+                      and frt2.deleted is false
+                      and frt2.finished is false
+                    order by frt.id asc limit 2';
+
+
+            $data2 = DB::connection('pgsql')->select($query);
+
+            if(!empty($data2)) {
+                $result[] = [
+                    'id_contrato' => $value->contract_id,
+                    'data_ativacao' => $value->data_ativacao,
+                    'vendedor' => $value->vendedor,
+                    'plano' => $value->plano,
+                    'name' => $value->name_client,
+                    'fat' => $data2,
+                    'comissionable' => true
+                ];
+            } else {
+                $result[] = [
+                    'id_contrato' => $value->contract_id,
+                    'data_ativacao' => $value->data_ativacao,
+                    'vendedor' => $value->vendedor,
+                    'plano' => $value->plano,
+                    'name' => $value->name_client,
+                    'fat' => $data2,
+                    'comissionable' => false
+                ];
+            }
+        }
+
+        return response()->json($result, 202);
+
+
 
 
 //        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
@@ -988,6 +1179,69 @@ class TestController extends Controller
 //        $result = DB::connection('mysql')->select($query);
 //
 //        return $result;
+
+    }
+
+
+    private function calcFirstAndSecondMonth($date, $value, $contractId)
+    {
+        $dateFormatted = Carbon::parse($date);
+        $date = Carbon::parse($date);
+        $countDays = intval($dateFormatted->format('t'));
+
+
+        $dateCut = null;
+
+        if($countDays > 30) {
+            $dateCut = Carbon::parse('30-'.$dateFormatted->format('m').'-'.$dateFormatted->format('Y'))->format('Y-m-d');
+        } else if($countDays <= 30) {
+            $dateCut = Carbon::parse("$countDays-".$dateFormatted->format('m').'-'.$dateFormatted->format('Y'))->format('Y-m-d');
+        }
+
+        $diffDays = Carbon::parse($dateCut)->diffInDays($dateFormatted->subDay()->format('Y-m-d'));
+
+
+        return [
+          'first_month' => $this->getDiscount($contractId, $date, 1),//number_format((($value / 30) * $diffDays - $this->getDiscount($contractId, $date)), 2, '.', '.'),
+            'second_month' => $this->getDiscount($contractId, $date, 2),  //$value - $this->getDiscount($contractId, $date->addMonth()),
+            'activation_day' => $date->format('Y-m-d'),
+            'cut_day' => $dateCut,
+            'proportional_first_month' => $diffDays,
+            'value_plan' => $value,
+            'value_first_month' => [
+                'value_total' => $value,
+                'value_discount' => $this->getDiscount($contractId, $date, 1),
+                'value_proportional' => number_format((($value / 30) * $diffDays - $this->getDiscount($contractId, $date, 1)), 2, '.', '.')
+            ],
+            'value_second_month' => (intval($value) + intval($this->getDiscount($contractId, $date, 2))),
+        ];
+
+
+
+
+        return [$date];
+    }
+
+    private function getDiscount($contractId, $date, $month = 0)
+    {
+
+        $dateFormatted = Carbon::parse($date);
+
+        if($month === 1) {
+            $dateFormatted = Carbon::parse($dateFormatted->format('y').'-'.$dateFormatted->format('m').'-01')->format('Y-m-d');
+
+        } elseif ($month === 2) {
+            $dateFormatted = Carbon::parse($dateFormatted->format('y').'-'.$dateFormatted->addMonth()->format('m').'-01')->format('Y-m-d');
+
+        }
+
+
+        $query = 'select sum(v_total_amount) from erp.contract_eventual_values cev where cev.contract_id = '.$contractId.' and month_year = \''.$dateFormatted.'\' and cev.deleted is false';
+
+        $result = DB::connection('pgsql')->select($query);
+
+
+        return $result[0]->sum;
 
     }
 

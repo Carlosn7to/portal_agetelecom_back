@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail\BaseManagement;
+namespace App\Mail\AgeCommunicate\Base;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,20 +9,20 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendPromotion extends Mailable
+class SendBillingRule extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private $name;
+    private $template;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($template)
     {
-//        $this->name = $name;
+        $this->template = $template;
     }
 
     /**
@@ -33,7 +33,7 @@ class SendPromotion extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'A AGE Telecom tem algo especial pra você!',
+            subject: 'Send Billing Rule',
         );
     }
 
@@ -45,8 +45,8 @@ class SendPromotion extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.test',
-            with: ['name' => $this->name]
+            view: 'mail.ageCommunicate.base.billingRule.billing_rule',
+            with: ['data' => $this->template]
         );
     }
 

@@ -11,6 +11,8 @@ class SendingWhatsapp
     private string $cellphone;
     private array $variables = [];
 
+    private array $exceptions = [];
+
 
     public function __construct($template, $cellphone, $variables = [])
     {
@@ -22,7 +24,14 @@ class SendingWhatsapp
 
     public function builder()
     {
-        $this->sendingMessage();
+
+        $variable = null;
+
+        if(! empty($this->variables)) {
+            $variable = $this->variables['d'];
+        }
+
+        $this->sendingMessage($variable);
         $this->intermediary();
         $this->moveBlock();
         return $this->response();
@@ -33,34 +42,65 @@ class SendingWhatsapp
         return [
             'cellphone' => $this->cellphone,
             'template' => $this->template,
-            'variables' => $this->variables
+            'variables' => $this->variables,
+            'exceptions' => $this->exceptions
         ];
     }
 
-    private function sendingMessage()
+    private function sendingMessage($variable = null)
     {
         $client = new Client();
 
         // Cria o array com os dados a serem enviados
-        $data = [
-            "id" => uniqid(),
-            "to" => "55$this->cellphone@wa.gw.msging.net",
-            "type" => "application/json",
-            "content" => [
-                "type" => "template",
-                "template" => [
-                    "namespace" => "0c731938_5304_4f41_9ccf_f0942721dd48",
-                    "name" => "$this->template",
-                    "language" => [
-                        "code" => "PT_BR",
-                        "policy" => "deterministic"
-                    ],
-                    "components" => [
-                        // Adicione os componentes necessários aqui
+
+        if($variable > 0) {
+            $data = [
+                "id" => uniqid(),
+                "to" => "55$this->cellphone@wa.gw.msging.net",
+                "type" => "application/json",
+                "content" => [
+                    "type" => "template",
+                    "template" => [
+                        "namespace" => "0c731938_5304_4f41_9ccf_f0942721dd48",
+                        "name" => "$this->template",
+                        "language" => [
+                            "code" => "PT_BR",
+                            "policy" => "deterministic"
+                        ],
+                        "components" => [
+                            [
+                                "type" => "body",
+                                "parameters" => [
+                                    [
+                                        "type" => "text",
+                                        "text" => "$variable"
+                                    ]
+                                ]
+                            ]
+                        ]
                     ]
                 ]
-            ]
-        ];
+            ];
+        } else {
+            $data = [
+                "id" => uniqid(),
+                "to" => "55$this->cellphone@wa.gw.msging.net",
+                "type" => "application/json",
+                "content" => [
+                    "type" => "template",
+                    "template" => [
+                        "namespace" => "0c731938_5304_4f41_9ccf_f0942721dd48",
+                        "name" => "$this->template",
+                        "language" => [
+                            "code" => "PT_BR",
+                            "policy" => "deterministic"
+                        ],
+                        "components" => []
+                    ]
+                ]
+            ];
+        }
+
 
         // Faz a requisição POST usando o cliente Guzzle HTTP
         $response = $client->post('https://agetelecom.http.msging.net/messages', [
@@ -73,6 +113,9 @@ class SendingWhatsapp
 
         // Obtém o corpo da resposta
         $body = $response->getBody();
+
+
+        $this->exceptions[] = $body;
 
 
     }
@@ -104,6 +147,7 @@ class SendingWhatsapp
         // Obtém o corpo da resposta
         $body = $response->getBody();
 
+        $this->exceptions[] = $body;
 
 
     }
@@ -135,6 +179,7 @@ class SendingWhatsapp
         // Obtém o corpo da resposta
         $body = $response->getBody();
 
+        $this->exceptions[] = $body;
 
 
     }
