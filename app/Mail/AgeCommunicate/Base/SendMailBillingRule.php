@@ -13,15 +13,23 @@ class SendMailBillingRule extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private $viewName;
+    private $subjectMail;
+    private $name_client;
+    private $barcode;
+
+
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($viewName, $subject)
+    public function __construct($viewName, $subject, $name_client, $barcode)
     {
         $this->viewName = $viewName;
-        $this->subject = $subject;
+        $this->subjectMail = $subject;
+        $this->name_client = $name_client;
+        $this->barcode = $barcode;
     }
 
     /**
@@ -32,7 +40,7 @@ class SendMailBillingRule extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: $this->subject,
+            subject: $this->subjectMail,
         );
     }
 
@@ -44,7 +52,11 @@ class SendMailBillingRule extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.ageCommunicate.base.billingRule.' . $this->viewName
+            view: 'mail.ageCommunicate.base.billingRule.' . $this->viewName,
+            with: ['data' => [
+                'name_client' => $this->name_client,
+                'barcode' => $this->barcode,
+            ]]
         );
     }
 

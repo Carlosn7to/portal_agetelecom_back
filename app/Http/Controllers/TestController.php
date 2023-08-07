@@ -73,47 +73,47 @@ class TestController extends Controller
             0 => [
                 'template' => 'after_expiration_75d',
                 'subject' => 'Seu CPF será negativado... evite isso!',
-                'rule' => 0
+                'rule' => 75
             ],
             1 => [
                 'template' => 'after_expiration_80d',
                 'subject' => 'Seu CPF será negativado... evite isso!',
-                'rule' => 0
+                'rule' => 80
             ],
             2 => [
                 'template' => 'after_expiration_85d',
                 'subject' => 'Seu CPF será negativado... evite isso!',
-                'rule' => 0
+                'rule' => 85
             ],
             3 => [
                 'template' => 'alert_suspencion',
                 'subject' => 'Esse é o nosso último aviso! Não fique sem internet!',
-                'rule' => 0
+                'rule' => 14
             ],
             4 => [
                 'template' => 'delay_2d',
                 'subject' => 'Aviso importante sobre sua internet!',
-                'rule' => 0
+                'rule' => 2
             ],
             5 => [
                 'template' => 'delay_6d',
                 'subject' => 'ALERTA! Evite suspensões e bloqueios na sua internet Age Telecom',
-                'rule' => 0
+                'rule' => 6
             ],
             6 => [
                 'template' => 'missing_3d',
                 'subject' => 'Fique atento! Faltam apenas 3 dias',
-                'rule' => 0
+                'rule' => -3
             ],
             7 => [
                 'template' => 'missing_4d',
                 'subject' => 'Lembrete Importante: vencimento da sua fatura em 4 dias',
-                'rule' => 0
+                'rule' => -4
             ],
             8 => [
                 'template' => 'missing_5d',
                 'subject' => 'Lembrete - Vencimento da sua fatura Age Telecom em 5 dias',
-                'rule' => 0
+                'rule' => -5
             ],
             9 => [
                 'template' => 'negative',
@@ -123,7 +123,7 @@ class TestController extends Controller
             10 => [
                 'template' => 'suspended_sign',
                 'subject' => '[ALERTA] Aviso de suspensão de sinal',
-                'rule' => 0
+                'rule' => 15
             ],
             11 => [
                 'template' => 'today',
@@ -133,13 +133,13 @@ class TestController extends Controller
             12 => [
                 'template' => 'tomorrow',
                 'subject' => 'É Amanhã! Evite juros e multas desnecessárias!',
-                'rule' => 0
+                'rule' => -1
             ],
         ];
 
         foreach($templates as $key => $value) {
 
-            Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
+            Mail::mailer('notificacao')->to('carlos.neto@agetelecom.com.br')
                 ->send(new SendMailBillingRule($value['template'], $value['subject']));
 
             return $value;

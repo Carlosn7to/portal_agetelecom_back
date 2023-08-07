@@ -106,7 +106,7 @@ class SendingWhatsapp
         $response = $client->post('https://agetelecom.http.msging.net/messages', [
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Key YWdldGVsZWNvbXJvdXRlcjpYdlBjZWNRaUs0VTdKT2RNT2VmdQ=='
+                'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
             ],
             'json' => $data
         ]);
@@ -140,7 +140,7 @@ class SendingWhatsapp
             'json' => $data,
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Key YWdldGVsZWNvbXJvdXRlcjpYdlBjZWNRaUs0VTdKT2RNT2VmdQ=='
+                'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
             ]
         ]);
 
@@ -172,7 +172,7 @@ class SendingWhatsapp
             'json' => $data,
             'headers' => [
                 'Content-Type' => 'application/json',
-                'Authorization' => 'Key YWdldGVsZWNvbXJvdXRlcjpYdlBjZWNRaUs0VTdKT2RNT2VmdQ=='
+                'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
             ]
         ]);
 

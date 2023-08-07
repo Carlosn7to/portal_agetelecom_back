@@ -6,6 +6,7 @@ use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\Response;
 use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\SendingWhatsapp;
 use App\Http\Controllers\Controller;
 use App\Mail\AgeCommunicate\Base\SendBillingRule;
+use App\Mail\AgeCommunicate\Base\SendMailBillingRule;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -33,9 +34,10 @@ class BuilderController extends Controller
 
 
         return $this->sendMessage($data);
+//         return $this->sendEmail($data);
 
 
-//        return $this->response->constructResponse(200, 'sucesso', [], []);
+        return $this->response->constructResponse(200, 'sucesso', [], []);
     }
 
     private function sendMessage($dataWhatsapp)
@@ -184,16 +186,16 @@ class BuilderController extends Controller
                         foreach ($templates as $k => $v) {
                             if ($value->days_until_expiration == $v['d']) {
                                 if ($v['variable'] === true) {
-//                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone, ['d' => $v['d']]);
-//                                     $sendingWhatsapp->builder();
+                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone, ['d' => $v['d']]);
+                                     $sendingWhatsapp->builder();
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
                                         'client' => $value
                                     ];
                                 } else {
-//                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
-//                                     $sendingWhatsapp->builder();
+                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
+                                     $sendingWhatsapp->builder();
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
@@ -203,6 +205,8 @@ class BuilderController extends Controller
                                 $sendings['count']++;
                             }
                         }
+
+
                     } else {
                         $sendings['error'][] = $value->contract_id;
                     }
@@ -230,38 +234,173 @@ class BuilderController extends Controller
         return $sendings;
     }
 
-    private function sendEmail()
+    private function sendEmail($dataEmail)
     {
-//        $templates = [
-//            1 => ['d' => -5, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPreCobranca/Falta+5+dias.png'],
-//            2 => ['d' => -4, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPreCobranca/Falta+4+dias.png'],
-//            3 => ['d' => -3, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPreCobranca/Falta+3+dias.png'],
-//            4 => ['d' => -1, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPreCobranca/Amanh%C3%A3.png'],
-//            5 => ['d' => 0, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPreCobranca/Hoje.png'],
-//            6 => ['d' => 2, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Atraso+2+dias.png'],
-//            7 => ['d' => 3, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Atraso+copiar.png'],
-//            8 => ['d' => 6, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Atraso+6+dias.png'],
-//            9 => ['d' => 14, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Suspens%C3%A3o+Amanh%C3%A3.png'],
-//            10 => ['d' => 15, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Sinal+Suspenso.png'],
-//            11 => ['d' => 20, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Evite+a+negativa%C3%A7%C3%A3o.png'],
-//            12 => ['d' => 25, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Evite+a+negativa%C3%A7%C3%A3o.png'],
-//            13 => ['d' => 30, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Evite+a+negativa%C3%A7%C3%A3o.png'],
-//            14 => ['d' => 35, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Evite+a+negativa%C3%A7%C3%A3o.png'],
-//            15 => ['d' => 45, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Evite+a+negativa%C3%A7%C3%A3o.png'],
-//            16 => ['d' => 60, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/Evite+a+negativa%C3%A7%C3%A3o.png'],
-//            17 => ['d' => 75, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/75+dias+de+atraso.png'],
-//            18 => ['d' => 80, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/80+dias+de+atraso.png'],
-//            19 => ['d' => 85, 'template' => 'https://agenotifica.s3.sa-east-1.amazonaws.com/age/ReguaDeCobranca/ReguaPosCobranca/85+dias+de+atraso.png'],
-//        ];
-//
-//
-//        foreach($templates as $key => $value) {
-//
-//
-////            Mail::mailer('notification')->to('veronice.silva@agetelecom.com.br')
-////                    ->send(new SendBillingRule($value['template']));
-//
-//        }
+        $templates = [
+            0 => [
+                'template' => 'after_expiration_75d',
+                'subject' => 'Seu CPF será negativado... evite isso!',
+                'rule' => 75
+            ],
+            1 => [
+                'template' => 'after_expiration_80d',
+                'subject' => 'Seu CPF será negativado... evite isso!',
+                'rule' => 80
+            ],
+            2 => [
+                'template' => 'after_expiration_85d',
+                'subject' => 'Seu CPF será negativado... evite isso!',
+                'rule' => 85
+            ],
+            3 => [
+                'template' => 'alert_suspencion',
+                'subject' => 'Esse é o nosso último aviso! Não fique sem internet!',
+                'rule' => 14
+            ],
+            4 => [
+                'template' => 'delay_2d',
+                'subject' => 'Aviso importante sobre sua internet!',
+                'rule' => 2
+            ],
+            5 => [
+                'template' => 'delay_6d',
+                'subject' => 'ALERTA! Evite suspensões e bloqueios na sua internet Age Telecom',
+                'rule' => 6
+            ],
+            6 => [
+                'template' => 'missing_3d',
+                'subject' => 'Fique atento! Faltam apenas 3 dias',
+                'rule' => -3
+            ],
+            7 => [
+                'template' => 'missing_4d',
+                'subject' => 'Lembrete Importante: vencimento da sua fatura em 4 dias',
+                'rule' => -4
+            ],
+            8 => [
+                'template' => 'missing_5d',
+                'subject' => 'Lembrete - Vencimento da sua fatura Age Telecom em 5 dias',
+                'rule' => -5
+            ],
+            9 => [
+                'template' => 'negative',
+                'subject' => 'Essa é a sua chance de evitar a negativação do seu CPF',
+                'rule' => [20, 25, 30, 35, 45, 60]
+            ],
+            10 => [
+                'template' => 'suspended_sign',
+                'subject' => '[ALERTA] Aviso de suspensão de sinal',
+                'rule' => 15
+            ],
+            11 => [
+                'template' => 'today',
+                'subject' => 'Último dia! Pague seu boleto hoje.',
+                'rule' => 0
+            ],
+            12 => [
+                'template' => 'tomorrow',
+                'subject' => 'É Amanhã! Evite juros e multas desnecessárias!',
+                'rule' => -1
+            ],
+        ];
+
+        $sendings = [
+            'success' => [],
+            'count' => 0,
+            'error' => []
+        ];
+
+
+
+        $data = collect($dataEmail);
+
+        $data = $data->unique('email');
+
+
+
+        try {
+            // Defina o número máximo de iterações por segundo
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+            // Tempo inicial do loop
+            $startTime = microtime(true);
+
+            foreach ($data as $key => $value) {
+                try {
+
+
+                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
+                        foreach ($templates as $k => $v) {
+                            if ($value->days_until_expiration == $v['rule']) {
+
+                                Mail::mailer('notificacao')->to('carlos.neto@agetelecom.com.br')
+                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name_client, $value->barcode));
+
+
+
+                                $sendings['success'][] = [
+                                    'template' => $v['template'],
+                                    'client' => $value
+                                ];
+                                $sendings['count']++;
+                            }
+
+
+                            if(is_array($v['rule'])){
+
+                                if(in_array($value->days_until_expiration, $v['rule'])) {
+
+                                    return [
+                                      $value->name_client,
+                                        $value->barcode,
+                                        $v['template'],
+                                        $v['subject']
+                                    ];
+
+
+//                                    Mail::mailer('notificacao')->to('carlos.neto@agetelecom.com.br')
+//                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name_client, $value->barcode));
+
+
+
+                                    $sendings['success'][] = [
+                                        'template' => $v['template'],
+                                        'client' => $value
+                                    ];
+                                    $sendings['count']++;
+                                }
+
+                            }
+                        }
+
+
+                    } else {
+                        $sendings['error'][] = $value->contract_id;
+                    }
+                } catch (\Exception $e) {
+                    $e;
+                }
+
+                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+                $elapsedTime = microtime(true) - $startTime;
+                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                if ($remainingMicroseconds > 0) {
+                    usleep($remainingMicroseconds);
+                }
+
+                // Atualiza o tempo inicial para a próxima iteração
+                $startTime = microtime(true);
+
+            }
+        } catch (\Exception $e) {
+            $e;
+        }
+
+
+
+        return $sendings;
 
     }
 
@@ -273,6 +412,7 @@ class BuilderController extends Controller
             SELECT
                 c.id AS "contract_id",
                 p.email AS "email",
+                p.v_name AS "name",
                 CASE
                     WHEN p.cell_phone_1 IS NOT NULL THEN p.cell_phone_1
                     ELSE p.cell_phone_2
@@ -289,11 +429,13 @@ class BuilderController extends Controller
             LEFT JOIN erp.financial_receivable_titles frt ON frt.contract_id = c.id
             WHERE
                 c.v_stage = \'Aprovado\'
+                and c.v_status != \'Cancelado\'
                 AND frt.competence >= \'2023-05-01\'
                 AND frt.deleted IS FALSE
                 AND frt.finished IS FALSE
                 AND frt.title LIKE \'%FAT%\'
-                and frt.p_is_receivable is true';
+                and frt.p_is_receivable is true
+            ';
 
         return $query;
 
