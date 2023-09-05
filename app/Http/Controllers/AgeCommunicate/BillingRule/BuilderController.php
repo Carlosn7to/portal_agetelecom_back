@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\AgeCommunicate\Base\SendBillingRule;
 use App\Mail\AgeCommunicate\Base\SendMailBillingRule;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -27,14 +28,16 @@ class BuilderController extends Controller
     {
         set_time_limit(2000000000);
 
+
         $query = $this->getQuery();
 
         $data = DB::connection('pgsql')->select($query);
 
 
 
-        return $this->sendMessage($data);
-//         return $this->sendEmail($data);
+        $this->sendMessage($data);
+        $this->sendEmail($data);
+        $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [], []);
@@ -177,7 +180,7 @@ class BuilderController extends Controller
             $microsecondsPerSecond = 1000000;
             $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
 
-                // Tempo inicial do loop
+//                 Tempo inicial do loop
             $startTime = microtime(true);
 
             foreach ($data as $key => $value) {
@@ -318,6 +321,8 @@ class BuilderController extends Controller
 
 
 
+        $limit = 0;
+
         try {
             // Defina o número máximo de iterações por segundo
             $maxIterationsPerSecond = 150;
@@ -331,12 +336,16 @@ class BuilderController extends Controller
                 try {
 
 
-                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
+                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL) && $limit < 8000) {
                         foreach ($templates as $k => $v) {
                             if ($value->days_until_expiration == $v['rule']) {
 
-                                Mail::mailer('notificacao')->to('carlos.neto@agetelecom.com.br')
-                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name_client, $value->barcode));
+                                $limit++;
+
+                                Mail::mailer('fat')->to($value->email)
+                                    ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
+
+
 
 
 
@@ -351,23 +360,155 @@ class BuilderController extends Controller
                             if(is_array($v['rule'])){
 
                                 if(in_array($value->days_until_expiration, $v['rule'])) {
-
-                                    return [
-                                      $value->name_client,
-                                        $value->barcode,
-                                        $v['template'],
-                                        $v['subject']
-                                    ];
+                                    $limit++;
 
 
-//                                    Mail::mailer('notificacao')->to('carlos.neto@agetelecom.com.br')
-//                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name_client, $value->barcode));
-
+                                    Mail::mailer('fat')->to($value->email)
+                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
 
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
                                         'client' => $value
+                                    ];
+                                    $sendings['count']++;
+                                }
+
+                            }
+                        }
+
+
+                    } else {
+//                        $sendings['error'][] = $value->email;
+                    }
+                } catch (\Exception $e) {
+                    $e;
+                }
+
+//                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+                $elapsedTime = microtime(true) - $startTime;
+                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                if ($remainingMicroseconds > 0) {
+                    usleep($remainingMicroseconds);
+                }
+
+                // Atualiza o tempo inicial para a próxima iteração
+                $startTime = microtime(true);
+
+            }
+        } catch (\Exception $e) {
+            $e;
+        }
+
+
+
+        return $sendings;
+
+    }
+
+    private function sendSMS($data)
+    {
+        $templates = [
+            0 => [
+                'day' => [-4, -5],
+                'template' => "AGE Telecom:\nFaltam {day} dias p/ o vencimento da sua fatura. Codigo de barras: {barcode}\n\nJa pagou? Desconsidere"
+            ],
+            1 => [
+                'day' => [-1],
+                'template' => "AGE Telecom:\nAmanha é o ultimo dia p/ pagar sua fatura e evitar juros e multas. Codigo de barras: {barcode}\n\nJa pagou? Desconsidere."
+            ],
+            2 => [
+                'day' => [0],
+                'template' => "AGE Telecom:\nHoje é o ultimo dia p/ pagar sua fatura e evitar juros e multas. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+            ],
+            3 => [
+                'day' => [3, 7],
+                'template' => "Age Telecom:\nFatura AGE com {day} dias de atraso. Evite a suspensao do sinal. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+            ],
+            4 => [
+                'day' => [14],
+                'template' => "Age Telecom:\nSua conexao sera suspensa amanha. Evite esse transtorno e regularize sua situação. Codigo de barras {barcode}.\n\nJa pagou? Desconsidere."
+            ],
+            5 => [
+                'day' => [15],
+                'template' => "Age Telecom:\nSua conexao foi bloqueada por conta do débito. Regularize sua situação. Código de barras: {barcode}\n\nJa pagou? Desconsidere."
+            ],
+            6 => [
+                'day' => [20, 30, 40, 50],
+                'template' => "AGE Telecom:\nSua fatura está vencida ha {day} dias. Evite a negativação do seu CPF, regularize o seu débito. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+            ],
+            7 => [
+                'day' => [75, 85],
+                'template' => "AGE Telecom:\nEvite o cancelamento do seu contrato e negativação do seu CPF. Regularize o seu debito. Código de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+            ]
+        ];
+
+
+        $data = collect($data);
+
+        $data = $data->unique('phone');
+
+        $sendings = [
+            'success' => [],
+            'count' => 0,
+            'error' => []
+        ];
+
+        $client = new Client();
+
+        try {
+            // Defina o número máximo de iterações por segundo
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+//                 Tempo inicial do loop
+            $startTime = microtime(true);
+
+            foreach ($data as $key => $value) {
+
+
+                try {
+                    if (isset($value->phone)) {
+
+
+                        foreach ($templates as $k => $v) {
+
+
+                            if(is_array($v['day'])){
+
+                                if(in_array($value->days_until_expiration, $v['day'])) {
+
+
+                                    $template = str_replace('{day}', abs($value->days_until_expiration), $v['template']);
+                                    $template = str_replace('{barcode}', $value->barcode, $template);
+
+
+                                    // Cria o array com os dados a serem enviados
+
+                                    $data = [
+                                        "id" => uniqid(),
+                                        "to" => "+55$value->phone@sms.gw.msging.net",
+                                        "type" => "text/plain",
+                                        "content" => "$template"
+                                    ];
+
+                                    // Faz a requisição POST usando o cliente Guzzle HTTP
+                                    $response = $client->post('https://agetelecom.http.msging.net/messages', [
+                                        'headers' => [
+                                            'Content-Type' => 'application/json',
+                                            'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+                                        ],
+                                        'json' => $data
+                                    ]);
+
+                                    // Obtém o corpo da resposta
+                                    $body = $response->getBody();
+
+
+                                    $sendings['success'][] = [
+                                        'template' => $template,
+                                        'client' => $value->name
                                     ];
                                     $sendings['count']++;
                                 }
@@ -398,9 +539,8 @@ class BuilderController extends Controller
             $e;
         }
 
-
-
         return $sendings;
+
 
     }
 

@@ -28,9 +28,11 @@ use App\Models\AgeRv\CollaboratorMeta;
 use App\Models\AgeRv\Commission;
 use App\Models\AgeRv\Plan;
 use App\Models\AgeRv\VoalleSales;
+use App\Models\AWS\Admin\Payroll;
 use App\Models\Test;
 use App\Models\User;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -67,7 +69,207 @@ class TestController extends Controller
 
     public function index(Request $request)
     {
-        set_time_limit(200000);
+        set_time_limit(200000000);
+
+        $client = new Client();
+
+        // Cria o array com os dados a serem enviados
+        $data = [
+            "id" => uniqid(),
+            "to" => "+5561984700440@sms.gw.msging.net",
+            "type" => "text/plain",
+            "content" => "Ola \nteste"
+        ];
+
+        // Faz a requisição POST usando o cliente Guzzle HTTP
+        $response = $client->post('https://agetelecom.http.msging.net/messages', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+            ],
+            'json' => $data
+        ]);
+
+        // Obtém o corpo da resposta
+        $body = $response->getBody();
+
+        dd($response);
+
+        return $response;
+
+
+        return true;
+
+        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+
+        try {
+            // Defina o número máximo de iterações por segundo
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+            // Tempo inicial do loop
+            $startTime = microtime(true);
+
+            foreach ($array[1] as $key => $value) {
+                try {
+
+                    if (filter_var($value[0], FILTER_VALIDATE_EMAIL)) {
+                        $mail = Mail::mailer('notification')->to($value[0])
+                            ->send(new SendOutstandingDebts($value[1]));
+
+
+                    }
+                } catch (\Exception $e) {
+                    $e;
+                }
+
+//                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+                $elapsedTime = microtime(true) - $startTime;
+                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                if ($remainingMicroseconds > 0) {
+                    usleep($remainingMicroseconds);
+                }
+
+                // Atualiza o tempo inicial para a próxima iteração
+                $startTime = microtime(true);
+
+            }
+        } catch (\Exception $e) {
+            $e;
+        }
+
+        return "Ok";
+
+
+//        $query = 'select distinct p.email, c.id, p.v_name  from erp.people p
+//                    left join erp.contracts c on c.client_id = p.id
+//                    where c.v_stage = \'Aprovado\' and c.v_status != \'Cancelado\' and c.id > 85000';
+//
+//        $peoples = DB::connection('pgsql')->select($query);
+//
+//
+//        $data = collect($peoples);
+//
+//        try {
+//            // Defina o número máximo de iterações por segundo
+//            $maxIterationsPerSecond = 150;
+//            $microsecondsPerSecond = 1000000;
+//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+//
+//            // Tempo inicial do loop
+//            $startTime = microtime(true);
+//
+//            foreach ($data as $key => $value) {
+//                try {
+//
+//                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
+//                        $mail = Mail::mailer('notification')->to($value->email)
+//                            ->send(new SendMailBillingRule('manutence',
+//                                '🔧 Aviso Importante: Manutenção Programada na Rede - 16/08/2023 🔧', $value->v_name, '0'));
+//
+//                    }
+//                } catch (\Exception $e) {
+//                    $e;
+//                }
+//
+////                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+//                $elapsedTime = microtime(true) - $startTime;
+//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+//                if ($remainingMicroseconds > 0) {
+//                    usleep($remainingMicroseconds);
+//                }
+//
+//                // Atualiza o tempo inicial para a próxima iteração
+//                $startTime = microtime(true);
+//
+//            }
+//        } catch (\Exception $e) {
+//            $e;
+//        }
+//
+
+
+        return "ok";
+
+
+        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+
+        $payroll = new Payroll();
+
+        foreach($array[0] as $key => $value) {
+
+
+            $excelBaseDate = Carbon::create(1900, 1, 1); // Data base do Excel
+
+            $realDate = $excelBaseDate->addDays($value[6] - 2); // Subtrai 2 para ajustar para a data base do Excel
+
+
+            if($value[0] === 93) {
+                $excelDateTimeValue = $value[23]; // O valor serial de data e hora do Excel
+                $excelBaseDate = Carbon::create(1900, 1, 1); // Data base do Excel
+
+                $days = floor($excelDateTimeValue); // Parte inteira representa os dias
+                $timeFraction = $excelDateTimeValue - $days; // Parte decimal representa a fração do dia
+
+                $realDate = $excelBaseDate->addDays($days - 2); // Subtrai 2 para ajustar para a data base do Excel
+
+                $totalSecondsInDay = 24 * 60 * 60;
+                $seconds = round($timeFraction * $totalSecondsInDay); // Converte a fração em segundos
+
+                $realDate->addSeconds($seconds);
+
+                return $realDate->format('H:i:s');
+            }
+
+            $payroll->create([
+                'codigo' => $value[0],
+                'nome' => $value[1],
+                'cargo' => $value[2],
+                'salario' => $value[3],
+                'adicional_30' => $value[5],
+                'adicional_40' => $value[4],
+                'data_admissao' => $realDate->format('Y-m-d'),
+                'st' => $value[7],
+                'data_st' => $value[8] !== '' ? $value[8] : 0,
+                'observacao' => $value[9],
+                'dias_atm' => $value[10],
+                'descricao_dias_atm' => $value[11],
+                'cid_atm' => $value[12],
+                'dias_faltas' => $value[13],
+                'descricao_dias_faltas' => $value[14],
+                'dias_bh' => $value[15],
+                'descricao_dias_bh' => $value[16],
+                'observacao_2' => $value[17],
+                'sabados_trabalhados' => $value[18],
+                'descricao_sabados_trabalhados' => $value[19],
+                'dias_va_extra' => $value[20],
+                'descricao_horas_mais' => $value[21],
+                'quantidade_va' => $value[22],
+                'horas_sobreaviso' => $value[23],
+                'horas_adn' => $value[24],
+                'horas_extras_50' => $value[25],
+                'horas_extras_100' => $value[26],
+                'anuenio' => $value[27],
+                'adc_condutor_autorizado' => $value[28],
+                'placa_carro' => $value[29],
+                'plano_saude_titular' => $value[30],
+                'plano_saude_dependente' => $value[31],
+                'plano_saude_desconto_total' => $value[32],
+                'valor_va_mes_anterior' => $value[33],
+                'calculo_desconto_va' => $value[34],
+                'mensalidade_sindical' => $value[35],
+                'desconto_avaria_veiculo' => $value[36],
+                'banco' => $value[37]
+            ]);
+        }
+
+        return $array[0];
+
+
+
+        return true;
+
 
         $templates = [
             0 => [

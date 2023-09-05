@@ -41,7 +41,6 @@ class ReportController extends Controller
            'banco_solicitado' => $request->input('database'),
            'isPeriodo' => $request->input('isPeriod'),
            'isPeriodoHora' => $request->input('isPeriodHour'),
-           'url' => 'sem_url'
         ]);
 
         if(isset($report->id)) {

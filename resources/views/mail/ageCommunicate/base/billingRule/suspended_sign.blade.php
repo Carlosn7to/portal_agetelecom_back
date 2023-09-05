@@ -94,7 +94,7 @@
     </header>
     <main class="mainContent">
         <section class="mainTitle">
-            <h1 style="color: #E60201; text-align: start">Olá, {usuario}</h1>
+            <h1 style="color: #E60201; text-align: start">Olá, {{$name_client}}</h1>
         </section>
         <section>
             <div class="content">
@@ -114,7 +114,7 @@
                 </div>
                 <div class="codeBar" style="text-align: center;">
                     <p>Aqui está o código de barras para o pagamento da sua fatura:</p>
-                    <span>xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+                    <span>{{ $barcode }}</span>
                 </div>
                 <div style="text-align: justify; font-weight: 500;">
                     <div class="lastContent">

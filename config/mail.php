@@ -97,7 +97,7 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS_FAT'),
-                'name' => 'Fatura Age Telecom'
+                'name' => 'Aviso Age Telecom'
             ]
         ],
 

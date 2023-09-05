@@ -24,7 +24,7 @@ class SendMailBillingRule extends Mailable
      *
      * @return void
      */
-    public function __construct($viewName, $subject, $name_client, $barcode)
+    public function __construct($viewName, $subject, $name_client = 'teste', $barcode = 'teste')
     {
         $this->viewName = $viewName;
         $this->subjectMail = $subject;
@@ -52,11 +52,8 @@ class SendMailBillingRule extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.ageCommunicate.base.billingRule.' . $this->viewName,
-            with: ['data' => [
-                'name_client' => $this->name_client,
-                'barcode' => $this->barcode,
-            ]]
+            view: 'mail.ageCommunicate.base.manutence.' . $this->viewName,
+            with: ['name_client' => $this->name_client, 'barcode' => $this->barcode],
         );
     }
 

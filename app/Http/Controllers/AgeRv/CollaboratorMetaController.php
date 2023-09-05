@@ -179,32 +179,42 @@ class CollaboratorMetaController extends Controller
 
         $collabs = [];
         $errors = [];
-        $meta = 29;
-
-
+        $meta = 28;
 
         foreach($array[0] as $key => $value) {
             $collabs[] = [
                 'name' => trim($value[0]),
-                'function' => trim($value[1]),
-                'channel' => trim($value[2]),
-                'admmission' => Carbon::createFromFormat('d/m/Y', $value[3])->format('m'),
+                'channel' => trim($value[1]),
+                'admmission' => Carbon::createFromFormat('d/m/Y', $value[2])->format('m'),
                 'meta' => 0
             ];
         }
+
 
         foreach($collabs as $key => $value) {
             if(str_contains($value['channel'],"Comercial - PAP") ||
                 str_contains($value['channel'], "Comercial - QUIOQUE") ||
                 $value['channel'] === 'Comercial') {
 
-                if($value['admmission'] === '04') {
+                if($value['admmission'] === '05') {
                     $collabs[$key]['meta'] = $meta * 0.75;
-                } elseif ($value['admmission'] === '05') {
+                } elseif ($value['admmission'] === '06') {
                     $collabs[$key]['meta'] = $meta * 0.5;
                 }
 
             }
+
+
+            if(str_contains($value['channel'],"Comercial - MCV")) {
+
+                if($value['admmission'] === '05') {
+                    $collabs[$key]['meta'] = 104 * 0.75;
+                } elseif ($value['admmission'] === '06') {
+                    $collabs[$key]['meta'] = 104 * 0.5;
+                }
+
+        }
+
         }
 
 

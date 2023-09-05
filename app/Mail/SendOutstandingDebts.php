@@ -32,7 +32,7 @@ class SendOutstandingDebts extends Mailable
     {
         return $this->view('mail.outstanding_debts')
             ->from('notificacao@agetelecom.com.br')
-            ->subject('Débitos pendentes')
+            ->subject('URGENTE – AVISO DE PENDÊNCIA FINANCEIRA')
             ->with(['name' => $this->name]);
     }
 }
