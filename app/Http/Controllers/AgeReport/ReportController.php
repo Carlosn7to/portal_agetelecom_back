@@ -130,6 +130,9 @@ class ReportController extends Controller
 
                 }
             }
+
+            $this->report->query = str_replace('{{paramnsColumn}}', $paramnsMounted, $this->report->query);
+
         } else {
             $paramnsMounted = '';
 
@@ -148,7 +151,6 @@ class ReportController extends Controller
         }
 
 
-        $this->report->query = str_replace('{{paramnsColumn}}', $paramnsMounted, $this->report->query);
 
 
         if($request->has('date')) {
