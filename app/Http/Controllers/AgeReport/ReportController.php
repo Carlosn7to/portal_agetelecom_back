@@ -96,7 +96,6 @@ class ReportController extends Controller
     public function download(Request $request, $id)
     {
 
-
         $this->report = Report::find($id);
 
 
@@ -104,11 +103,12 @@ class ReportController extends Controller
         ini_set('memory_limit', '2048M');
 
         $query = $this->report->query;
-
         $this->paramns = json_decode($this->report->parametros);
+
         $this->headers = [];
 
         if($request->has('paramnsId')) {
+
             $paramnsId = $request->paramnsId;
             $paramnsMounted = '';
 
@@ -131,7 +131,6 @@ class ReportController extends Controller
                 }
             }
 
-            $this->report->query = str_replace('{{paramnsColumn}}', $paramnsMounted, $this->report->query);
 
         } else {
             $paramnsMounted = '';
@@ -141,7 +140,7 @@ class ReportController extends Controller
                     $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
 
                     // Verifica se não é o último item antes de adicionar a vírgula
-                    if ($key < count($paramnsId) - 1) {
+                    if ($k < count($this->paramns) - 1) {
                         $paramnsMounted .= ', ';
                     }
 
@@ -150,6 +149,7 @@ class ReportController extends Controller
                 }
         }
 
+        $this->report->query = str_replace('{{paramnsColumn}}', $paramnsMounted, $this->report->query);
 
 
 
