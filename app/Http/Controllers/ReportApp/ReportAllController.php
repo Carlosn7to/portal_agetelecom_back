@@ -23,9 +23,12 @@ class ReportAllController extends Controller
 
         if($level === 2 || $level === 3 ||
             ($permission->funcao_id === 8 || $permission->funcao_id === 4)) {
-            $reports = Report::all(['nome', 'nome_arquivo', 'isPeriodo','isPeriodoHora', 'id', 'cabecalhos']);
+            $reports = Report::all(['nome', 'nome_arquivo', 'isPeriodo','isPeriodoHora', 'id', 'cabecalhos', 'parametros']);
 
             $reports->map(function ($report) {
+
+                $report->parametros = json_decode($report->parametros);
+
                 // Divida a string de cabeçalho em um array usando ";" como delimitador
                 $cabecalhos = explode(';', $report->cabecalhos);
 
@@ -51,7 +54,7 @@ class ReportAllController extends Controller
         $reports = DB::table('agereport_relatorios as r')
             ->leftJoin('agereport_relatorios_permissoes as rp', 'r.id', 'rp.relatorio_id')
             ->where('rp.user_id', auth()->user()->id)
-            ->get(['r.nome', 'r.nome_arquivo', 'r.isPeriodo', 'r.isPeriodoHora', 'r.id']);
+            ->get(['r.nome', 'r.nome_arquivo', 'r.isPeriodo', 'r.isPeriodoHora', 'r.id', 'r.parametros']);
 
         return $reports;
     }

@@ -71,27 +71,62 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
-        $client = new Client();
+        $report = Report::find(1);
 
-        // Cria o array com os dados a serem enviados
-        $data = [
-            "id" => uniqid(),
-            "to" => "+5561984700440@sms.gw.msging.net",
-            "type" => "text/plain",
-            "content" => "Ola \nteste"
-        ];
+        $query = $report->query;
 
-        // Faz a requisição POST usando o cliente Guzzle HTTP
-        $response = $client->post('https://agetelecom.http.msging.net/messages', [
-            'headers' => [
-                'Content-Type' => 'application/json',
-                'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
-            ],
-            'json' => $data
-        ]);
+        $paramns = json_decode($report->parametros);
 
-        // Obtém o corpo da resposta
-        $body = $response->getBody();
+        $ids = [1,2,3];
+        $paramnsMounted = '';
+
+
+        foreach($ids as $key => $value) {
+
+            foreach($paramns as $k => $v) {
+
+                if($value === $v->id) {
+                    $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
+
+                    // Verifica se não é o último item antes de adicionar a vírgula
+                    if ($key < count($ids) - 1) {
+                        $paramnsMounted .= ', ';
+                    }
+                }
+
+            }
+        }
+
+
+        $query = str_replace('{{paramnsColumn}}', $paramnsMounted, $query);
+
+        $result = DB::connection($report->banco_solicitado)->select($query);
+
+
+        return $result;
+
+
+//        $client = new Client();
+//
+//        // Cria o array com os dados a serem enviados
+//        $data = [
+//            "id" => uniqid(),
+//            "to" => "+5561984700440@sms.gw.msging.net",
+//            "type" => "text/plain",
+//            "content" => "Ola \nteste"
+//        ];
+//
+//        // Faz a requisição POST usando o cliente Guzzle HTTP
+//        $response = $client->post('https://agetelecom.http.msging.net/messages', [
+//            'headers' => [
+//                'Content-Type' => 'application/json',
+//                'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+//            ],
+//            'json' => $data
+//        ]);
+//
+//        // Obtém o corpo da resposta
+//        $body = $response->getBody();
 
         dd($response);
 

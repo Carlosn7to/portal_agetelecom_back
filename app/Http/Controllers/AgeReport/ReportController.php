@@ -99,8 +99,56 @@ class ReportController extends Controller
 
         $this->report = Report::find($id);
 
+
         set_time_limit(2000);
         ini_set('memory_limit', '2048M');
+
+        $query = $this->report->query;
+
+        $this->paramns = json_decode($this->report->parametros);
+        $this->headers = [];
+
+        if($request->has('paramnsId')) {
+            $paramnsId = $request->paramnsId;
+            $paramnsMounted = '';
+
+
+            foreach($paramnsId as $key => $value) {
+
+                foreach($this->paramns as $k => $v) {
+
+                    if($value == $v->id) {
+                        $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
+
+                        // Verifica se não é o último item antes de adicionar a vírgula
+                        if ($key < count($paramnsId) - 1) {
+                            $paramnsMounted .= ', ';
+                        }
+
+                        $this->headers[] = $v->name;
+                    }
+
+                }
+            }
+        } else {
+            $paramnsMounted = '';
+
+
+                foreach($this->paramns as $k => $v) {
+                    $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
+
+                    // Verifica se não é o último item antes de adicionar a vírgula
+                    if ($key < count($paramnsId) - 1) {
+                        $paramnsMounted .= ', ';
+                    }
+
+                    $this->headers[] = $v->name;
+
+                }
+        }
+
+
+        $this->report->query = str_replace('{{paramnsColumn}}', $paramnsMounted, $this->report->query);
 
 
         if($request->has('date')) {
@@ -165,17 +213,12 @@ class ReportController extends Controller
         ini_set('memory_limit', '6144M');
 
         $i = substr_count($this->report->cabecalhos, ';');
-        $headers = explode(';', $this->report->cabecalhos);
-        $arrHeaders = [];
 
-        for($x = 0; $i > $x; $x++) {
-            $arrHeaders[] = $headers[$x];
-        }
 
         $result = DB::connection($this->report->banco_solicitado)->select($query);
 
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new ReportExport($result, $arrHeaders), $this->report->nome_arquivo);
+        return \Maatwebsite\Excel\Facades\Excel::download(new ReportExport($result, $this->headers), $this->report->nome_arquivo);
 
     }
 }
