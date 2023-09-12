@@ -11,6 +11,7 @@ use App\Http\Controllers\Ixc\Api\WebserviceClient;
 use App\Http\Controllers\Mail\Billing\EquipDivideController;
 use App\Http\Requests\AgeControl\ConductorStoreRequest;
 use App\Ldap\UserLdap;
+use App\Mail\AgeCommunicate\Base\SCPC\SendSCPC;
 use App\Mail\AgeCommunicate\Base\SendMailBillingRule;
 use App\Mail\BaseManagement\SendPromotion;
 use App\Mail\Portal\SendNewUser;
@@ -71,39 +72,136 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
-        $report = Report::find(1);
-
-        $query = $report->query;
-
-        $paramns = json_decode($report->parametros);
-
-        $ids = [1,2,3];
-        $paramnsMounted = '';
+        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
 
-        foreach($ids as $key => $value) {
+        $client = new Client();
 
-            foreach($paramns as $k => $v) {
+        foreach($array[0] as $key => $value) {
 
-                if($value === $v->id) {
-                    $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
+            $data = [
+                "id" => uniqid(),
+                "to" => "55$value[0]@wa.gw.msging.net",
+                "type" => "application/json",
+                "content" => [
+                    "type" => "template",
+                    "template" => [
+                        "name" => "envio_carta_spc_1",
+                        "language" => [
+                            "code" => "pt_BR",
+                            "policy" => "deterministic"
+                        ],
+                        "components" => [
+                            [
+                                "type" => "header",
+                                "parameters" => [
+                                    [
+                                        "type" => "document",
+                                        "document" => [
+                                            "filename" => "Comunicado_SCPC.pdf",
+                                            "link" => "https://comunicascpc.s3.sa-east-1.amazonaws.com/Comunicado+SCPC.pdf"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
 
-                    // Verifica se não é o último item antes de adicionar a vírgula
-                    if ($key < count($ids) - 1) {
-                        $paramnsMounted .= ', ';
-                    }
-                }
+            // Faz a requisição POST usando o cliente Guzzle HTTP
+            $response = $client->post('https://agetelecom.http.msging.net/messages', [
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
+                ],
+                'json' => $data
+            ]);
 
-            }
+            // Cria o array com os dados a serem enviados
+            $data = [
+                "id" => uniqid(),
+                "to" => "postmaster@msging.net",
+                "method" => "set",
+                "uri" => "/contexts/55$value[0]@wa.gw.msging.net/Master-State",
+                "type" => "text/plain",
+                "resource" => "contatoativoenviodefatura"
+            ];
+
+            // Faz a requisição POST usando o cliente Guzzle HTTP
+            $response = $client->post('https://agetelecom.http.msging.net/commands', [
+                'json' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
+                ]
+            ]);
+
+            $data = [
+                "id" => uniqid(),
+                "to" => "postmaster@msging.net",
+                "method" => "set",
+                "uri" => "/contexts/55$value[0]@wa.gw.msging.net/stateid@684abf3b-a37b-4c29-bb28-4600739efde0",
+                "type" => "text/plain",
+                "resource" => "dd01df6a-c228-40af-91d7-e5ef0c88a3b3"
+            ];
+
+            // Faz a requisição POST usando o cliente Guzzle HTTP
+            $response = $client->post('https://agetelecom.http.msging.net/commands', [
+                'json' => $data,
+                'headers' => [
+                    'Content-Type' => 'application/json',
+                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
+                ]
+            ]);
+
+            // Obtém o corpo da resposta
+            $body = $response->getBody();
         }
 
-
-        $query = str_replace('{{paramnsColumn}}', $paramnsMounted, $query);
-
-        $result = DB::connection($report->banco_solicitado)->select($query);
+        return true;
 
 
-        return $result;
+//        $report = Report::find(16);
+//
+//        $query = $report->query;
+//
+//        $paramns = json_decode($report->parametros);
+//
+//        $ids = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+//        $paramnsMounted = '';
+//
+//
+//        foreach($ids as $key => $value) {
+//
+//            foreach($paramns as $k => $v) {
+//
+//                if($value === $v->id) {
+//                    $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
+//
+//                    // Verifica se não é o último item antes de adicionar a vírgula
+//                    if ($key < count($ids) - 1) {
+//                        $paramnsMounted .= ', ';
+//                    }
+//                }
+//
+//            }
+//        }
+//
+//
+//        $query = str_replace('{{paramnsColumn}}', $paramnsMounted, $query);
+//
+////        return $query;
+//
+//        $result = DB::connection($report->banco_solicitado)->select($query);
+
+
+//        $mail = Mail::mailer('warning')->to('diegocliimaa4@gmail.com')
+//                            ->send(new SendSCPC('Carlos Neto', '291.293.910-20', '22.931.021/0001-20', 'Rua Arniqueiras', '123456', 'FAT', 'R$ 100,00', '10/10/2021'));
+//
+//
+//
+//        return response()->json($mail, 202);
 
 
 //        $client = new Client();
@@ -111,7 +209,7 @@ class TestController extends Controller
 //        // Cria o array com os dados a serem enviados
 //        $data = [
 //            "id" => uniqid(),
-//            "to" => "+5561984700440@sms.gw.msging.net",
+//            "to" => "+55$value[0]@sms.gw.msging.net",
 //            "type" => "text/plain",
 //            "content" => "Ola \nteste"
 //        ];

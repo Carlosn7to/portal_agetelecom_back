@@ -100,7 +100,20 @@ return [
                 'name' => 'Aviso Age Telecom'
             ]
         ],
-
+        'warning' => [
+            'transport' => 'smtp',
+            'host' => env('MAIL_HOST_WARNING', 'smtp.mailgun.org'),
+            'port' => env('MAIL_PORT_WARNING', 587),
+            'encryption' => env('MAIL_ENCRYPTION_WARNING', 'tls'),
+            'username' => env('MAIL_USERNAME_WARNING'),
+            'password' => env('MAIL_PASSWORD_WARNING'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            'from' => [
+                'address' => env('MAIL_FROM_ADDRESS_WARNING'),
+                'name' => 'Aviso Age Telecom'
+            ]
+        ],
         'ses' => [
             'transport' => 'ses',
         ],

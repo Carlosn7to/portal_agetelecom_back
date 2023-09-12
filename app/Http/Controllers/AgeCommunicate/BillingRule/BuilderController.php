@@ -35,12 +35,16 @@ class BuilderController extends Controller
 
 
 
-        $this->sendMessage($data);
-        $this->sendEmail($data);
-        $this->sendSMS($data);
+        $whatsapp = $this->sendMessage($data);
+        $email = $this->sendEmail($data);
+        $sms = $this->sendSMS($data);
 
 
-        return $this->response->constructResponse(200, 'sucesso', [], []);
+        return $this->response->constructResponse(200, 'sucesso', [
+            'whatsapp' => $whatsapp,
+            'email' => $email,
+            'sms' => $sms
+        ], []);
     }
 
     private function sendMessage($dataWhatsapp)
@@ -52,109 +56,127 @@ class BuilderController extends Controller
             0 => [
                 'd' => -5,
                 'template' => 'pre_vencimento__1_',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
             ],
             1 => [
                 'd' => -4,
                 'template' => 'pre_vencimento__1_',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
 
             ],
             2 => [
                 'd' => -1,
                 'template' => 'pre_vencimento__2',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             3 => [
                 'd' => -0,
                 'template' => 'pre_vencimento__3',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             // Pós-vencimento
             4 => [
                 'd' => 3,
                 'template' => 'pos_vencimento__1',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
 
             ],
             5 => [
                 'd' => 4,
                 'template' => 'pos_vencimento__1',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
 
             ],
             6 => [
                 'd' => 14,
                 'template' => 'pos_vencimento__2',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             7 => [
                 'd' => 15,
                 'template' => 'pos_vencimento__3_',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             8 => [
                 'd' => 20,
                 'template' => 'pos_vencimento__4',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             9 => [
                 'd' => 21,
                 'template' => 'pos_vencimento__4',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             10 => [
                 'd' => 30,
                 'template' => 'pos_vencimento__5',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
 
             ],
             11 => [
                 'd' => 31,
                 'template' => 'pos_vencimento__5',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
 
             ],
             12 => [
                 'd' => 45,
                 'template' => 'pos_vencimento__5',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
 
             ],
             13 => [
                 'd' => 46,
                 'template' => 'pos_vencimento__5',
-                'variable' => true
+                'variable' => true,
+                'sendings' => 0
 
             ],
             14 => [
                 'd' => 75,
                 'template' => 'pos_vencimento__6',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             15 => [
                 'd' => 76,
                 'template' => 'pos_vencimento__6',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             16 => [
                 'd' =>   85,
                 'template' => 'pos_vencimento__6',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
             17 => [
                 'd' => 86,
                 'template' => 'pos_vencimento__6',
-                'variable' => false
+                'variable' => false,
+                'sendings' => 0
 
             ],
 
@@ -188,6 +210,9 @@ class BuilderController extends Controller
                     if (isset($value->phone)) {
                         foreach ($templates as $k => $v) {
                             if ($value->days_until_expiration == $v['d']) {
+
+                                $templates[$k]['sendings']++;
+
                                 if ($v['variable'] === true) {
                                      $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone, ['d' => $v['d']]);
                                      $sendingWhatsapp->builder();
@@ -224,7 +249,7 @@ class BuilderController extends Controller
                     usleep($remainingMicroseconds);
                 }
 
-                // Atualiza o tempo inicial para a próxima iteração
+//                 Atualiza o tempo inicial para a próxima iteração
                 $startTime = microtime(true);
 
             }
@@ -234,7 +259,7 @@ class BuilderController extends Controller
 
 
 
-        return $sendings;
+        return $templates;
     }
 
     private function sendEmail($dataEmail)
@@ -243,67 +268,80 @@ class BuilderController extends Controller
             0 => [
                 'template' => 'after_expiration_75d',
                 'subject' => 'Seu CPF será negativado... evite isso!',
-                'rule' => 75
+                'rule' => 75,
+                'sendings' => 0
             ],
             1 => [
                 'template' => 'after_expiration_80d',
                 'subject' => 'Seu CPF será negativado... evite isso!',
-                'rule' => 80
+                'rule' => 80,
+                'sendings' => 0
             ],
             2 => [
                 'template' => 'after_expiration_85d',
                 'subject' => 'Seu CPF será negativado... evite isso!',
-                'rule' => 85
+                'rule' => 85,
+                'sendings' => 0
             ],
             3 => [
                 'template' => 'alert_suspencion',
                 'subject' => 'Esse é o nosso último aviso! Não fique sem internet!',
-                'rule' => 14
+                'rule' => 14,
+                'sendings' => 0
             ],
             4 => [
                 'template' => 'delay_2d',
                 'subject' => 'Aviso importante sobre sua internet!',
-                'rule' => 2
+                'rule' => 2,
+                'sendings' => 0
             ],
             5 => [
                 'template' => 'delay_6d',
                 'subject' => 'ALERTA! Evite suspensões e bloqueios na sua internet Age Telecom',
-                'rule' => 6
+                'rule' => 6,
+                'sendings' => 0
             ],
             6 => [
                 'template' => 'missing_3d',
                 'subject' => 'Fique atento! Faltam apenas 3 dias',
-                'rule' => -3
+                'rule' => -3,
+                'sendings' => 0
             ],
             7 => [
                 'template' => 'missing_4d',
                 'subject' => 'Lembrete Importante: vencimento da sua fatura em 4 dias',
-                'rule' => -4
+                'rule' => -4,
+                'sendings' => 0
             ],
             8 => [
                 'template' => 'missing_5d',
                 'subject' => 'Lembrete - Vencimento da sua fatura Age Telecom em 5 dias',
-                'rule' => -5
+                'rule' => -5,
+                'sendings' => 0
             ],
             9 => [
                 'template' => 'negative',
                 'subject' => 'Essa é a sua chance de evitar a negativação do seu CPF',
-                'rule' => [20, 25, 30, 35, 45, 60]
+                'rule' => [20, 25, 30, 35, 45, 60],
+                'sendings' => 0
             ],
             10 => [
                 'template' => 'suspended_sign',
                 'subject' => '[ALERTA] Aviso de suspensão de sinal',
-                'rule' => 15
+                'rule' => 15,
+                'sendings' => 0
             ],
             11 => [
                 'template' => 'today',
                 'subject' => 'Último dia! Pague seu boleto hoje.',
-                'rule' => 0
+                'rule' => 0,
+                'sendings' => 0
             ],
             12 => [
                 'template' => 'tomorrow',
                 'subject' => 'É Amanhã! Evite juros e multas desnecessárias!',
-                'rule' => -1
+                'rule' => -1,
+                'sendings' => 0
             ],
         ];
 
@@ -341,6 +379,7 @@ class BuilderController extends Controller
                             if ($value->days_until_expiration == $v['rule']) {
 
                                 $limit++;
+                                $templates[$k]['sendings']++;
 
                                 Mail::mailer('fat')->to($value->email)
                                     ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
@@ -361,6 +400,7 @@ class BuilderController extends Controller
 
                                 if(in_array($value->days_until_expiration, $v['rule'])) {
                                     $limit++;
+                                    $templates[$k]['sendings']++;
 
 
                                     Mail::mailer('fat')->to($value->email)
@@ -402,7 +442,7 @@ class BuilderController extends Controller
 
 
 
-        return $sendings;
+        return $templates;
 
     }
 
@@ -411,34 +451,42 @@ class BuilderController extends Controller
         $templates = [
             0 => [
                 'day' => [-4, -5],
+                'sendings' => 0,
                 'template' => "AGE Telecom:\nFaltam {day} dias p/ o vencimento da sua fatura. Codigo de barras: {barcode}\n\nJa pagou? Desconsidere"
             ],
             1 => [
                 'day' => [-1],
+                'sendings' => 0,
                 'template' => "AGE Telecom:\nAmanha é o ultimo dia p/ pagar sua fatura e evitar juros e multas. Codigo de barras: {barcode}\n\nJa pagou? Desconsidere."
             ],
             2 => [
                 'day' => [0],
+                'sendings' => 0,
                 'template' => "AGE Telecom:\nHoje é o ultimo dia p/ pagar sua fatura e evitar juros e multas. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
             ],
             3 => [
                 'day' => [3, 7],
+                'sendings' => 0,
                 'template' => "Age Telecom:\nFatura AGE com {day} dias de atraso. Evite a suspensao do sinal. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
             ],
             4 => [
                 'day' => [14],
+                'sendings' => 0,
                 'template' => "Age Telecom:\nSua conexao sera suspensa amanha. Evite esse transtorno e regularize sua situação. Codigo de barras {barcode}.\n\nJa pagou? Desconsidere."
             ],
             5 => [
                 'day' => [15],
+                'sendings' => 0,
                 'template' => "Age Telecom:\nSua conexao foi bloqueada por conta do débito. Regularize sua situação. Código de barras: {barcode}\n\nJa pagou? Desconsidere."
             ],
             6 => [
                 'day' => [20, 30, 40, 50],
+                'sendings' => 0,
                 'template' => "AGE Telecom:\nSua fatura está vencida ha {day} dias. Evite a negativação do seu CPF, regularize o seu débito. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
             ],
             7 => [
                 'day' => [75, 85],
+                'sendings' => 0,
                 'template' => "AGE Telecom:\nEvite o cancelamento do seu contrato e negativação do seu CPF. Regularize o seu debito. Código de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
             ]
         ];
@@ -478,6 +526,8 @@ class BuilderController extends Controller
                             if(is_array($v['day'])){
 
                                 if(in_array($value->days_until_expiration, $v['day'])) {
+
+                                    $templates[$k]['sendings']++;
 
 
                                     $template = str_replace('{day}', abs($value->days_until_expiration), $v['template']);
@@ -539,7 +589,7 @@ class BuilderController extends Controller
             $e;
         }
 
-        return $sendings;
+        return $templates;
 
 
     }
