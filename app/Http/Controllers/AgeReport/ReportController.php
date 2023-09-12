@@ -96,7 +96,6 @@ class ReportController extends Controller
     public function download(Request $request, $id)
     {
 
-        return false;
 
         $this->report = Report::find($id);
 
