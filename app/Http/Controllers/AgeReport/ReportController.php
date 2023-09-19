@@ -137,21 +137,24 @@ class ReportController extends Controller
             $paramnsMounted = '';
 
 
-                foreach($this->paramns as $k => $v) {
-                    $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
 
-                    // Verifica se não é o último item antes de adicionar a vírgula
-                    if ($k < count($this->paramns) - 1) {
-                        $paramnsMounted .= ', ';
-                    }
+               if($this->paramns !== null) {
+                   foreach($this->paramns as $k => $v) {
+                       $paramnsMounted .= $v->column . ' as ' . "\"$v->name\"";
 
-                    $this->headers[] = $v->name;
+                       // Verifica se não é o último item antes de adicionar a vírgula
+                       if ($k < count($this->paramns) - 1) {
+                           $paramnsMounted .= ', ';
+                       }
 
-                }
+                       $this->headers[] = $v->name;
+
+                   }
+               }
         }
 
-        $this->report->query = str_replace('{{paramnsColumn}}', $paramnsMounted, $this->report->query);
 
+        $this->report->query = str_replace('{{paramnsColumn}}', $this->paramns !== null ? $paramnsMounted : '*', $this->report->query);
 
 
         if($request->has('date')) {
@@ -216,12 +219,17 @@ class ReportController extends Controller
         ini_set('memory_limit', '6144M');
 
         $i = substr_count($this->report->cabecalhos, ';');
+        $headers = explode(';', $this->report->cabecalhos);
+        $arrHeaders = [];
 
+        for($x = 0; $i > $x; $x++) {
+            $arrHeaders[] = $headers[$x];
+        }
 
         $result = DB::connection($this->report->banco_solicitado)->select($query);
 
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new ReportExport($result, $this->headers), $this->report->nome_arquivo);
+        return \Maatwebsite\Excel\Facades\Excel::download(new ReportExport($result, !empty($this->headers) ? $this->headers : $arrHeaders), $this->report->nome_arquivo);
 
     }
 }

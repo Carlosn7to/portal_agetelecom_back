@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AccessPermission extends Model
 {
     use HasFactory;
-    use SoftDeletes;
 
     protected $table = 'agerv_usuarios_permitidos';
     protected $fillable = ['user_id', 'funcao_id', 'setor_id', 'nivel_acesso_id'];

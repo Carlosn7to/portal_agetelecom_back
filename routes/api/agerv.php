@@ -1,7 +1,6 @@
 <?php
 
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::group(['middleware' => 'auth:api'], function () {
@@ -65,6 +64,10 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::get('/payment', [\App\Http\Controllers\AgeRv\SalesRulesController::class, 'index']);
             Route::resource('/consolidated', \App\Http\Controllers\AgeRv\CommissionConsolidatedController::class);
             Route::post('/simulator', [\App\Http\Controllers\AgeRv\Management\SimulatorController::class, 'index']);
+
+            Route::prefix('b2c')->group(function () {
+               Route::get('commission', [\App\Http\Controllers\AgeRv\Builder\BuilderController::class, 'response']);
+            });
         });
 
         Route::resource('level', \App\Http\Controllers\LevelAccessController::class);

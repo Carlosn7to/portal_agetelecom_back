@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail\AgeCommunicate\Base\SCPC;
+namespace App\Mail\AgeCommunicate\Base\RA;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -9,34 +9,18 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class SendSCPC extends Mailable
+class SendRa extends Mailable
 {
-
-    private $data = [
-        'nameClient' => '',
-        'cpf' => '',
-        'cnpj' => '',
-        'addressClient' => '',
-        'contractClient' => '',
-        'financialNature' => '',
-        'valueDebit' => '',
-        'dateDebit' => '',
-    ];
+    use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($clientName, $cpf, $cnpj, $address, $contractClient, $debits)
+    public function __construct()
     {
-        $this->data['nameClient'] = $clientName;
-        $this->data['cpf'] = $cpf;
-        $this->data['cnpj'] = $cnpj;
-        $this->data['address'] = $address;
-        $this->data['contractClient'] = $contractClient;
-        $this->data['debits'] = $debits;
-
+        //
     }
 
     /**
@@ -47,7 +31,7 @@ class SendSCPC extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: '[Age Telecom] - Comunicado Importante',
+            subject: 'Votação: Rumo à excelência',
         );
     }
 
@@ -59,8 +43,7 @@ class SendSCPC extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.ageCommunicate.base.scpc.scpc',
-            with: ['data' => $this->data],
+            view: 'mail.ageCommunicate.base.RA.ra',
         );
     }
 
@@ -74,4 +57,3 @@ class SendSCPC extends Mailable
         return [];
     }
 }
-

@@ -179,7 +179,8 @@ class CollaboratorMetaController extends Controller
 
         $collabs = [];
         $errors = [];
-        $meta = 28;
+        $meta = 21;
+
 
         foreach($array[0] as $key => $value) {
             $collabs[] = [
@@ -191,26 +192,27 @@ class CollaboratorMetaController extends Controller
         }
 
 
+
         foreach($collabs as $key => $value) {
-            if(str_contains($value['channel'],"Comercial - PAP") ||
-                str_contains($value['channel'], "Comercial - QUIOQUE") ||
+            if(str_contains($value['channel'],"VENDEDOR (A) P.A.P") ||
+                str_contains($value['channel'], "VENDEDOR (A) DE LOJA") ||
                 $value['channel'] === 'Comercial') {
 
-                if($value['admmission'] === '05') {
+                if($value['admmission'] === '06') {
                     $collabs[$key]['meta'] = $meta * 0.75;
-                } elseif ($value['admmission'] === '06') {
+                } elseif ($value['admmission'] === '07') {
                     $collabs[$key]['meta'] = $meta * 0.5;
                 }
 
             }
 
 
-            if(str_contains($value['channel'],"Comercial - MCV")) {
+            if(str_contains($value['channel'],"OPERADOR(A) DE MCV")) {
 
-                if($value['admmission'] === '05') {
-                    $collabs[$key]['meta'] = 104 * 0.75;
-                } elseif ($value['admmission'] === '06') {
-                    $collabs[$key]['meta'] = 104 * 0.5;
+                if($value['admmission'] === '06') {
+                    $collabs[$key]['meta'] = 99 * 0.75;
+                } elseif ($value['admmission'] === '07') {
+                    $collabs[$key]['meta'] = 99 * 0.5;
                 }
 
         }

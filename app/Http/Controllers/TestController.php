@@ -11,7 +11,9 @@ use App\Http\Controllers\Ixc\Api\WebserviceClient;
 use App\Http\Controllers\Mail\Billing\EquipDivideController;
 use App\Http\Requests\AgeControl\ConductorStoreRequest;
 use App\Ldap\UserLdap;
+use App\Mail\AgeCommunicate\Base\RA\SendRa;
 use App\Mail\AgeCommunicate\Base\SCPC\SendSCPC;
+use App\Mail\AgeCommunicate\Base\SendClientDay;
 use App\Mail\AgeCommunicate\Base\SendMailBillingRule;
 use App\Mail\BaseManagement\SendPromotion;
 use App\Mail\Portal\SendNewUser;
@@ -34,6 +36,7 @@ use App\Models\Test;
 use App\Models\User;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
@@ -71,9 +74,123 @@ class TestController extends Controller
     public function index(Request $request)
     {
         set_time_limit(200000000);
-
         $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
+
+        foreach($array[0] as $key => $value) {
+
+
+                try {
+                // Defina o número máximo de iterações por segundo
+                $maxIterationsPerSecond = 150;
+                $microsecondsPerSecond = 1000000;
+                $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+                // Tempo inicial do loop
+                $startTime = microtime(true);
+
+                    if (filter_var($value[0], FILTER_VALIDATE_EMAIL)) {
+
+                        Mail::mailer('sac')->to($value[0])
+                            ->send(new SendRa());
+
+                    }
+
+                    //                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+                    $elapsedTime = microtime(true) - $startTime;
+                    $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                    if ($remainingMicroseconds > 0) {
+                        usleep($remainingMicroseconds);
+                    }
+
+                    // Atualiza o tempo inicial para a próxima iteração
+                    $startTime = microtime(true);
+
+            } catch (\Exception $e) {
+                $e;
+            }
+
+        }
+
+        return true;
+
+
+//        $data = [];
+//
+//        foreach($array[0] as $key => $value) {
+//            $data[] =
+//                [
+//                    'cpf' => $value[0],
+//                    'nameClient' => $value[1],
+//                    'contractClient' => $value[2],
+//                    'email' => $value[5],
+//                    'debits' => [],
+//                    'address' => $value[8],
+//                    'cnpj' => $value[7]
+//                ];
+//        }
+//
+//
+//        foreach($data as $key => $value) {
+//
+//            foreach($array[0] as $k => $v) {
+//
+//                if($value['cpf'] === $v[0]) {
+//                    $data[$key]['debits'][] = [
+//                        'date' => $v[3],
+//                        'value' => $v[4],
+//                        'financialNature' => $v[6]
+//                    ];
+//                }
+//            }
+//
+//        }
+//
+//        try {
+//            // Defina o número máximo de iterações por segundo
+//            $maxIterationsPerSecond = 150;
+//            $microsecondsPerSecond = 1000000;
+//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+//
+//            // Tempo inicial do loop
+//            $startTime = microtime(true);
+//
+//            foreach($data as $key => $value) {
+//                try {
+//                    if (filter_var($value['email'], FILTER_VALIDATE_EMAIL)) {
+//
+//
+//                        $mail = Mail::mailer('warning')->to($value['email'])
+//                            ->send(new SendSCPC($value['nameClient'], $value['cpf'], $value['cnpj'], $value['address'], $value['contractClient'], $value['debits']));
+//
+//
+//                    }
+//                } catch (\Exception $e) {
+//                    $e;
+//                }
+//
+////                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+//                $elapsedTime = microtime(true) - $startTime;
+//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+//                if ($remainingMicroseconds > 0) {
+//                    usleep($remainingMicroseconds);
+//                }
+//
+//                // Atualiza o tempo inicial para a próxima iteração
+//                $startTime = microtime(true);
+//            }
+//
+//        } catch (\Exception $e) {
+//            $e;
+//        }
+//
+//        return "enviados";
+
+
+//        dd($mail);
+
+
+        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
         $client = new Client();
 
@@ -159,7 +276,7 @@ class TestController extends Controller
             $body = $response->getBody();
         }
 
-        return true;
+        return 'enviado whatsapp';
 
 
 //        $report = Report::find(16);
