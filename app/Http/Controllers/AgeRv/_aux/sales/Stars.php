@@ -236,13 +236,13 @@ class Stars
                 if (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM + DIRECTV GO')) {
                     $this->stars += 20;
                 } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DIRECTV GO')) {
-                    $this->stars += 25;
+                    $this->stars += 20;
                 } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE + DIRECTV GO')) {
                     $this->stars += 22;
                 } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE')) {
                     $this->stars += 15;
                 } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
-                    $this->stars += 15;
+                    $this->stars += 12;
                 } elseif (str_contains($item->plano, 'PLANO 120 MEGA')) {
                     $this->stars += 9;
                 } elseif (str_contains($item->plano, 'PLANO 120 MEGA PROMOCAO LEVE 360 MEGA')) {
