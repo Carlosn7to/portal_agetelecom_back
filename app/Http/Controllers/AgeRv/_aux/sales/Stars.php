@@ -258,9 +258,9 @@ class Stars
                 } elseif (str_contains($item->plano, 'PLANO 400 MEGA FIDELIZADO')) {
                     $this->stars += 12;
                 } elseif (str_contains($item->plano, 'PLANO 480 MEGA FIDELIZADO + DIRECTV GO')) {
-                    $this->stars += 9;
-                } elseif (str_contains($item->plano, 'PLANO 480 MEGA FIDELIZADO')) {
                     $this->stars += 17;
+                } elseif (str_contains($item->plano, 'PLANO 480 MEGA FIDELIZADO')) {
+                    $this->stars += 9;
                 } elseif (str_contains($item->plano, 'PLANO 740 MEGA FIDELIZADO + DIRECTV GO')) {
                     $this->stars += 18;
                 } elseif (str_contains($item->plano, 'PLANO 740 MEGA FIDELIZADO')) {
