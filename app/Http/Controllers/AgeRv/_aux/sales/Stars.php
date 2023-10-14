@@ -231,7 +231,7 @@ class Stars
                 } elseif (str_contains($item->plano, 'PLANO 800 MEGA NÃO FIDELIZADO')) {
                     $this->stars += 0;
                 }
-            } elseif (Carbon::parse($item->data_contrato) >= Carbon::parse('2023-08-01')) {
+            } elseif (Carbon::parse($item->data_contrato) >= Carbon::parse('2023-11-01')) {
                 // Verifica qual é o plano e atribui a estrela correspondente.
                 if (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM + DIRECTV GO')) {
                     $this->stars += 20;
