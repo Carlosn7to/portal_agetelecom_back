@@ -13,6 +13,7 @@ class BuilderController extends Controller
 
     private $response = [
         'userId' => 0,
+        'userName' => '',
         'userSector' => [
             'id' => 0,
             'title' => ''
@@ -25,22 +26,34 @@ class BuilderController extends Controller
             'id' => 0,
             'title' => ''
         ],
+        'userCommission' => [
+            'channel' => [
+                'id' => 0,
+                'title' => ''
+            ],
+            'typeCommission' => [
+                'id' => 0,
+                'title' => ''
+            ],
+        ],
         'date_request' => '',
         'result' => []
     ];
 
     public function __construct(Request $request)
     {
+
         $user = AccessPermission::from('agerv_usuarios_permitidos as up')->where('up.user_id', auth()->user()->id)
                     ->leftJoin('portal_nivel_acesso as na', 'up.nivel_acesso_id', '=', 'na.id')
                     ->leftJoin('agerv_colaboradores as c', 'c.user_id', '=', 'up.user_id')
                     ->leftJoin('portal_colaboradores_funcoes as cf', 'up.funcao_id', '=', 'cf.id')
                     ->leftJoin('portal_colaboradores_setores as cs', 'up.setor_id', '=', 'cs.id')
                     ->select('na.nivel','na.id as nivel_id', 'cf.id as funcao_id', 'cf.funcao',
-                            'cs.id as setor_id', 'cs.setor')
+                            'cs.id as setor_id', 'cs.setor', 'c.tipo_comissao_id', 'c.nome', 'c.canal_id')
                     ->first();
 
         $this->response['userId'] = auth()->user()->id;
+        $this->response['userName'] = $user->nome;
         $this->response['userLevel']['id'] = $user->nivel_id;
         $this->response['userLevel']['title'] = $user->nivel;
         $this->response['userFunction']['id'] = $user->funcao_id;
@@ -48,7 +61,8 @@ class BuilderController extends Controller
         $this->response['userSector']['id'] = $user->setor_id;
         $this->response['userSector']['title'] = $user->setor;
         $this->response['date_request'] = $request->has('date') ? Carbon::parse($request->input('date'))->format('Y-m') : Carbon::now()->format('Y-m');
-
+        $this->response['userCommission']['channel']['id'] = $user->canal_id;
+        $this->response['userCommission']['typeCommission']['id'] = $user->tipo_comissao_id;
 
     }
 
@@ -64,7 +78,7 @@ class BuilderController extends Controller
         if($this->response['userSector']['id'] === 1) {
             switch ($this->response['userFunction']['id']) {
                 case 1:
-                    $seller = new Seller();
+                    $seller = new Seller($this->response);
                     return $this->response['result'] = $seller->response();
                 break;
             }

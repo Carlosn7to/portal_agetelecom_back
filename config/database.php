@@ -173,6 +173,21 @@ return [
             'sslmode' => 'prefer',
         ],
 
+        'voalle_dw' => [
+            'driver' => 'pgsql',
+            'url' => env('DATABASE_URL_PGSQL'),
+            'host' => env('DB_HOST_VOALLE_DW', '127.0.0.1'),
+            'port' => env('DB_PORT_VOALLE_DW', '5432'),
+            'database' => env('DB_DATABASE_VOALLE_DW', 'forge'),
+            'username' => env('DB_USERNAME_VOALLE_DW', 'forge'),
+            'password' => env('DB_PASSWORD_VOALLE_DW', ''),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
+
         'sqlsrv' => [
             'driver' => 'sqlsrv',
             'url' => env('DATABASE_URL'),

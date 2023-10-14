@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\ReportExport;
 use App\Exports\UsersExport;
 use App\Http\Controllers\AgeRv\_aux\sales\Stars;
+use App\Http\Controllers\AgeRv\Builder\Result\b2b\Seller;
 use App\Http\Controllers\AgeRv\VoalleSalesController;
 use App\Http\Controllers\DataWarehouse\Voalle\PeoplesController;
 use App\Http\Controllers\Ixc\Api\WebserviceClient;
@@ -76,6 +77,26 @@ class TestController extends Controller
         set_time_limit(200000000);
         $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
+//
+//        $result = new Seller();
+//
+//
+//        return $result->response();
+//
+//
+//
+//
+//        return "b2b";
+
+
+
+//        Mail::mailer('warning')->to('carlos.neto@agetelecom.com.br')
+//            ->send(new SendSCPC('carlos net', '5156456', '454584864', 'rua tal', '123456', ['FAT', 'R$ 100,00', '10/10/2021']));
+//
+//
+
+
+
 
         foreach($array[0] as $key => $value) {
 
@@ -138,7 +159,7 @@ class TestController extends Controller
 //                if($value['cpf'] === $v[0]) {
 //                    $data[$key]['debits'][] = [
 //                        'date' => $v[3],
-//                        'value' => $v[4],
+//                        'value' => number_format($v[4], 2, ',', '.'),
 //                        'financialNature' => $v[6]
 //                    ];
 //                }
@@ -183,100 +204,100 @@ class TestController extends Controller
 //        } catch (\Exception $e) {
 //            $e;
 //        }
-//
-//        return "enviados";
+
+        return "enviados";
 
 
 //        dd($mail);
 
 
-        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
-
-        $client = new Client();
-
-        foreach($array[0] as $key => $value) {
-
-            $data = [
-                "id" => uniqid(),
-                "to" => "55$value[0]@wa.gw.msging.net",
-                "type" => "application/json",
-                "content" => [
-                    "type" => "template",
-                    "template" => [
-                        "name" => "envio_carta_spc_1",
-                        "language" => [
-                            "code" => "pt_BR",
-                            "policy" => "deterministic"
-                        ],
-                        "components" => [
-                            [
-                                "type" => "header",
-                                "parameters" => [
-                                    [
-                                        "type" => "document",
-                                        "document" => [
-                                            "filename" => "Comunicado_SCPC.pdf",
-                                            "link" => "https://comunicascpc.s3.sa-east-1.amazonaws.com/Comunicado+SCPC.pdf"
-                                        ]
-                                    ]
-                                ]
-                            ]
-                        ]
-                    ]
-                ]
-            ];
-
-            // Faz a requisição POST usando o cliente Guzzle HTTP
-            $response = $client->post('https://agetelecom.http.msging.net/messages', [
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
-                ],
-                'json' => $data
-            ]);
-
-            // Cria o array com os dados a serem enviados
-            $data = [
-                "id" => uniqid(),
-                "to" => "postmaster@msging.net",
-                "method" => "set",
-                "uri" => "/contexts/55$value[0]@wa.gw.msging.net/Master-State",
-                "type" => "text/plain",
-                "resource" => "contatoativoenviodefatura"
-            ];
-
-            // Faz a requisição POST usando o cliente Guzzle HTTP
-            $response = $client->post('https://agetelecom.http.msging.net/commands', [
-                'json' => $data,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
-                ]
-            ]);
-
-            $data = [
-                "id" => uniqid(),
-                "to" => "postmaster@msging.net",
-                "method" => "set",
-                "uri" => "/contexts/55$value[0]@wa.gw.msging.net/stateid@684abf3b-a37b-4c29-bb28-4600739efde0",
-                "type" => "text/plain",
-                "resource" => "dd01df6a-c228-40af-91d7-e5ef0c88a3b3"
-            ];
-
-            // Faz a requisição POST usando o cliente Guzzle HTTP
-            $response = $client->post('https://agetelecom.http.msging.net/commands', [
-                'json' => $data,
-                'headers' => [
-                    'Content-Type' => 'application/json',
-                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
-                ]
-            ]);
-
-            // Obtém o corpo da resposta
-            $body = $response->getBody();
-        }
-
-        return 'enviado whatsapp';
+//        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+//
+//        $client = new Client();
+//
+//        foreach($array[0] as $key => $value) {
+//
+//            $data = [
+//                "id" => uniqid(),
+//                "to" => "55$value[0]@wa.gw.msging.net",
+//                "type" => "application/json",
+//                "content" => [
+//                    "type" => "template",
+//                    "template" => [
+//                        "name" => "envio_carta_spc_1",
+//                        "language" => [
+//                            "code" => "pt_BR",
+//                            "policy" => "deterministic"
+//                        ],
+//                        "components" => [
+//                            [
+//                                "type" => "header",
+//                                "parameters" => [
+//                                    [
+//                                        "type" => "document",
+//                                        "document" => [
+//                                            "filename" => "Comunicado_SCPC.pdf",
+//                                            "link" => "https://comunicascpc.s3.sa-east-1.amazonaws.com/Comunicado+SCPC.pdf"
+//                                        ]
+//                                    ]
+//                                ]
+//                            ]
+//                        ]
+//                    ]
+//                ]
+//            ];
+//
+//            // Faz a requisição POST usando o cliente Guzzle HTTP
+//            $response = $client->post('https://agetelecom.http.msging.net/messages', [
+//                'headers' => [
+//                    'Content-Type' => 'application/json',
+//                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
+//                ],
+//                'json' => $data
+//            ]);
+//
+//            // Cria o array com os dados a serem enviados
+//            $data = [
+//                "id" => uniqid(),
+//                "to" => "postmaster@msging.net",
+//                "method" => "set",
+//                "uri" => "/contexts/55$value[0]@wa.gw.msging.net/Master-State",
+//                "type" => "text/plain",
+//                "resource" => "contatoativoenviodefatura"
+//            ];
+//
+//            // Faz a requisição POST usando o cliente Guzzle HTTP
+//            $response = $client->post('https://agetelecom.http.msging.net/commands', [
+//                'json' => $data,
+//                'headers' => [
+//                    'Content-Type' => 'application/json',
+//                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
+//                ]
+//            ]);
+//
+//            $data = [
+//                "id" => uniqid(),
+//                "to" => "postmaster@msging.net",
+//                "method" => "set",
+//                "uri" => "/contexts/55$value[0]@wa.gw.msging.net/stateid@684abf3b-a37b-4c29-bb28-4600739efde0",
+//                "type" => "text/plain",
+//                "resource" => "dd01df6a-c228-40af-91d7-e5ef0c88a3b3"
+//            ];
+//
+//            // Faz a requisição POST usando o cliente Guzzle HTTP
+//            $response = $client->post('https://agetelecom.http.msging.net/commands', [
+//                'json' => $data,
+//                'headers' => [
+//                    'Content-Type' => 'application/json',
+//                    'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
+//                ]
+//            ]);
+//
+//            // Obtém o corpo da resposta
+//            $body = $response->getBody();
+//        }
+//
+//        return 'enviado whatsapp';
 
 
 //        $report = Report::find(16);

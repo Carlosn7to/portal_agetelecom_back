@@ -179,7 +179,7 @@ class CollaboratorMetaController extends Controller
 
         $collabs = [];
         $errors = [];
-        $meta = 21;
+        $meta = 20;
 
 
         foreach($array[0] as $key => $value) {
@@ -198,9 +198,9 @@ class CollaboratorMetaController extends Controller
                 str_contains($value['channel'], "VENDEDOR (A) DE LOJA") ||
                 $value['channel'] === 'Comercial') {
 
-                if($value['admmission'] === '06') {
+                if($value['admmission'] === '07') {
                     $collabs[$key]['meta'] = $meta * 0.75;
-                } elseif ($value['admmission'] === '07') {
+                } elseif ($value['admmission'] === '08') {
                     $collabs[$key]['meta'] = $meta * 0.5;
                 }
 
@@ -209,10 +209,10 @@ class CollaboratorMetaController extends Controller
 
             if(str_contains($value['channel'],"OPERADOR(A) DE MCV")) {
 
-                if($value['admmission'] === '06') {
-                    $collabs[$key]['meta'] = 99 * 0.75;
-                } elseif ($value['admmission'] === '07') {
-                    $collabs[$key]['meta'] = 99 * 0.5;
+                if($value['admmission'] === '07') {
+                    $collabs[$key]['meta'] = 93 * 0.75;
+                } elseif ($value['admmission'] === '08') {
+                    $collabs[$key]['meta'] = 93 * 0.5;
                 }
 
         }

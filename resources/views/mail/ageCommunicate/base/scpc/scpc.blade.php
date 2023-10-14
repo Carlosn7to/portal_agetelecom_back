@@ -16,7 +16,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 10px; text-align: left;">
-                        <p>Brasília, 13 de Setembro de 2023</p>
+                        <p>Brasília, 28 de Setembro de 2023</p>
                         <p><strong>{{ $data['nameClient'] }}</strong></p>
                         <p><strong>CPF:{{$data['cpf']}}</strong></p>
                     </td>
@@ -95,19 +95,19 @@
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding: 10px; text-align: left;">
+                    <td style="padding: 20px 0; text-align: justify; color: red; font-weight: 800;">
+                        <p>Caso já tenha efetuado o pagamento, favor desconsiderar este comunicado.</p>
+                    </td>
+                </tr>
+                <tr>
+                    <td style="padding: 20px 0; text-align: left;">
                         <p><strong>AGE TELECOM</strong></p>
                         <p><strong>Site:</strong> www.agetelecom.com.br</p>
                         <p><strong>Central de Relacionamento:</strong> (61) 4040-4040</p>
                     </td>
                 </tr>
                 <tr>
-                    <td style="padding: 10px; text-align: center; color: red">
-                        <p>Caso já tenha efetuado o pagamento, favor desconsiderar este comunicado.</p>
-                    </td>
-                </tr>
-                <tr>
-                    <td style="padding: 10px; text-align: left;">
+                    <td style="padding: 20px 0; text-align: left;">
                         <p><strong>AGE TELECOM</strong></p>
                     </td>
                 </tr>

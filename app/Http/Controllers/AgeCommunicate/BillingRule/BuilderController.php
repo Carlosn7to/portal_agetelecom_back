@@ -31,9 +31,7 @@ class BuilderController extends Controller
 
         $query = $this->getQuery();
 
-        $data = DB::connection('pgsql')->select($query);
-
-
+        $data = DB::connection('voalle_dw')->select($query);
 
         $whatsapp = $this->sendMessage($data);
         $email = $this->sendEmail($data);
@@ -96,89 +94,96 @@ class BuilderController extends Controller
 
             ],
             6 => [
+                'd' => 5,
+                'template' => 'pos_vencimento__1',
+                'variable' => true,
+                'sendings' => 0
+
+            ],
+            7 => [
                 'd' => 14,
                 'template' => 'pos_vencimento__2',
                 'variable' => false,
                 'sendings' => 0
 
             ],
-            7 => [
+            8 => [
                 'd' => 15,
                 'template' => 'pos_vencimento__3_',
                 'variable' => false,
                 'sendings' => 0
 
             ],
-            8 => [
-                'd' => 20,
-                'template' => 'pos_vencimento__4',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
-            9 => [
-                'd' => 21,
-                'template' => 'pos_vencimento__4',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
-            10 => [
-                'd' => 30,
-                'template' => 'pos_vencimento__5',
-                'variable' => true,
-                'sendings' => 0
-
-            ],
-            11 => [
-                'd' => 31,
-                'template' => 'pos_vencimento__5',
-                'variable' => true,
-                'sendings' => 0
-
-            ],
-            12 => [
-                'd' => 45,
-                'template' => 'pos_vencimento__5',
-                'variable' => true,
-                'sendings' => 0
-
-            ],
-            13 => [
-                'd' => 46,
-                'template' => 'pos_vencimento__5',
-                'variable' => true,
-                'sendings' => 0
-
-            ],
-            14 => [
-                'd' => 75,
-                'template' => 'pos_vencimento__6',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
-            15 => [
-                'd' => 76,
-                'template' => 'pos_vencimento__6',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
-            16 => [
-                'd' =>   85,
-                'template' => 'pos_vencimento__6',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
-            17 => [
-                'd' => 86,
-                'template' => 'pos_vencimento__6',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
+//            8 => [
+//                'd' => 20,
+//                'template' => 'pos_vencimento__4',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
+//            9 => [
+//                'd' => 21,
+//                'template' => 'pos_vencimento__4',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
+//            10 => [
+//                'd' => 30,
+//                'template' => 'pos_vencimento__5',
+//                'variable' => true,
+//                'sendings' => 0
+//
+//            ],
+//            11 => [
+//                'd' => 31,
+//                'template' => 'pos_vencimento__5',
+//                'variable' => true,
+//                'sendings' => 0
+//
+//            ],
+//            12 => [
+//                'd' => 45,
+//                'template' => 'pos_vencimento__5',
+//                'variable' => true,
+//                'sendings' => 0
+//
+//            ],
+//            13 => [
+//                'd' => 46,
+//                'template' => 'pos_vencimento__5',
+//                'variable' => true,
+//                'sendings' => 0
+//
+//            ],
+//            14 => [
+//                'd' => 75,
+//                'template' => 'pos_vencimento__6',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
+//            15 => [
+//                'd' => 76,
+//                'template' => 'pos_vencimento__6',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
+//            16 => [
+//                'd' =>   85,
+//                'template' => 'pos_vencimento__6',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
+//            17 => [
+//                'd' => 86,
+//                'template' => 'pos_vencimento__6',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
 
         ];
 
@@ -598,9 +603,38 @@ class BuilderController extends Controller
     {
 
 
+//        $query = '
+//            SELECT
+//                c.id AS "contract_id",
+//                p.email AS "email",
+//                p.v_name AS "name",
+//                CASE
+//                    WHEN p.cell_phone_1 IS NOT NULL THEN p.cell_phone_1
+//                    ELSE p.cell_phone_2
+//                END AS "phone",
+//                frt.typeful_line AS "barcode",
+//                frt.expiration_date AS "expiration_date",
+//                frt.competence AS "competence",
+//                case
+//                    when frt.expiration_date > current_date then -(frt.expiration_date - current_date)
+//                    else (current_date - frt.expiration_date)
+//                end as "days_until_expiration"
+//            FROM erp.contracts c
+//            LEFT JOIN erp.people p ON p.id = c.client_id
+//            LEFT JOIN erp.financial_receivable_titles frt ON frt.contract_id = c.id
+//            WHERE
+//                c.v_stage = \'Aprovado\'
+//                and c.v_status != \'Cancelado\'
+//                AND frt.competence >= \'2023-05-01\'
+//                AND frt.deleted IS FALSE
+//                AND frt.finished IS FALSE
+//                AND frt.title LIKE \'%FAT%\'
+//                and frt.p_is_receivable is true
+//            ';
+//
         $query = '
             SELECT
-                c.id AS "contract_id",
+                c.contract_id  AS "contract_id",
                 p.email AS "email",
                 p.v_name AS "name",
                 CASE
@@ -614,9 +648,9 @@ class BuilderController extends Controller
                     when frt.expiration_date > current_date then -(frt.expiration_date - current_date)
                     else (current_date - frt.expiration_date)
                 end as "days_until_expiration"
-            FROM erp.contracts c
-            LEFT JOIN erp.people p ON p.id = c.client_id
-            LEFT JOIN erp.financial_receivable_titles frt ON frt.contract_id = c.id
+            FROM datawarehouse.dwd_contracts c
+            LEFT JOIN datawarehouse.dwd_people p ON p.people_id = c.client_id
+            LEFT JOIN datawarehouse.dwf_financial_receivable_titles frt ON frt.contract_id = c.contract_id
             WHERE
                 c.v_stage = \'Aprovado\'
                 and c.v_status != \'Cancelado\'
@@ -625,7 +659,7 @@ class BuilderController extends Controller
                 AND frt.finished IS FALSE
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
-            ';
+        ';
 
         return $query;
 
