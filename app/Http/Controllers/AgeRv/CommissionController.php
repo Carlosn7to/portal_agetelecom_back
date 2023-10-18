@@ -26,6 +26,7 @@ class CommissionController extends Controller
 
     public function store(Request $request)
     {
+        set_time_limit(200000);
 
         $this->month = $request->input('month');
         $this->year = $request->input('year');

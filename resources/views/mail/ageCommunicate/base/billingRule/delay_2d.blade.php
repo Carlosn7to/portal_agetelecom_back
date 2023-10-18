@@ -99,7 +99,7 @@
         <section>
             <div class="content">
                 <div style="text-align: justify; font-weight: 500;">
-                    <p>Ainda não recebemos o pagamento referente à sua fatura que está vencida há <b>02 DIAS</b>.
+                    <p>Ainda não recebemos o pagamento referente à sua fatura que está vencida há <b>03 DIAS</b>.
                         Valorizamos a sua parceria e queremos ajudá-lo a regularizar sua situação o mais rápido
                         possível.</p>
                     <p>Anexamos a fatura a este e-mail para sua comodidade. Caso prefira, agora oferecemos uma nova
