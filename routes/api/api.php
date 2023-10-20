@@ -42,7 +42,8 @@ Route::middleware('LogAccess', \App\Http\Middleware\LogAccess::class)->group(fun
 
     Route::group(['middleware' => 'auth:api'], function () {
 
-        Route::post('teste', [\App\Http\Controllers\TestController::class, 'index']);
+        Route::get('teste', [\App\Http\Controllers\TestController::class, 'index']);
+        Route::get('aniel/order', [\App\Http\Controllers\Aniel\Services\OrderServiceController::class,'importData']);
 
 
         Route::get('/validatedToken', function () {
