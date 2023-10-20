@@ -56,7 +56,11 @@ return [
             'username' => env('MAIL_USERNAME_PORTAL'),
             'password' => env('MAIL_PASSWORD_PORTAL'),
             'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN')
+            'local_domain' => env('MAIL_EHLO_DOMAIN'),
+            'from' => [
+                'address' => env('MAIL_FROM_ADDRESS_PORTAL'),
+                'name' => 'Portal Age Telecom'
+            ]
         ],
         'sac' => [
             'transport' => 'smtp',

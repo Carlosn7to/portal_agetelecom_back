@@ -18,6 +18,11 @@ class BuilderController extends Controller
     private $response;
 
 
+    public function __invoke()
+    {
+        return $this->build();
+    }
+
     public function __construct()
     {
         $this->response = new Response();
@@ -638,6 +643,7 @@ class BuilderController extends Controller
                 AND frt.finished IS FALSE
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
+                and frt.typeful_line is not null
             ';
 //
 //        $query = '

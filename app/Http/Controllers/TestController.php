@@ -7,6 +7,7 @@ use App\Exports\UsersExport;
 use App\Http\Controllers\AgeRv\_aux\sales\Stars;
 use App\Http\Controllers\AgeRv\Builder\Result\b2b\Seller;
 use App\Http\Controllers\AgeRv\VoalleSalesController;
+use App\Http\Controllers\Aniel\Services\OrderServiceController;
 use App\Http\Controllers\DataWarehouse\Voalle\PeoplesController;
 use App\Http\Controllers\Ixc\Api\WebserviceClient;
 use App\Http\Controllers\Mail\Billing\EquipDivideController;
@@ -75,7 +76,42 @@ class TestController extends Controller
     public function index(Request $request)
     {
         set_time_limit(200000000);
-        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+
+        $query = 'SELECT
+                c.id AS "contract_id",
+                p.email AS "email",
+                p.v_name AS "name",
+                CASE
+                    WHEN p.cell_phone_1 IS NOT NULL THEN p.cell_phone_1
+                    ELSE p.cell_phone_2
+                END AS "phone",
+                frt.typeful_line AS "barcode",
+                frt.expiration_date AS "expiration_date",
+                frt.competence AS "competence",
+                case
+                    when frt.expiration_date > current_date then -(frt.expiration_date - current_date)
+                    else (current_date - frt.expiration_date)
+                end as "days_until_expiration"
+            FROM erp.contracts c
+            LEFT JOIN erp.people p ON p.id = c.client_id
+            LEFT JOIN erp.financial_receivable_titles frt ON frt.contract_id = c.id
+            WHERE
+                c.v_stage = \'Aprovado\'
+                AND frt.deleted IS FALSE
+                AND frt.finished IS FALSE
+                AND frt.title LIKE \'%FAT%\'
+                and frt.p_is_receivable is true
+                and frt.typeful_line is not null
+                and (current_date - frt.expiration_date) > 30';
+
+
+        $result = DB::connection('pgsql')->select($query);
+
+        $data = collect($result);
+
+        return count($data->unique('contract_id'));
+
+
 
 //
 //        $result = new Seller();
