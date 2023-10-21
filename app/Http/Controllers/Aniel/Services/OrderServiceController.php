@@ -86,7 +86,7 @@ class OrderServiceController extends Controller
 
     private function getQuery () {
 
-        $hour = Carbon::now()->format('H');
+        $hour = Carbon::now();
 
 
 
@@ -136,8 +136,8 @@ class OrderServiceController extends Controller
                 and TO_CHAR( assignments.final_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
                 and TO_CHAR( assignment_incidents.responsible_final_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
                 and incident_status.id <> \'8\'
-                and a.beginning_date between to_timestamp(current_date || \' '.($hour - 1).':00:00\', \'YYYY-MM-DD HH24:MI:SS\')
-                and to_timestamp(current_date || \' '.$hour.':00:00\', \'YYYY-MM-DD HH24:MI:SS\')
+                and a.beginning_date between to_timestamp(current_date || \' 08:00:00\', \'YYYY-MM-DD HH24:MI:SS\')
+                and to_timestamp(current_date || \' 23:00:00\', \'YYYY-MM-DD HH24:MI:SS\')
                 and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\')
                 order by 2 desc';
 
