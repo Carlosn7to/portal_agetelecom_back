@@ -58,46 +58,46 @@ class BuilderController extends Controller
             // Pré-vencimento
             0 => [
                 'd' => -5,
-                'template' => 'pre_vencimento__1_',
+                'template' => 'pre_vencimento__1',
                 'variable' => true,
                 'sendings' => 0
             ],
             1 => [
                 'd' => -4,
-                'template' => 'pre_vencimento__1_',
+                'template' => 'pre_vencimento__1',
                 'variable' => true,
                 'sendings' => 0
 
             ],
             2 => [
                 'd' => -1,
-                'template' => 'pre_vencimento__2',
+                'template' => 'pre_vencimento_2',
                 'variable' => false,
                 'sendings' => 0
 
             ],
             3 => [
                 'd' => -0,
-                'template' => 'pre_vencimento__3',
+                'template' => 'pre_vencimento_2',
                 'variable' => false,
                 'sendings' => 0
 
             ],
             // Pós-vencimento
-//            4 => [
-//                'd' => 3,
+            4 => [
+                'd' => 3,
+                'template' => 'pos_vencimento_1',
+                'variable' => true,
+                'sendings' => 0
+
+            ],
+//            5 => [
+//                'd' => 4,
 //                'template' => 'pos_vencimento__1',
 //                'variable' => true,
 //                'sendings' => 0
 //
 //            ],
-            5 => [
-                'd' => 4,
-                'template' => 'pos_vencimento__1',
-                'variable' => true,
-                'sendings' => 0
-
-            ],
 //            6 => [
 //                'd' => 5,
 //                'template' => 'pos_vencimento__1',
@@ -107,21 +107,21 @@ class BuilderController extends Controller
 //            ],
             6 => [
                 'd' => 7,
-                'template' => 'pos_vencimento__1',
+                'template' => 'pos_vencimento_1',
                 'variable' => true,
                 'sendings' => 0
 
             ],
             7 => [
-                'd' => 14,
-                'template' => 'pos_vencimento__2',
+                'd' => 12,
+                'template' => 'pos_vencimento_2_',
                 'variable' => false,
                 'sendings' => 0
 
             ],
             8 => [
-                'd' => 15,
-                'template' => 'pos_vencimento__3_',
+                'd' => 13,
+                'template' => 'pos_vencimentos_3',
                 'variable' => false,
                 'sendings' => 0
 
@@ -303,7 +303,7 @@ class BuilderController extends Controller
             3 => [
                 'template' => 'alert_suspencion',
                 'subject' => 'Esse é o nosso último aviso! Não fique sem internet!',
-                'rule' => 14,
+                'rule' => 12,
                 'sendings' => 0
             ],
             4 => [
@@ -315,7 +315,7 @@ class BuilderController extends Controller
             5 => [
                 'template' => 'delay_6d',
                 'subject' => 'ALERTA! Evite suspensões e bloqueios na sua internet Age Telecom',
-                'rule' => 6,
+                'rule' => 5,
                 'sendings' => 0
             ],
 //            6 => [
@@ -345,7 +345,7 @@ class BuilderController extends Controller
             10 => [
                 'template' => 'suspended_sign',
                 'subject' => '[ALERTA] Aviso de suspensão de sinal',
-                'rule' => 15,
+                'rule' => 13,
                 'sendings' => 0
             ],
             11 => [
@@ -469,42 +469,42 @@ class BuilderController extends Controller
             0 => [
                 'day' => [-3, -5],
                 'sendings' => 0,
-                'template' => "AGE Telecom:\nFaltam {day} dias p/ o vencimento da sua fatura. Codigo de barras: {barcode}\n\nJa pagou? Desconsidere"
+                'template' => "AGE Telecom:\nSua fatura já está disponível. Acesse através do portal da AGE: https://encr.pw/qv4Ed\n\nSe já pagou, desconsidere."
             ],
             1 => [
                 'day' => [-1],
                 'sendings' => 0,
-                'template' => "AGE Telecom:\nAmanha é o ultimo dia p/ pagar sua fatura e evitar juros e multas. Codigo de barras: {barcode}\n\nJa pagou? Desconsidere."
+                'template' => "AGE Telecom:\nAmanhã é o dia do vencimento da sua fatura. Acesse através do portal da AGE:\nhttps://encr.pw/qv4Ed\n\nJSe já pagou, desconsidere."
             ],
             2 => [
                 'day' => [0],
                 'sendings' => 0,
-                'template' => "AGE Telecom:\nHoje é o ultimo dia p/ pagar sua fatura e evitar juros e multas. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+                'template' => "AGE Telecom:\nHoje é o ÚLTIMO DIA p/ pagar sua fatura e evitar juros e multas. Acesse através do portal da AGE: https://encr.pw/qv4Ed\n\nSe já pagou, desconsidere."
             ],
             3 => [
-                'day' => [5,10],
+                'day' => [5,8],
                 'sendings' => 0,
-                'template' => "Age Telecom:\nAtenção! Fatura AGE Telecom com {day} dias de atraso 😥 Evite a suspensão do sinal. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+                'template' => "Age Telecom:\nAtenção! Fatura AGE Telecom com {day} dias de atraso 😥 Evite a suspensão do sinal. https://encr.pw/qv4Ed\n\nSe já pagou, desconsidere."
             ],
             4 => [
-                'day' => [14],
+                'day' => [12],
                 'sendings' => 0,
-                'template' => "Age Telecom:\nAtenção! Sua conexão poderá ser suspensa. Evite esse transtorno e regularize sua situação. Codigo de barras {barcode}.\n\nJa pagou? Desconsidere."
+                'template' => "Age Telecom:\nEvite a suspensão da sua internet. Acesse através do portal da AGE: https://encr.pw/qv4Ed\n\nSe já pagou, desconsidere."
             ],
             5 => [
-                'day' => [15],
+                'day' => [13],
                 'sendings' => 0,
-                'template' => "Age Telecom:\nSua conexão poderá ser bloqueada pelo débito em aberto. Regularize sua situação. Código de barras: {barcode}\n\nJa pagou? Desconsidere."
+                'template' => "Age Telecom:\nEvite a suspensão da sua internet. Acesse através do portal da AGE: https://encr.pw/qv4Ed\n\nSe já pagou, desconsidere."
             ],
             6 => [
                 'day' => [20, 30],
                 'sendings' => 0,
-                'template' => "AGE Telecom:\nSua fatura está vencida há {day} dias. Evite a negativação do seu CPF, regularize o seu débito. Codigo de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+                'template' => "AGE Telecom:\nSua fatura está vencida há {day} dias. Evite a negativação do seu CPF, regularize o seu débito. https://encr.pw/qv4Ed\n\nSe já pagou, desconsidere."
             ],
             7 => [
                 'day' => [45],
                 'sendings' => 0,
-                'template' => "AGE Telecom:\nEvite o cancelamento do seu contrato e negativação do seu CPF. Regularize o seu débito. Código de barras:\n{barcode}.\n\nJa pagou? Desconsidere."
+                'template' => "AGE Telecom:\nEvite o cancelamento do seu contrato e negativação do seu CPF. Regularize o seu débito. https://encr.pw/qv4Ed\n\nSe já pagou, desconsidere."
             ]
         ];
 

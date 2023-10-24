@@ -78,34 +78,39 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
+        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
-        $client = new Client();
+        return [
+          count($array[0]),
+          $array[0]
+        ];
 
-        $verify_token = 'TWpNMU9EYzVaakk1T0dSaU1USmxaalprWldFd00ySTFZV1JsTTJRMFptUT06V2tkS2JHSllRWGROUkZFMFQxRTlQUT09OlpUaGtNak0xWWprMFl6bGlORE5tWkRnM01EbGtNalkyWXpBeE1HTTNNR1U9==';
-        $client_id = '8_x6hjpc9gb80c4co8k0sooookso4ko08ogs0oo8occss804kow';
-        $client_secret = '3r60l9qlg12cws04s088ook4coc8wogsg0wkkoskck4ks044ss';
-        $username = '07085594179';
-        $password = '07085594179';
+//        $client = new Client();
+//
+//        $verify_token = 'TWpNMU9EYzVaakk1T0dSaU1USmxaalprWldFd00ySTFZV1JsTTJRMFptUT06V2tkS2JHSllRWGROUkZFMFQxRTlQUT09OlpUaGtNak0xWWprMFl6bGlORE5tWkRnM01EbGtNalkyWXpBeE1HTTNNR1U9==';
+//        $client_id = '8_x6hjpc9gb80c4co8k0sooookso4ko08ogs0oo8occss804kow';
+//        $client_secret = '3r60l9qlg12cws04s088ook4coc8wogsg0wkkoskck4ks044ss';
+//        $username = '07085594179';
+//        $password = '07085594179';
+//
+//
+//        $response = $client->get(
+//            "http://erpapi.agetelecom.com.br/portal_authentication?" .
+//            "verify_token=${verify_token}&" .
+//            "client_id=${client_id}&" .
+//            "client_secret=${client_secret}&" .
+//            "grant_type=client_credentials&" .
+//            "username=${username}&" .
+//            "password=${password}"
+//            ,[
+//                'headers' => [
+//                    'Content-Type' => 'application/json'
+//                ]
+//            ]);
+//
+//        return $response->getBody();
 
 
-        $response = $client->get(
-            "http://erpapi.agetelecom.com.br/portal_authentication?" .
-            "verify_token=${verify_token}&" .
-            "client_id=${client_id}&" .
-            "client_secret=${client_secret}&" .
-            "grant_type=client_credentials&" .
-            "username=${username}&" .
-            "password=${password}"
-            ,[
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ]
-            ]);
-
-        return $response->getBody();
-
-
-//        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 //
 //        $result = [];
 //
