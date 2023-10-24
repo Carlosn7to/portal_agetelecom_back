@@ -78,10 +78,199 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
-        $orderService = new OrderServiceController();
 
-        return $orderService->importData();
+        $client = new Client();
 
+        $verify_token = 'TWpNMU9EYzVaakk1T0dSaU1USmxaalprWldFd00ySTFZV1JsTTJRMFptUT06V2tkS2JHSllRWGROUkZFMFQxRTlQUT09OlpUaGtNak0xWWprMFl6bGlORE5tWkRnM01EbGtNalkyWXpBeE1HTTNNR1U9==';
+        $client_id = '8_x6hjpc9gb80c4co8k0sooookso4ko08ogs0oo8occss804kow';
+        $client_secret = '3r60l9qlg12cws04s088ook4coc8wogsg0wkkoskck4ks044ss';
+        $username = '07085594179';
+        $password = '07085594179';
+
+
+        $response = $client->get(
+            "http://erpapi.agetelecom.com.br/portal_authentication?" .
+            "verify_token=${verify_token}&" .
+            "client_id=${client_id}&" .
+            "client_secret=${client_secret}&" .
+            "grant_type=client_credentials&" .
+            "username=${username}&" .
+            "password=${password}"
+            ,[
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
+
+        return $response->getBody();
+
+
+//        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+//
+//        $result = [];
+//
+//        foreach($array[0] as $key => $value) {
+//
+//            $result[] = [
+//                'OS' => $value[0],
+//                'Endereço' => $value[1],
+//                'Bairro' => $value[2],
+//                'Cidade' => $value[3],
+//                'CEP' => $value[4],
+//                'Numero' => $value[5],
+//                'T.Serviço' => $value[6],
+//                'Periodo' => $value[7],
+//                'Status' => $value[8],
+//                'Localização' => $value[9],
+//                'Latitude' => null,
+//                'Longitude' => null
+//            ];
+//
+//        }
+//
+//        $client = new Client();
+//
+//
+//        foreach($result as $key => $value) {
+//
+//
+//            $addressFormatted = "{$value['Endereço']} {$value['Numero']} {$value['Bairro']} {$value['Cidade']}";
+//
+//
+//            $addressFormatted = str_replace(' ', '+', $addressFormatted);
+//
+//            // Faz a requisição POST usando o cliente Guzzle HTTP
+//            $response = $client->get('https://maps.googleapis.com/maps/api/geocode/json?address='.$addressFormatted.'&key=AIzaSyAU22qEwlrC4cLLyTAFviFZGBG3ZIrpCKM', [
+//                'headers' => [
+//                    'Content-Type' => 'application/json'
+//                ]
+//            ]);
+//            $body = $response->getBody();
+//
+//            $response = json_decode($body);
+//
+//
+//            $result[$key]['Latitude'] =  $response->results[0]->geometry->location->lat;
+//            $result[$key]['Longitude'] = $response->results[0]->geometry->location->lng;
+//
+//        }
+//
+//        return $result;
+
+
+//        $client = new Client();
+//
+//        $options = [
+//            'form_params' => [
+//                'grant_type' => 'client_credentials',
+//                'scope' => 'syngw',
+//                'client_id' => '8_x6hjpc9gb80c4co8k0sooookso4ko08ogs0oo8occss804kow',
+//                'client_secret' => '3r60l9qlg12cws04s088ook4coc8wogsg0wkkoskck4ks044ss',
+//                'syndata' => 'TWpNMU9EYzVaakk1T0dSaU1USmxaalprWldFd00ySTFZV1JsTTJRMFptUT06WlhsS1ZHVlhOVWxpTTA0d1NXcHZhVTFxUVRKTWFrbDNUa00wZVU1RVozVlBSRmxwVEVOS1ZHVlhOVVZaYVVrMlNXMVNhVnBYTVhkTlJFRXdUMFJyYVV4RFNrVlpiRkkxWTBkVmFVOXBTbmRpTTA0d1dqTktiR041U2prPTpaVGhrTWpNMVlqazBZemxpTkRObVpEZzNNRGxrTWpZMll6QXhNR00zTUdVPQ'
+//            ]];
+//
+//        $response = $client->post('https://erp.agetelecom.com.br/:45700/connect/token', [
+//                'headers' => [
+//                    'Content-Type' => 'application/x-www-form-urlencoded'
+//                ],
+//                'data' => $options
+//            ]);
+//
+//        return $response;
+
+
+//        $query = 'SELECT
+//                c.contract_id  AS "contract_id",
+//                p.tx_id as "cpf",
+//                p.email AS "email",
+//                p.v_name AS "name",
+//                CASE
+//                    WHEN p.cell_phone_1 IS NOT NULL THEN p.cell_phone_1
+//                    ELSE p.cell_phone_2
+//                END AS "phone",
+//                frt.typeful_line AS "barcode",
+//                frt.title_amount as "value",
+//                frt.expiration_date AS "expiration_date",
+//                frt.competence AS "competence",
+//                case
+//                    when frt.expiration_date > current_date then -(frt.expiration_date - current_date)
+//                    else (current_date - frt.expiration_date)
+//                end as "days_until_expiration"
+//            FROM datawarehouse.dwd_contracts c
+//            LEFT JOIN datawarehouse.dwd_people p ON p.people_id = c.client_id
+//            LEFT JOIN datawarehouse.dwf_financial_receivable_titles frt ON frt.contract_id = c.contract_id
+//            WHERE
+//                c.v_stage = \'Aprovado\'
+//                AND frt.deleted IS FALSE
+//                AND frt.finished IS FALSE
+//                AND frt.title LIKE \'%FAT%\'
+//                and frt.p_is_receivable is true
+//                and (current_date - frt.expiration_date) >= 30';
+//
+//
+//        $result = DB::connection('voalle_dw')->select($query);
+//
+//        $data = collect($result);
+//
+//        $building = $data->groupBy('cpf')->map(function ($group) {
+//            return [
+//                'cpf' => $group->first()->cpf,
+//                'name' => $group->first()->name,
+//                'email' => $group->first()->email,
+//                'debits' => $group->map(function ($item) {
+//                    return [
+//                        'contractClient' => $item->contract_id,
+//                        'date' => $item->expiration_date,
+//                        'value' => number_format($item->value, 2, ',', '.')
+//                    ];
+//                })->all()
+//            ];
+//        })->values()->all();
+//
+//
+//        try {
+//            // Defina o número máximo de iterações por segundo
+//            $maxIterationsPerSecond = 150;
+//            $microsecondsPerSecond = 1000000;
+//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+//
+//            // Tempo inicial do loop
+//            $startTime = microtime(true);
+//
+//            foreach($building as $key => $value) {
+//
+//                try {
+//                    if (filter_var($value['email'], FILTER_VALIDATE_EMAIL)) {
+//
+//
+//                        $mail = Mail::mailer('warning')->to($value['email'])
+//                            ->send(new SendSCPC($value['name'], $value['cpf'], $value['debits']));
+//
+//                    }
+//                } catch (\Exception $e) {
+//                    $e;
+//                }
+//
+//            }
+//
+//
+////                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+//                $elapsedTime = microtime(true) - $startTime;
+//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+//                if ($remainingMicroseconds > 0) {
+//                    usleep($remainingMicroseconds);
+//                }
+//
+//                // Atualiza o tempo inicial para a próxima iteração
+//                $startTime = microtime(true);
+//            }
+//            catch (\Exception $e) {
+//            $e;
+//        }
+//
+
+
+        return "break";
 
 
 //

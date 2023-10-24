@@ -16,7 +16,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 10px; text-align: left;">
-                        <p>Brasília, 28 de Setembro de 2023</p>
+                        <p>Brasília, 23 de Outubro de 2023</p>
                         <p><strong>{{ $data['nameClient'] }}</strong></p>
                         <p><strong>CPF:{{$data['cpf']}}</strong></p>
                     </td>
@@ -63,8 +63,8 @@
                             </tr>
                             @foreach($data['debits'] as $value)
                                 <tr>
-                                    <td style="padding: 10px;">{{$data['contractClient']}}</td>
-                                    <td style="padding: 10px;">{{$value['financialNature']}}</td>
+                                    <td style="padding: 10px;">{{$value['contractClient']}}</td>
+                                    <td style="padding: 10px;">Mensalidade AGE</td>
                                     <td style="padding: 10px;">R${{$value['value']}}</td>
                                     <td style="padding: 10px;">{{$value['date']}}</td>
                                 </tr>

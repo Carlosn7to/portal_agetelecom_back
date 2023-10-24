@@ -28,13 +28,12 @@ class SendSCPC extends Mailable
      *
      * @return void
      */
-    public function __construct($clientName, $cpf, $cnpj, $address, $contractClient, $debits)
+    public function __construct($clientName, $cpf, $debits)
     {
         $this->data['nameClient'] = $clientName;
         $this->data['cpf'] = $cpf;
-        $this->data['cnpj'] = $cnpj;
-        $this->data['address'] = $address;
-        $this->data['contractClient'] = $contractClient;
+        $this->data['cnpj'] = '40.085.642/0001-55';
+        $this->data['address'] = 'ST SIA TRECHO 17 VIA IA 4 LT 1080';
         $this->data['debits'] = $debits;
 
     }

@@ -29,7 +29,7 @@ class Meta
     private function response() {
 
 
-        $this->collaboratorMeta = CollaboratorMeta::whereColaboradorId($this->collaboratorId)->whereMesCompetencia($this->month)->first(['meta']);
+        $this->collaboratorMeta = CollaboratorMeta::whereColaboradorId($this->collaboratorId)->whereAnoCompetencia($this->year)->whereMesCompetencia($this->month)->first(['meta']);
 
 
 
