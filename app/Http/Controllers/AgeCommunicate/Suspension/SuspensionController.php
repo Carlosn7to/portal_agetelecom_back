@@ -47,7 +47,7 @@ class SuspensionController extends Controller
 
     private function sendEmail()
     {
-        $to = 'suspensao@agetelecom.com.br';
+        $to = 'carlos.neto@agetelecom.com.br';
 
         $mail = Mail::mailer('portal')->to($to)->send(new SendSuspencion($this->getData()));
 
