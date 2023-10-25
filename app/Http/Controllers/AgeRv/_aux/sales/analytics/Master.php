@@ -67,6 +67,7 @@ class Master
                                                                                     nome_cliente')
             ->get()->unique(['id_contrato']);
 
+
         $this->channels = Channel::get(['id', 'canal']);
 
         $this->competence = Carbon::parse("01-$this->month-$this->year")->format('Y-m-d');

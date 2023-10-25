@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\ReportExport;
 use App\Exports\UsersExport;
 use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\SendingWhatsapp;
+use App\Http\Controllers\AgeCommunicate\Suspension\SuspensionController;
 use App\Http\Controllers\AgeRv\_aux\sales\Stars;
 use App\Http\Controllers\AgeRv\Builder\Result\b2b\Seller;
 use App\Http\Controllers\AgeRv\VoalleSalesController;
@@ -77,6 +78,14 @@ class TestController extends Controller
     public function index(Request $request)
     {
         set_time_limit(200000000);
+
+        $mailer120D = new SuspensionController();
+
+        return $mailer120D->response();
+
+
+
+        return false;
 
         $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
