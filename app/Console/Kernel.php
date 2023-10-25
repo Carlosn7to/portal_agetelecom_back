@@ -27,7 +27,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('update:tables')->dailyAt('3:00');
         $schedule->command('send:billing-rule')->weekdays()->dailyAt('9:30');
-        $schedule->command('send:suspension')->weekdays()->dailyAt('10:07');
+        $schedule->command('send:suspension')->weekdays()->dailyAt('10:30');
 
     }
 
