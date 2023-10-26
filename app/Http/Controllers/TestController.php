@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\ReportExport;
 use App\Exports\UsersExport;
 use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\SendingWhatsapp;
+use App\Http\Controllers\AgeCommunicate\BlockedClients\BlockedClientsController;
 use App\Http\Controllers\AgeCommunicate\Suspension\SuspensionController;
 use App\Http\Controllers\AgeRv\_aux\sales\Stars;
 use App\Http\Controllers\AgeRv\Builder\Result\b2b\Seller;
@@ -79,9 +80,9 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
-        $mailer120D = new SuspensionController();
+        $blockedClients = new BlockedClientsController();
 
-        return $mailer120D->response();
+        return $blockedClients->response();
 
 
 
