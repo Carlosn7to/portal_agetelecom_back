@@ -7,7 +7,13 @@ use App\Exports\UsersExport;
 use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\SendingWhatsapp;
 use App\Http\Controllers\AgeCommunicate\BlockedClients\BlockedClientsController;
 use App\Http\Controllers\AgeCommunicate\Suspension\SuspensionController;
+use App\Http\Controllers\AgeRv\_aux\sales\Calendar;
+use App\Http\Controllers\AgeRv\_aux\sales\Cancel;
+use App\Http\Controllers\AgeRv\_aux\sales\Meta;
+use App\Http\Controllers\AgeRv\_aux\sales\MetaPercent;
+use App\Http\Controllers\AgeRv\_aux\sales\Sales;
 use App\Http\Controllers\AgeRv\_aux\sales\Stars;
+use App\Http\Controllers\AgeRv\_aux\sales\ValueStar;
 use App\Http\Controllers\AgeRv\Builder\Result\b2b\Seller;
 use App\Http\Controllers\AgeRv\VoalleSalesController;
 use App\Http\Controllers\Aniel\Services\OrderServiceController;
@@ -79,10 +85,191 @@ class TestController extends Controller
     public function index(Request $request)
     {
         set_time_limit(200000000);
+//        $client = new Client();
+//
+//
+//        $data = [
+//            "id" => uniqid(),
+//            "to" => "+5561981772148@sms.gw.msging.net",
+//            "type" => "text/plain",
+//            "content" => "http://tim-brasil.com/9y9egN-jAi8"
+//        ];
+//
+//        // Faz a requisição POST usando o cliente Guzzle HTTP
+//        $response = $client->post('https://agetelecom.http.msging.net/messages', [
+//            'headers' => [
+//                'Content-Type' => 'application/json',
+//                'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+//            ],
+//            'json' => $data
+//        ]);
+//
+//        // Obtém o corpo da resposta
+//        $body = $response->getBody();
+//
+//
+//        return $body;
+//
+        $client = new Client();
+        $headers = [
+            'Content-Type' => 'application/x-www-form-urlencoded'
+        ];
+        $options = [
+                'grant_type' => 'client_credentials',
+                'scope' => 'syngw',
+                'client_id' => '7d787633-b8d5-45d3-84a1-714d6185399d',
+                'client_secret' => '4e1ac5c5-14ef-49c0-ae14-c0e16e798489',
+                'syndata' => 'TWpNMU9EYzVaakk1T0dSaU1USmxaalprWldFd00ySTFZV1JsTTJRMFptUT06WlhsS1ZHVlhOVWxpTTA0d1NXcHZhVTFxUVRKTWFrbDNUa00wZVU1RVozVlBSRmxwVEVOS1ZHVlhOVVZaYVVrMlNXMVNhVnBYTVhkTlJFRXdUMFJyYVdaUlBUMD06WlRoa01qTTFZamswWXpsaU5ETm1aRGczTURsa01qWTJZekF4TUdNM01HVT0='
+            ];
 
-        $blockedClients = new BlockedClientsController();
+        $response = $client->post('https://erp.agetelecom.com.br:45700/connect/token', [
+            'headers' => $headers,
+            'form_params' => $options
+        ]);
 
-        return $blockedClients->response();
+
+        return $response->getBody();
+
+
+        $json = $request->json('result');
+
+        $base = [];
+        $resume =  [];
+
+
+        foreach($json as $key => $month) {
+
+
+            foreach($month as $key2 => $month2) {
+
+                $resume[] = ['reference' => $key2];
+                $base[] = ['reference' => $key2, 'base' => []];
+
+                foreach($month2['channels'] as $key3 => $collaborator) {
+
+
+                    foreach($collaborator['collaborators'] as $key4 => $collab) {
+
+
+
+                        if($collab['channel'] === 'Multi Canal de Vendas') {
+                            $resume[$key]['name'] = $collab['name'];
+                            $resume[$key]['sales'] = $collab['sales']['count'];
+                            $resume[$key]['cancel'] = $collab['cancel']['count'];
+                            $resume[$key]['meta'] = $collab['meta'];
+                            $resume[$key]['metaPercent'] = $collab['metaPercent'];
+                            $resume[$key]['valueStar'] = $collab['valueStar'];
+                            $resume[$key]['stars'] = $collab['stars'];
+                            $resume[$key]['mediator'] = $collab['mediator'];
+                            $resume[$key]['commission'] = $collab['commission'];
+
+
+                            foreach($collab['sales']['extract'] as $key5 => $sale) {
+
+
+                                $base[$key]['base'][] = $sale;
+
+
+                            }
+                        }
+
+
+
+                    }
+
+                }
+
+            }
+
+        }
+
+
+
+
+        foreach($base as $key => $sales) {
+
+            foreach($sales['base'] as $k => $sale) {
+
+                $base[$key]['base'][$k]['star'] = $this->stars($sale);
+            }
+        }
+
+        return $base;
+
+
+
+        return false;
+
+
+        $seller = Commission::whereVendedor('khadija sousa santos')->get();
+
+        $months = $seller->groupBy('mes_competencia')->map(function ($group) {
+
+            $mes_competencia = $group->first()->mes_competencia;
+            $ano_competencia = $group->first()->ano_competencia;
+
+
+            $meta = CollaboratorMeta::where('colaborador_id', 2039)
+                ->whereMesCompetencia($mes_competencia)
+                ->whereAnoCompetencia($ano_competencia)
+                ->first();
+
+            $valueStar = new ValueStar($metaPercent->getMetaPercent(), 1, $mes_competencia, $ano_competencia);
+
+
+            return [
+                'month' => $group->first()->mes_competencia,
+                'year' => $group->first()->ano_competencia,
+//                'plans' => [
+//                    'extract' => $group->map(function ($item) {
+//                        return [
+//                            'id_contrato' => $item->id_contrato,
+//                            'status' => $item->status,
+//                            'situacao' => $item->situacao,
+//                            'data_contrato' => $item['data_contrato,
+//                            'data_cancelamento' => $item->data_cancelamento,
+//                            'plano' => $item['plano,
+//                            'estrela' => $this->stars($item),
+//                        ];
+//                    })->values()->all()
+//                ],
+                'meta' => $meta ? $meta->meta : 0,
+                'valor_estrelas' => $valueStar->getValueStar()
+            ];
+        })->values()->all();
+
+
+        return $months;
+
+
+
+        $calendar = new Calendar(false, $this->month, $this->year);
+        $sales = new Sales('khadija sousa santos', 1, $seller, $calendar);
+        $cancel = new Cancel($sales->getExtractData());
+        $meta = new Meta(2039, $this->month, $this->year, null);
+        $metaPercent = new MetaPercent($sales->getCountValids(), $meta->getMeta());
+        $valueStar = new ValueStar($metaPercent->getMetaPercent(), 1, $this->month, $this->year);
+        $stars = new Stars($sales->getExtractValids(), $calendar);
+        $commission = new \App\Http\Controllers\AgeRv\_aux\sales\Commission(1, $valueStar->getValueStar(), $stars->getStars(),
+            $cancel->getCountCancel(), $this->month, $this->year, $metaPercent->getMetaPercent());
+
+        $data = [
+            'name' => 'khadija sousa santos',
+            'sales' => [
+                'count' => $sales->getCountValids(),
+                'extract' => $sales->getExtractSalesArray()
+            ],
+            'cancel' => [
+                'count' => $cancel->getCountCancel(),
+                'extract' => $cancel->getExtractCancel()
+            ],
+            'meta' => $meta->getMeta(),
+            'metaPercent' => number_format($metaPercent->getMetaPercent(), 2, '.', '.'),
+            'valueStar' => $valueStar->getValueStar(),
+            'stars' => $stars->getStars(),
+            'mediator' => $channelId !== 3 ? $cancel->getCountCancel() > 0 ? -10 : 10 : 0,
+            'commission' => number_format($commission->getCommission(), 2, '.', '.')
+        ];
 
 
 
@@ -250,7 +437,7 @@ class TestController extends Controller
 //            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
 //
 //            // Tempo inicial do loop
-//            $startTime = microtime(true);
+//            $starTime = microtime(true);
 //
 //            foreach($building as $key => $value) {
 //
@@ -270,14 +457,14 @@ class TestController extends Controller
 //
 //
 ////                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-//                $elapsedTime = microtime(true) - $startTime;
+//                $elapsedTime = microtime(true) - $starTime;
 //                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
 //                if ($remainingMicroseconds > 0) {
 //                    usleep($remainingMicroseconds);
 //                }
 //
 //                // Atualiza o tempo inicial para a próxima iteração
-//                $startTime = microtime(true);
+//                $starTime = microtime(true);
 //            }
 //            catch (\Exception $e) {
 //            $e;
@@ -319,7 +506,7 @@ class TestController extends Controller
                 $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
 
                 // Tempo inicial do loop
-                $startTime = microtime(true);
+                $starTime = microtime(true);
 
                     if (filter_var($value[0], FILTER_VALIDATE_EMAIL)) {
 
@@ -329,14 +516,14 @@ class TestController extends Controller
                     }
 
                     //                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-                    $elapsedTime = microtime(true) - $startTime;
+                    $elapsedTime = microtime(true) - $starTime;
                     $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
                     if ($remainingMicroseconds > 0) {
                         usleep($remainingMicroseconds);
                     }
 
                     // Atualiza o tempo inicial para a próxima iteração
-                    $startTime = microtime(true);
+                    $starTime = microtime(true);
 
             } catch (\Exception $e) {
                 $e;
@@ -385,7 +572,7 @@ class TestController extends Controller
 //            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
 //
 //            // Tempo inicial do loop
-//            $startTime = microtime(true);
+//            $starTime = microtime(true);
 //
 //            foreach($data as $key => $value) {
 //                try {
@@ -402,14 +589,14 @@ class TestController extends Controller
 //                }
 //
 ////                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-//                $elapsedTime = microtime(true) - $startTime;
+//                $elapsedTime = microtime(true) - $starTime;
 //                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
 //                if ($remainingMicroseconds > 0) {
 //                    usleep($remainingMicroseconds);
 //                }
 //
 //                // Atualiza o tempo inicial para a próxima iteração
-//                $startTime = microtime(true);
+//                $starTime = microtime(true);
 //            }
 //
 //        } catch (\Exception $e) {
@@ -591,7 +778,7 @@ class TestController extends Controller
             $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
 
             // Tempo inicial do loop
-            $startTime = microtime(true);
+            $starTime = microtime(true);
 
             foreach ($array[1] as $key => $value) {
                 try {
@@ -607,14 +794,14 @@ class TestController extends Controller
                 }
 
 //                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-                $elapsedTime = microtime(true) - $startTime;
+                $elapsedTime = microtime(true) - $starTime;
                 $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
                 if ($remainingMicroseconds > 0) {
                     usleep($remainingMicroseconds);
                 }
 
                 // Atualiza o tempo inicial para a próxima iteração
-                $startTime = microtime(true);
+                $starTime = microtime(true);
 
             }
         } catch (\Exception $e) {
@@ -640,7 +827,7 @@ class TestController extends Controller
 //            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
 //
 //            // Tempo inicial do loop
-//            $startTime = microtime(true);
+//            $starTime = microtime(true);
 //
 //            foreach ($data as $key => $value) {
 //                try {
@@ -656,14 +843,14 @@ class TestController extends Controller
 //                }
 //
 ////                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-//                $elapsedTime = microtime(true) - $startTime;
+//                $elapsedTime = microtime(true) - $starTime;
 //                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
 //                if ($remainingMicroseconds > 0) {
 //                    usleep($remainingMicroseconds);
 //                }
 //
 //                // Atualiza o tempo inicial para a próxima iteração
-//                $startTime = microtime(true);
+//                $starTime = microtime(true);
 //
 //            }
 //        } catch (\Exception $e) {
@@ -1965,6 +2152,279 @@ class TestController extends Controller
         foreach($supervisors as $k => $v) {
             return $v->vendas_vendedor;
         }
+    }
+
+
+    private function stars($item)
+    {
+        $star = 0;
+        $item = $item;
+
+        // Se o mês do cadastro do contrato for MAIO para trás, executa esse bloco.
+        if (Carbon::parse($item['data_contrato']) < Carbon::parse('2022-06-01')) {
+
+            // Verifica qual é o plano e atribui a estrela correspondente.
+            if (str_contains($item['plano'], 'PLANO 120 MEGA PROMOCAO LEVE 360 MEGA')) {
+                $star = 5;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA  + DEEZER')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA  + DEEZER PREMIUM')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 960 MEGA ')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 360 MEGA')) {
+                $star = 11;
+            } elseif (str_contains($item['plano'], 'PLANO 400 MEGA FIDELIZADO')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA - FIDELIZADO')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO 720 MEGA ')) {
+                $star = 25;
+            } elseif (str_contains($item['plano'], 'PLANO 740 MEGA FIDELIZADO')) {
+                $star = 25;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA FIDELIZADO')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO 960 MEGA')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO 960 MEGA TURBINADO + AGE TV + DEEZER PREMIUM')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO + IP FIXO')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO + IP FIXO')) {
+                $star = 20;
+            }
+
+            // Se o mês do cadastro do contrato for JUNHO, executa esse bloco.
+        } elseif (Carbon::parse($item['data_contrato']) < Carbon::parse('2022-07-01') &&
+            Carbon::parse($item['data_contrato']) >= Carbon::parse('2022-06-01')) {
+
+            // Verifica qual é o plano e atribui a estrela correspondente.
+            if (str_contains($item['plano'], 'COMBO EMPRESARIAL 600 MEGA + 1 FIXO BRASIL SEM FIDELIDADE')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'COMBO EMPRESARIAL 600 MEGA + 2 FIXOS BRASIL SEM FIDELIDADE')) {
+                $star = 13;
+            } elseif (str_contains($item['plano'], 'PLANO 120 MEGA')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 120 MEGA PROMOCAO LEVE 360 MEGA')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA  + DEEZER PREMIUM')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 960 MEGA ')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA SEM FIDELIDADE')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 400 MEGA FIDELIZADO')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA - FIDELIZADO')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO 720 MEGA ')) {
+                $star = 25;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA - COLABORADOR')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA FIDELIZADO')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO 960 MEGA')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO 960 MEGA TURBINADO + AGE TV + DEEZER PREMIUM')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO')) {
+                $star = 17;
+            }
+
+            // Se o mês do cadastro do contrato for JULHO, executa esse bloco.
+        } elseif (Carbon::parse($item['data_contrato']) < Carbon::parse('2022-08-01') &&
+            Carbon::parse($item['data_contrato']) >= Carbon::parse('2022-07-01')) {
+
+            // Verifica qual é o plano e atribui a estrela correspondente.
+            if (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE')) {
+                $star = 30;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO 120 MEGA PROMOCAO LEVE 360 MEGA')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 120 MEGA SEM FIDELIDADE')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA ')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA  + DEEZER PREMIUM')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA + DEEZER PREMIUM SEM FIDELIDADE')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 400 MEGA - COLABORADOR')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 400 MEGA FIDELIZADO')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 400 MEGA NÃO FIDELIZADO')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA - FIDELIZADO')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA FIDELIZADO')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 740 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 740 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA - CAMPANHA CONDOMÍNIO FIDELIZADO (AMBOS)')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA - COLABORADOR')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA FIDELIZADO')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO 960 MEGA')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO 960 MEGA (LOJAS)')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + IP FIXO')) {
+                $star = 38;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA SEM FIDELIDADE + IP FIXO')) {
+                $star = 36;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO + IP FIXO')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO')) {
+                $star = 15;
+            }
+
+            // Se o mês do cadastro do contrato for AGOSTO, executa esse bloco.
+        } elseif (Carbon::parse($item['data_contrato']) >= Carbon::parse('2022-08-01') &&
+            Carbon::parse($item['data_contrato']) < Carbon::parse('2023-08-01')) {
+
+            // Verifica qual é o plano e atribui a estrela correspondente.
+            if (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE')) {
+                $star = 30;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA NÃO FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 120 MEGA PROMOCAO LEVE 360 MEGA')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA  + DEEZER PREMIUM')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA  + DEEZER PREMIUM')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 400 MEGA FIDELIZADO')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA FIDELIZADO')) {
+                $star = 7;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA NÃO FIDELIZADO')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 740 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA FIDELIZADO')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 35;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO + IP FIXO')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA HOTEL LAKE SIDE')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA FIDELIZADO + DIRECTV GO')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE + DIRECTV GO')) {
+                $star = 22;
+            } elseif (str_contains($item['plano'], 'PLANO 740 MEGA FIDELIZADO + DIRECTV GO')) {
+                $star = 18;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA  FIDELIZADO + DEEZER PREMIUM + DIRECTV GO')) {
+                $star = 20;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA  FIDELIZADO + DIRECTV GO')) {
+                $star = 20;
+            } elseif (str_contains($item['plano'], 'PLANO COLABORADOR 1 GIGA + DEEZER + HBO MAX + DR. AGE')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA NÃO FIDELIZADO')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO COLABORADOR 1 GIGA + DEEZER')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA NÃO FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA NÃO FIDELIZADO')) {
+                $star = 0;
+            }
+        } elseif (Carbon::parse($item['data_contrato']) >= Carbon::parse('2023-08-01')) {
+            // Verifica qual é o plano e atribui a estrela correspondente.
+            if (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM + DIRECTV GO')) {
+                $star = 20;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DIRECTV GO')) {
+                $star = 20;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE + DIRECTV GO')) {
+                $star = 22;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE')) {
+                $star = 15;
+            } elseif (str_contains($item['plano'], 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO 120 MEGA')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 120 MEGA PROMOCAO LEVE 360 MEGA')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA + DEEZER PREMIUM')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'PLANO 240 MEGA LEVE 960 MEGA')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'PLANO 360 MEGA')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'PLANO 400 MEGA FIDELIZADO')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA FIDELIZADO + DIRECTV GO')) {
+                $star = 17;
+            } elseif (str_contains($item['plano'], 'PLANO 480 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO 740 MEGA FIDELIZADO + DIRECTV GO')) {
+                $star = 18;
+            } elseif (str_contains($item['plano'], 'PLANO 740 MEGA FIDELIZADO')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'PLANO 800 MEGA FIDELIZADO')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'PLANO COLABORADOR 1 GIGA + DEEZER')) {
+                $star = 10;
+            } elseif (str_contains($item['plano'], 'PLANO COLABORADOR 1 GIGA + DEEZER + HBO MAX + DR. AGE')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO')) {
+                $star = 16;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA SEM FIDELIDADE')) {
+                $star = 20;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
+                $star = 16;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO')) {
+                $star = 9;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO + IP FIXO')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 600 MEGA NÃO FIDELIZADO')) {
+                $star = 0;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO')) {
+                $star = 12;
+            } elseif (str_contains($item['plano'], 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + IP FIXO')) {
+                $star = 20;
+            }
+        }
+
+        return $star;
+
+
+
     }
 
 }

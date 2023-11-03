@@ -37,5 +37,12 @@ Route::group(['middleware' => 'auth:api'], function () {
             });
         });
 
+        Route::prefix('service-desk')->group(function () {
+            Route::controller(\App\Http\Controllers\AgeTools\Tools\ServiceDesk\ServiceDeskController::class)->prefix('/')->group(function () {
+                Route::get('client/{cpf}', 'getClient');
+                Route::get('contract/{clientId}', 'getContract');
+                Route::get('connection/{contractId}', 'getInfoConnection');
+            });
+        });
     });
 });
