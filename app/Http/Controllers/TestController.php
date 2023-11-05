@@ -85,6 +85,76 @@ class TestController extends Controller
     public function index(Request $request)
     {
         set_time_limit(200000000);
+
+        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+
+        $headers = [];
+        $result = [];
+        foreach($array[0] as $key => $value) {
+
+                if($key === 0) {
+                    $headers = $value;
+                } else {
+                    $array[0][$key] = array_combine($headers, $value);
+                    $result[] = [
+                        "Contrato" => $value[0],
+                        "Contrato_1" => $value[1],
+                        "Data Agendamento" => $value[2],
+                        "Numero do Cliente" => $value[3],
+                        "Protocolo" => $value[4],
+                        "Bairro" => $value[5],
+                        "CEP" => $value[6],
+                        "CPF\/CNPJ" => $value[7],
+                        "Cidade" => $value[8],
+                        "Cliente" => $value[9],
+                        "Complemento" => $value[10],
+                        "Abertura" => $value[11],
+                        "E-mail" => $value[12],
+                        "Latitude" => null,
+                        "Endereço" => $value[14],
+                        "Longitude" => null,
+                        "Numero" => $value[16],
+                        "Período" => $value[17],
+                        "Tel Celular" => $value[18],
+                        "Tel Residencial" => $value[19],
+                        "Tipo de Imovel" => $value[20],
+                        "Tipo de Serviço" => $value[21],
+                        "Área de Despacho" =>$value[22]
+                    ];
+                }
+
+
+        }
+
+        $data = [];
+
+        $client = new Client();
+
+        foreach($result as $key => $value) {
+
+
+        $addressFormatted = "{$value['Endereço']} {$value['Numero']} {$value['Bairro']} {$value['Cidade']}";
+
+        $addressFormatted = str_replace(' ', '+', $addressFormatted);
+
+        // Faz a requisição POST usando o cliente Guzzle HTTP
+            $response = $client->get('https://maps.googleapis.com/maps/api/geocode/json?address='.$addressFormatted.'&key=AIzaSyAU22qEwlrC4cLLyTAFviFZGBG3ZIrpCKM', [
+                'headers' => [
+                    'Content-Type' => 'application/json'
+                ]
+            ]);
+        $body = $response->getBody();
+
+        $response = json_decode($body);
+        $result[$key]['Latitude'] =  $response->results[0]->geometry->location->lat;
+        $result[$key]['Longitude'] = $response->results[0]->geometry->location->lng;
+
+        }
+
+        return $result;
+
+
+        return $array;
 //        $client = new Client();
 //
 //

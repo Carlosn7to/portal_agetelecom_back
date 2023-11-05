@@ -110,10 +110,10 @@ class OrderServiceController extends Controller
                 people.lng as "Longitude",
                 cliente.number AS "Numero",
                  case
-                    when extract (hour from assignment_incidents.responsible_final_date) between 6 and 11 then\'MANHA\'
-                    when extract (hour from assignment_incidents.responsible_final_date) between 12 and 19 then \'TARDE\'
+                    when extract (hour from assignment_incidents.responsible_final_date) between 6 and 11 then\'Manhã\'
+                    when extract (hour from assignment_incidents.responsible_final_date) between 12 and 19 then \'Tarde\'
                     when assignment_incidents.responsible_final_date is null then \'SEM TURNO MARCADO\'
-                    ELSE \'NOITE\'
+                    ELSE \'Noite\'
                   END AS "Período",
                 cliente.cell_phone_1 as "Tel Celular",
                 cliente.phone as  "Tel Residencial",
