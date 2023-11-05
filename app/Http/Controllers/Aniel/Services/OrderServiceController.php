@@ -50,8 +50,6 @@ class OrderServiceController extends Controller
         }
 
 
-
-
         foreach($result as $key => $value) {
 
 
@@ -72,6 +70,9 @@ class OrderServiceController extends Controller
             $value->Longitude = $response->results[0]->geometry->location->lng;
 
         }
+
+        return $result;
+
 
 
         $headers  = [
@@ -98,6 +99,8 @@ class OrderServiceController extends Controller
             'Tipo de Serviço',
             'Área de Despacho',
         ];
+
+
 
         return \Maatwebsite\Excel\Facades\Excel::download(new ReportExport($result, $headers), 'import_orders.xlsx');
 
@@ -160,7 +163,7 @@ class OrderServiceController extends Controller
                 and TO_CHAR( assignment_incidents.responsible_final_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
                 and incident_status.id <> \'8\'
                 and DATE(assignment_incidents.responsible_final_date) between \'2023-11-06\' and \'2023-12-30\'
-                and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\')
+                and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\')
                 order by 2 desc';
 
 
