@@ -86,6 +86,18 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
+        $import = new OrderServiceController();
+
+
+        $result = $import->__invoke();
+
+
+
+        return $result;
+
+        return false;
+
+
         $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
         $headers = [];

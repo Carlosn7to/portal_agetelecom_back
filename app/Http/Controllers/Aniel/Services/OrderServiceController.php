@@ -33,6 +33,24 @@ class OrderServiceController extends Controller
         foreach($result as $key => $value) {
 
 
+            $query = 'select DATE(s.start_date) from erp.schedules s where s.assignment_id = '.$value->assignment_id.'  order by s.id desc limit 1';
+
+            $consult = DB::connection('pgsql')->select($query);
+
+
+            if(!empty($consult)) {
+                $result[$key]->Data_Agendamento = $consult[0]->date;
+            } else {
+                $result[$key]->Data_Agendamento = null;
+            }
+
+        }
+
+
+
+        foreach($result as $key => $value) {
+
+
             $addressFormatted = "$value->Endereço $value->Numero $value->Bairro $value->Cidade";
             $addressFormatted = str_replace(' ', '+', $addressFormatted);
 
@@ -94,7 +112,7 @@ class OrderServiceController extends Controller
         select distinct
                 coalesce(contract_service_tags.contract_id,\'000000\') as "Contrato",
                 coalesce(contract_service_tags.contract_id,\'000000\') as "Contrato",
-                TO_CHAR(assignment_incidents.responsible_final_date::DATE,\'YYYY-MM-DD\') as "Data Agendamento",
+                TO_CHAR(assignment_incidents.responsible_final_date::DATE,\'YYYY-MM-DD\') as "Data_Agendamento",
                 assignments.requestor_id as "Numero do Cliente",
                 assignment_incidents.protocol as "Protocolo",
                 cliente.neighborhood AS "Bairro",
@@ -119,7 +137,8 @@ class OrderServiceController extends Controller
                 cliente.phone as  "Tel Residencial",
                 \'INDIFERENTE\' as "Tipo de Imovel",
                 incident_types.title as "Tipo de Serviço",
-                \'DISTRITO FEDERAL\' as "Área de Despacho"
+                \'DISTRITO FEDERAL\' as "Área de Despacho",
+                a.id as "assignment_id"
                 from erp.assignments
                 inner join erp.assignment_incidents on (assignment_incidents.assignment_id = assignments.id )
                 inner join erp.incident_types on (incident_types.id = assignment_incidents.incident_type_id)
