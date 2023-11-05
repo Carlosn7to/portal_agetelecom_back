@@ -21,6 +21,7 @@ class OrderServiceController extends Controller
 
     public function importData()
     {
+        set_time_limit(2000);
 
         $query = $this->getQuery();
 
