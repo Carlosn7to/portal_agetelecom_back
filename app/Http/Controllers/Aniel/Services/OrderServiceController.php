@@ -21,9 +21,12 @@ class OrderServiceController extends Controller
 
     public function importData()
     {
-        set_time_limit(2000);
+        set_time_limit(20000);
+
+
 
         $query = $this->getQuery();
+
 
 
         $result = DB::connection('pgsql')->select($query);
@@ -32,11 +35,10 @@ class OrderServiceController extends Controller
 
 
 
-
         foreach($result as $key => $value) {
 
 
-            $query = 'select DATE(s.start_date) from erp.schedules s where s.assignment_id = '.$value->assignment_id.'  order by s.id desc limit 1';
+            $query = 'select DATE(s.start_date) from erp.schedules s where s.assignment_id = '.$value->assignment_id.' order by s.id desc limit 1';
 
             $consult = DB::connection('pgsql')->select($query);
 
@@ -50,24 +52,36 @@ class OrderServiceController extends Controller
         }
 
 
+
+
         foreach($result as $key => $value) {
 
 
             $addressFormatted = "$value->Endereço $value->Numero $value->Bairro $value->Cidade";
             $addressFormatted = str_replace(' ', '+', $addressFormatted);
 
-            // Faz a requisição POST usando o cliente Guzzle HTTP
-            $response = $client->get('https://maps.googleapis.com/maps/api/geocode/json?address='.$addressFormatted.'&key=AIzaSyAU22qEwlrC4cLLyTAFviFZGBG3ZIrpCKM', [
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ]
-            ]);
-            $body = $response->getBody();
+            $inc = $value->incident_type_id;
 
-            $response = json_decode($body);
 
-            $value->Latitude =  $response->results[0]->geometry->location->lat;
-            $value->Longitude = $response->results[0]->geometry->location->lng;
+           if($inc === 1020 || $inc === 1086 || $inc === 1011) {
+               // Faz a requisição POST usando o cliente Guzzle HTTP
+               $response = $client->get('https://maps.googleapis.com/maps/api/geocode/json?address='.$addressFormatted.'&key=AIzaSyAU22qEwlrC4cLLyTAFviFZGBG3ZIrpCKM', [
+                   'headers' => [
+                       'Content-Type' => 'application/json'
+                   ]
+               ]);
+               $body = $response->getBody();
+
+               $response = json_decode($body);
+
+               if(!empty($response->results)) {
+                   $value->Latitude =  $response->results[0]->geometry->location->lat;
+                   $value->Longitude = $response->results[0]->geometry->location->lng;
+               } else {
+                   $result[$key]->Latitude = null;
+                   $result[$key]->Longitude = null;
+               }
+           }
 
         }
 
@@ -145,7 +159,8 @@ class OrderServiceController extends Controller
                 \'INDIFERENTE\' as "Tipo de Imovel",
                 incident_types.title as "Tipo de Serviço",
                 \'DISTRITO FEDERAL\' as "Área de Despacho",
-                a.id as "assignment_id"
+                a.id as "assignment_id",
+                incident_types.id as "incident_type_id"
                 from erp.assignments
                 inner join erp.assignment_incidents on (assignment_incidents.assignment_id = assignments.id )
                 inner join erp.incident_types on (incident_types.id = assignment_incidents.incident_type_id)
@@ -162,7 +177,7 @@ class OrderServiceController extends Controller
                 and TO_CHAR( assignments.final_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
                 and TO_CHAR( assignment_incidents.responsible_final_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
                 and incident_status.id <> \'8\'
-                and DATE(assignment_incidents.responsible_final_date) between \'2023-11-06\' and \'2023-12-30\'
+                and DATE(a.created) >= \'2023-10-20\'
                 and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\')
                 order by 2 desc';
 
