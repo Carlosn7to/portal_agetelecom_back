@@ -157,7 +157,6 @@ class OrderServiceController extends Controller
         cliente.phone as  "Tel Residencial",
         \'INDIFERENTE\' as "Tipo de Imovel",
         incident_types.title as "Tipo de Serviço",
-        incident_types.title as "Tipo de Serviço_2",
         case WHEN cliente.neighborhood = \'Recanto das Emas\' THEN \'RECANTO DAS EMAS\'
         WHEN cliente.neighborhood = \'Samambaia Sul (Samambaia)\' THEN \'Samambaia\'
         WHEN cliente.neighborhood = \'Ceilândia Norte (Ceilândia)\' THEN \'Ceilândia Norte\'
