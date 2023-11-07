@@ -36,14 +36,13 @@ class BuilderController extends Controller
 
 
         $query = $this->getQuery();
-//
+
         $data = DB::connection('pgsql')->select($query);
 
 
-//        $whatsapp = $this->sendMessage($data);
+        $whatsapp = $this->sendMessage($data);
         $email = $this->sendEmail($data);
-        dd($email);
-//        $sms = $this->sendSMS($data);
+        $sms = $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [
@@ -218,12 +217,12 @@ class BuilderController extends Controller
 
         try {
             // Defina o número máximo de iterações por segundo
-//            $maxIterationsPerSecond = 150;
-//            $microsecondsPerSecond = 1000000;
-//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
-//
-////                 Tempo inicial do loop
-//            $startTime = microtime(true);
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+//                 Tempo inicial do loop
+            $startTime = microtime(true);
 
             foreach ($data as $key => $value) {
                 try {
@@ -234,16 +233,16 @@ class BuilderController extends Controller
                                 $templates[$k]['sendings']++;
 
                                 if ($v['variable'] === true) {
-//                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone, ['d' => $v['d']]);
-//                                     $sendingWhatsapp->builder();
+                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone, ['d' => $v['d']]);
+                                     $sendingWhatsapp->builder();
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
                                         'client' => $value
                                     ];
                                 } else {
-//                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
-//                                     $sendingWhatsapp->builder();
+                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
+                                     $sendingWhatsapp->builder();
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
@@ -262,15 +261,15 @@ class BuilderController extends Controller
                     $e;
                 }
 
-//                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-//                $elapsedTime = microtime(true) - $startTime;
-//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
-//                if ($remainingMicroseconds > 0) {
-//                    usleep($remainingMicroseconds);
-//                }
-//
-////                 Atualiza o tempo inicial para a próxima iteração
-//                $startTime = microtime(true);
+                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+                $elapsedTime = microtime(true) - $startTime;
+                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                if ($remainingMicroseconds > 0) {
+                    usleep($remainingMicroseconds);
+                }
+
+//                 Atualiza o tempo inicial para a próxima iteração
+                $startTime = microtime(true);
 
             }
         } catch (\Exception $e) {
@@ -429,13 +428,13 @@ class BuilderController extends Controller
         $dateFormatted = "$dia de $mes de $ano";
 
         try  {
-            // Defina o número máximo de iterações por segundo
-//            $maxIterationsPerSecond = 150;
-//            $microsecondsPerSecond = 1000000;
-//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
-//
-//            // Tempo inicial do loop
-//            $startTime = microtime(true);
+//             Defina o número máximo de iterações por segundo
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+            // Tempo inicial do loop
+            $startTime = microtime(true);
 
             foreach ($data as $key => $value) {
                 try {
@@ -452,7 +451,7 @@ class BuilderController extends Controller
                         ];
 
 
-                        $mail = Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
+                        $mail = Mail::mailer('fat')->to($value->email)
                             ->send(new SendSCPC($value->name, $value->tx_id, $debits, $dateFormatted));
 
 
@@ -464,11 +463,9 @@ class BuilderController extends Controller
                             if ($value->days_until_expiration == $v['rule']) {
 
                                 $templates[$k]['sendings']++;
-//
-//                                Mail::mailer('fat')->to($value->email)
-//                                    ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
-//
-//
+
+                                Mail::mailer('fat')->to($value->email)
+                                    ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
 
 
 
@@ -485,9 +482,9 @@ class BuilderController extends Controller
                                 if(in_array($value->days_until_expiration, $v['rule'])) {
                                     $templates[$k]['sendings']++;
 
-//
-//                                    Mail::mailer('fat')->to($value->email)
-//                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
+
+                                    Mail::mailer('fat')->to($value->email)
+                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
 
 
                                     $sendings['success'][] = [
@@ -511,14 +508,14 @@ class BuilderController extends Controller
                 }
 
 //                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-//                $elapsedTime = microtime(true) - $startTime;
-//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
-//                if ($remainingMicroseconds > 0) {
-//                    usleep($remainingMicroseconds);
-//                }
-//
-//                // Atualiza o tempo inicial para a próxima iteração
-//                $startTime = microtime(true);
+                $elapsedTime = microtime(true) - $startTime;
+                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                if ($remainingMicroseconds > 0) {
+                    usleep($remainingMicroseconds);
+                }
+
+                // Atualiza o tempo inicial para a próxima iteração
+                $startTime = microtime(true);
 
             }
         } catch (\Exception $e) {
@@ -591,13 +588,13 @@ class BuilderController extends Controller
         $client = new Client();
 
         try {
-            // Defina o número máximo de iterações por segundo
-//            $maxIterationsPerSecond = 150;
-//            $microsecondsPerSecond = 1000000;
-//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
-//
-////                 Tempo inicial do loop
-//            $startTime = microtime(true);
+//             Defina o número máximo de iterações por segundo
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+//                 Tempo inicial do loop
+            $startTime = microtime(true);
 
             foreach ($data as $key => $value) {
 
@@ -620,26 +617,26 @@ class BuilderController extends Controller
                                     $template = str_replace('{barcode}', $value->barcode, $template);
 
 
-//                                    // Cria o array com os dados a serem enviados
-//
-//                                    $data = [
-//                                        "id" => uniqid(),
-//                                        "to" => "+55$value->phone@sms.gw.msging.net",
-//                                        "type" => "text/plain",
-//                                        "content" => "$template"
-//                                    ];
-//
-//                                    // Faz a requisição POST usando o cliente Guzzle HTTP
-//                                    $response = $client->post('https://agetelecom.http.msging.net/messages', [
-//                                        'headers' => [
-//                                            'Content-Type' => 'application/json',
-//                                            'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
-//                                        ],
-//                                        'json' => $data
-//                                    ]);
-//
-//                                    // Obtém o corpo da resposta
-//                                    $body = $response->getBody();
+                                    // Cria o array com os dados a serem enviados
+
+                                    $data = [
+                                        "id" => uniqid(),
+                                        "to" => "+55$value->phone@sms.gw.msging.net",
+                                        "type" => "text/plain",
+                                        "content" => "$template"
+                                    ];
+
+                                    // Faz a requisição POST usando o cliente Guzzle HTTP
+                                    $response = $client->post('https://agetelecom.http.msging.net/messages', [
+                                        'headers' => [
+                                            'Content-Type' => 'application/json',
+                                            'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+                                        ],
+                                        'json' => $data
+                                    ]);
+
+                                    // Obtém o corpo da resposta
+                                    $body = $response->getBody();
 
 
                                     $sendings['success'][] = [
@@ -660,15 +657,15 @@ class BuilderController extends Controller
                     $e;
                 }
 
-//                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-//                $elapsedTime = microtime(true) - $startTime;
-//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
-//                if ($remainingMicroseconds > 0) {
-//                    usleep($remainingMicroseconds);
-//                }
-//
-//                // Atualiza o tempo inicial para a próxima iteração
-//                $startTime = microtime(true);
+                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+                $elapsedTime = microtime(true) - $startTime;
+                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                if ($remainingMicroseconds > 0) {
+                    usleep($remainingMicroseconds);
+                }
+
+                // Atualiza o tempo inicial para a próxima iteração
+                $startTime = microtime(true);
 
             }
         } catch (\Exception $e) {
@@ -714,8 +711,6 @@ class BuilderController extends Controller
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
                 and frt.typeful_line is not null
-                and (current_date - frt.expiration_date) = 30
-                limit 1
             ';
 //
 //        $query = '
