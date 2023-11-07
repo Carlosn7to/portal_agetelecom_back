@@ -16,7 +16,7 @@
                 </tr>
                 <tr>
                     <td style="padding: 10px; text-align: left;">
-                        <p>Brasília, 23 de Outubro de 2023</p>
+                        <p>Brasília, {{ $data['dateActual']  }}</p>
                         <p><strong>{{ $data['nameClient'] }}</strong></p>
                         <p><strong>CPF:{{$data['cpf']}}</strong></p>
                     </td>
@@ -55,7 +55,7 @@
                                     OPERAÇÃO
                                 </th>
                                 <th style="padding: 5px; background-color: #ffffff; color: #000000;font-size: 13px;">
-                                    VALOR DO DÉBITO
+                                    VALOR ORIGINAL DO DÉBITO
                                 </th>
                                 <th style="padding: 5px; background-color: #ffffff; color: #000000;font-size: 13px;">
                                     DATA DO DÉBITO
