@@ -114,7 +114,6 @@ class OrderServiceController extends Controller
             'Tel Residencial',
             'Tipo de Imovel',
             'Tipo de Serviço',
-            'Tipo de Serviço',
             'Node',
             'Área de Despacho',
             'Grupo',
