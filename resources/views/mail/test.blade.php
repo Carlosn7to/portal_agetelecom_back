@@ -88,7 +88,7 @@
 
 <body>
 <div class="container">
-    {{ php_ini_loaded_file() }}
+    {{ $data }}
 </div>
 </body>
 
