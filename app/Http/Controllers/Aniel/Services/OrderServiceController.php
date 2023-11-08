@@ -293,7 +293,7 @@ class OrderServiceController extends Controller
         regexp_replace(assignments.description, \'<[^>]+>\', \'\', \'g\') as "Observação",
     	\'DISTRITO FEDERAL\' as "Grupo",
     	assignments.id as "assignment_id",
-    	TO_CHAR(s.created::DATE, \'YYYY-MM-DD\') as "Data Agendamento"
+    	TO_CHAR(s.start_date::DATE, \'YYYY-MM-DD\') as "Data Agendamento"
         from erp.assignments
         inner join erp.assignment_incidents on (assignment_incidents.assignment_id = assignments.id )
         inner join erp.incident_types on (incident_types.id = assignment_incidents.incident_type_id)
