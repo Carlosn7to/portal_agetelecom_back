@@ -44,7 +44,7 @@ class OrderServiceController extends Controller
 
 
             if(!empty($consult)) {
-                $result[$key]->Data_Agendamento = $consult[0]->date;
+//                $result[$key]->Data_Agendamento = $consult[0]->date;
 
 
 
@@ -59,7 +59,7 @@ class OrderServiceController extends Controller
                 }
 
             } else {
-                $result[$key]->Data_Agendamento = null;
+//                $result[$key]->Data_Agendamento = null;
             }
 
 
