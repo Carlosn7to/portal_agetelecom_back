@@ -78,6 +78,8 @@ class Master
 
     public function response()
     {
+
+
         if($this->data->isNotEmpty()) {
 
             return [
