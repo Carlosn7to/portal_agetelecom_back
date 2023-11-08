@@ -10,6 +10,6 @@ class TestController extends Controller
 
     public function index(Request $request)
     {
-        return view('mail.ageCommunicate.base.blockedClients.blockedClients');
+        return view('mail.test');
     }
 }
