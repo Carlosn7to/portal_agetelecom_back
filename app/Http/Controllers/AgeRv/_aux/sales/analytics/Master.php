@@ -59,7 +59,6 @@ class Master
         $this->data = \App\Models\AgeRv\Commission::where('mes_competencia', $this->month)
             ->where('ano_competencia', $this->year)
             ->whereStatus('Aprovado')
-            ->where('vendedor', 'like', "khadija%")
             ->selectRaw('LOWER(supervisor) as supervisor, LOWER(vendedor) as vendedor,
                                                                                     id_contrato,
                                                                                     status, situacao,
