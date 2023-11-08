@@ -35,7 +35,6 @@ class OrderServiceController extends Controller
         $client = new Client();
 
 
-        return $result;
 
         foreach($result as $key => $value) {
 
