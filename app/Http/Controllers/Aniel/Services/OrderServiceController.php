@@ -34,7 +34,6 @@ class OrderServiceController extends Controller
         $addressFormatted = '';
         $client = new Client();
 
-        return count($result);
 
         foreach($result as $key => $value) {
 
