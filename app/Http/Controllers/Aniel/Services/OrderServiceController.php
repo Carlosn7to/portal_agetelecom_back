@@ -35,7 +35,6 @@ class OrderServiceController extends Controller
         $client = new Client();
 
 
-        return $result;
 
         foreach($result as $key => $value) {
 
@@ -314,7 +313,6 @@ class OrderServiceController extends Controller
         where incident_types.active = \'1\' and assignments.deleted = \'0\' and incident_types.deleted = \'0\'
         and TO_CHAR( s.start_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
         and people.deleted = \'0\'
-        and contracts.v_stage = \'Em Aprovação\'
         and s.created between to_timestamp(current_date || \' '.Carbon::now()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\') and to_timestamp(current_date || \' '.Carbon::now()->addHour()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\')
          and people.deleted = \'0\' and incident_status.id <> \'8\'
          and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\') order by 2 desc
