@@ -86,7 +86,62 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
+//
+//        $query = 'SELECT
+//    a.title as Protocolo,
+//    ai.protocol as Nº_protocolo,
+//    vu.name as Atendente_Origem,
+//    cs.title as Catalago_de_Servico,
+//    csi.title as itens_de_serviço,
+//    csc.title as Sub_item,
+//    sp.title as Problema,
+//    sc.title as Contexto,
+//    a.beginning_date as data_abertura,
+//    CASE EXTRACT(MONTH FROM a.beginning_date)
+//    	WHEN 1 THEN \'Janeiro\'
+//    	WHEN 2 THEN \'Fevereiro\'
+//    	WHEN 3 THEN \'Março\'
+//    	WHEN 4 THEN \'Abril\'
+//    	WHEN 5 THEN \'Maio\'
+//    	WHEN 6 THEN \'Junho\'
+//    	WHEN 7 THEN \'Julho\'
+//    	WHEN 8 THEN \'Agosto\'
+//    	WHEN 9 THEN \'Setembro\'
+//    	WHEN 10 THEN \'Outubro\'
+//    	WHEN 11 THEN \'Novembro\'
+//    	WHEN 12 THEN \'Dezembro\'
+//	END as mes_abertura,
+//	EXTRACT(YEAR FROM a.beginning_date) as ano_abertura,
+//	p2.name as Cliente,
+//	p2.id as ID_cliente,
+//	c2.id as Nº_contrato,
+//	c2.v_status as Status,
+//	c2.v_stage as Situacao,
+//	p2.neighborhood as Endereco,
+//	p2.street as Rua, p2."number" as Nº
+//from erp.assignments a
+//   left join erp.assignment_incidents ai on ai.assignment_id = a.id
+//   left join erp.incident_types it on it.id = ai.incident_type_id
+//   left join erp.catalog_services cs on cs.id = ai.catalog_service_id
+//   left join erp.catalog_services_items csi on csi.id = ai.catalog_service_item_id
+//   left join erp.catalog_service_item_classes csc on csc.id = ai.catalog_service_item_class_id
+//   left join erp.solicitation_problems sp on sp.id = ai.solicitation_problem_id
+//   left join erp.solicitation_classifications sc on sc.id = ai.solicitation_classification_id
+//   left join erp.people p on p.id = a.responsible_id
+//   left join erp.people p2 on p2.id = a.requestor_id
+//   left join erp.v_users vu on vu.id = a.created_by
+//  JOIN erp.contract_service_tags AS cst ON ai.contract_service_tag_id = cst.id
+//   JOIN erp.contracts AS c2 ON cst.contract_id = c2.id
+//where it.id = 1068 limit 1000';
+//
+//        $result = DB::connection('pgsql')->select($query);
+//
+//        return $result;
+
+
         $import = new OrderServiceController();
+
+
 
 
 
@@ -95,6 +150,7 @@ class TestController extends Controller
 
 
         return $result;
+
 
 
         $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
