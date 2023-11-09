@@ -309,8 +309,9 @@ class OrderServiceController extends Controller
         where incident_types.active = \'1\' and assignments.deleted = \'0\' and incident_types.deleted = \'0\'
         and TO_CHAR( s.start_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
         and people.deleted = \'0\'
-        and s.created between to_timestamp(current_date || \' '.Carbon::now()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\') and to_timestamp(current_date || \' '.Carbon::now()->addHour()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\')
-         and people.deleted = \'0\' and incident_status.id <> \'8\'
+        and assignment_incidents.protocol IN (
+    846827, 846693, 846240, 846168, 846488, 846964, 845880, 847323, 845001, 846357, 826100, 847300, 846748, 841222, 846803, 826341, 826341, 826341, 846649, 846267, 846279, 845841, 845908, 846171, 845805, 847473, 845834, 846872, 845956, 846190, 846442, 845516, 846781, 846950, 845968, 845648, 847471, 846180, 842489, 846602, 845848, 845831, 845725, 845964, 845738, 846341, 846328, 846842, 845643, 846235, 846743, 845875, 846616, 846584, 846349, 846975, 846655, 846416, 845909, 846226, 847314, 847060, 846754, 846560, 845633, 845810, 845896, 846542, 845906, 846774, 846207, 845999, 846206, 847702, 846434, 846703, 847569, 846924, 845858, 846807, 846211, 846545, 847605, 845765
+)        and people.deleted = \'0\' and incident_status.id <> \'8\'
          and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\') order by 2 desc
         ';
 

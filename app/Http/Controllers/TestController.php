@@ -96,52 +96,61 @@ class TestController extends Controller
 
         return $result;
 
-        return false;
-
 
         $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 
         $headers = [];
         $result = [];
+
+
         foreach($array[0] as $key => $value) {
 
                 if($key === 0) {
                     $headers = $value;
                 } else {
                     $array[0][$key] = array_combine($headers, $value);
+
+
                     $result[] = [
                         "Contrato" => $value[0],
-                        "Contrato_1" => $value[1],
-                        "Data Agendamento" => $value[2],
-                        "Numero do Cliente" => $value[3],
-                        "Protocolo" => $value[4],
-                        "Bairro" => $value[5],
-                        "CEP" => $value[6],
-                        "CPF\/CNPJ" => $value[7],
-                        "Cidade" => $value[8],
-                        "Cliente" => $value[9],
-                        "Complemento" => $value[10],
-                        "Abertura" => $value[11],
-                        "E-mail" => $value[12],
-                        "Latitude" => null,
-                        "Endereço" => $value[14],
-                        "Longitude" => null,
-                        "Numero" => $value[16],
-                        "Período" => $value[17],
-                        "Tel Celular" => $value[18],
-                        "Tel Residencial" => $value[19],
-                        "Tipo de Imovel" => $value[20],
+                        "Data Agendamento" => $value[1],
+                        "Numero do Cliente" => $value[2],
+                        "Protocolo" => $value[3],
+                        "Bairro" => $value[4],
+                        "CEP" => $value[5],
+                        "CPF\/CNPJ" => $value[6],
+                        "Cidade" => $value[7],
+                        "Cliente" => $value[8],
+                        "Complemento" => $value[9],
+                        "Abertura" => $value[10],
+                        "E-mail" => $value[11],
+                        "Latitude" => $value[12],
+                        "Endereço" => $value[13],
+                        "Longitude" => $value[14],
+                        "Numero" => $value[15],
+                        "Período" => $value[16],
+                        "Tel Celular" => $value[17],
+                        "Tel Residencial" => $value[18],
+                        "Tipo de Imovel" => $value[19],
+                        "id" => $value[20],
                         "Tipo de Serviço" => $value[21],
-                        "Área de Despacho" =>$value[22]
+                        "Node" => $value[22],
+                        "Área de Despacho" =>$value[23],
+                        "Observação" => strip_tags($value[24]),
+                        "assigment_id" => $value[25]
                     ];
                 }
 
 
         }
 
+        return $result;
+
+
         $data = [];
 
         $client = new Client();
+
 
         foreach($result as $key => $value) {
 
