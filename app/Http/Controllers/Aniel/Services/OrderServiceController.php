@@ -19,13 +19,15 @@ class OrderServiceController extends Controller
     }
 
 
-    public function importData()
+    public function importData(Request $request)
     {
         set_time_limit(20000);
 
+        $this->req = $request;
 
 
         $query = $this->getQuery();
+
 
 
 
@@ -144,7 +146,7 @@ class OrderServiceController extends Controller
 
 
         $query = '
-        select distinct coalesce(contract_service_tags.contract_id, \'000000\') as "Contrato",
+         select distinct coalesce(contract_service_tags.contract_id, \'000000\') as "Contrato",
         assignments.requestor_id as "Numero do Cliente",
         assignment_incidents.protocol as "Protocolo",
         (select max(pa.neighborhood) from erp.people_addresses pa where pa.person_id = cliente.id limit 1) AS "Bairro",
@@ -313,12 +315,25 @@ class OrderServiceController extends Controller
         where incident_types.active = \'1\' and assignments.deleted = \'0\' and incident_types.deleted = \'0\'
         and TO_CHAR( s.start_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
         and people.deleted = \'0\'
-        and s.created between to_timestamp(current_date || \' '.Carbon::now()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\') and to_timestamp(current_date || \' '.Carbon::now()->addHour()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\')
          and people.deleted = \'0\' and incident_status.id <> \'8\'
-         and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\') order by 2 desc
+         and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\')
+
         ';
 
 
+        if($this->req->has('protocols')) {
+            $protocols = implode(', ', $this->req->protocols);
+            if($protocols != '') {
+
+                $query .= ' and assignment_incidents.protocol in ('.$protocols.') ';
+            } else {
+                $query .= ' and s.created between to_timestamp(current_date || \' '.Carbon::now()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\') and to_timestamp(current_date || \' '.Carbon::now()->addHour()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\')';
+            }
+
+        }
+
+
+        $query .= 'order by 2 desc';
         return $query;
 
 

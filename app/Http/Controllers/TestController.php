@@ -22,6 +22,7 @@ use App\Http\Controllers\Ixc\Api\WebserviceClient;
 use App\Http\Controllers\Mail\Billing\EquipDivideController;
 use App\Http\Requests\AgeControl\ConductorStoreRequest;
 use App\Ldap\UserLdap;
+use App\Mail\AgeCommunicate\Base\BlackNovember\SendBlackNovember;
 use App\Mail\AgeCommunicate\Base\RA\SendRa;
 use App\Mail\AgeCommunicate\Base\SCPC\SendSCPC;
 use App\Mail\AgeCommunicate\Base\SendClientDay;
@@ -86,6 +87,104 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
+//        $import = new OrderServiceController();
+//
+//
+//
+//
+//
+//        $result = $import->__invoke();
+//
+//
+//
+//        return $result;
+//
+//        return false;
+
+
+        $query = '
+            SELECT
+                c.id AS "contract_id",
+                p.email AS "email",
+                p.v_name AS "name",
+                frt.document_amount,
+                p.tx_id,
+                CASE
+                    WHEN p.cell_phone_1 IS NOT NULL THEN p.cell_phone_1
+                    ELSE p.cell_phone_2
+                END AS "phone",
+                frt.typeful_line AS "barcode",
+                frt.expiration_date AS "expiration_date",
+                frt.competence AS "competence",
+                case
+                    when frt.expiration_date > current_date then -(frt.expiration_date - current_date)
+                    else (current_date - frt.expiration_date)
+                end as "days_until_expiration"
+            FROM erp.contracts c
+            LEFT JOIN erp.people p ON p.id = c.client_id
+            LEFT JOIN erp.financial_receivable_titles frt ON frt.contract_id = c.id
+            WHERE frt.deleted IS FALSE
+                AND frt.finished IS FALSE
+                AND frt.title LIKE \'%FAT%\'
+                and frt.p_is_receivable is true
+                and (current_date - frt.expiration_date) >= 317
+            limit 20000
+            ';
+
+        // ultimo 44302
+
+        $result = DB::connection('pgsql')->select($query);
+
+        $result = collect($result);
+
+        $result = $result->unique('contract_id');
+
+
+//        $result = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+
+
+
+        try {
+            // Defina o número máximo de iterações por segcdundo
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+            // Tempo inicial do loop
+            $starTime = microtime(true);
+
+            foreach($result as $key => $value) {
+
+                try {
+                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
+
+
+                        $mail = Mail::mailer('sac')->to($value->email)
+                            ->send(new SendBlackNovember());
+
+                    }
+                } catch (\Exception $e) {
+                    $e;
+                }
+
+            }
+
+
+//                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+                $elapsedTime = microtime(true) - $starTime;
+                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+                if ($remainingMicroseconds > 0) {
+                    usleep($remainingMicroseconds);
+                }
+
+                // Atualiza o tempo inicial para a próxima iteração
+                $starTime = microtime(true);
+            }
+            catch (\Exception $e) {
+            $e;
+        }
+
+        return count($result);
 //
 //        $query = 'SELECT
 //    a.title as Protocolo,
@@ -139,17 +238,7 @@ class TestController extends Controller
 //        return $result;
 
 
-        $import = new OrderServiceController();
 
-
-
-
-
-        $result = $import->__invoke();
-
-
-
-        return $result;
 
 
 
