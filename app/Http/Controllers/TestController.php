@@ -17,6 +17,7 @@ use App\Http\Controllers\AgeRv\_aux\sales\ValueStar;
 use App\Http\Controllers\AgeRv\Builder\Result\b2b\Seller;
 use App\Http\Controllers\AgeRv\VoalleSalesController;
 use App\Http\Controllers\Aniel\Services\OrderServiceController;
+use App\Http\Controllers\Aniel\Services\OrderServiceV2Controller;
 use App\Http\Controllers\DataWarehouse\Voalle\PeoplesController;
 use App\Http\Controllers\Ixc\Api\WebserviceClient;
 use App\Http\Controllers\Mail\Billing\EquipDivideController;
@@ -86,6 +87,10 @@ class TestController extends Controller
     public function index(Request $request)
     {
         set_time_limit(200000000);
+
+        $aniel = new OrderServiceV2Controller();
+
+        return $aniel->store();
 
 //        $import = new OrderServiceController();
 //

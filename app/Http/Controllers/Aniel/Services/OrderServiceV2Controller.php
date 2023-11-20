@@ -2,169 +2,257 @@
 
 namespace App\Http\Controllers\Aniel\Services;
 
-use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
-use App\Mail\Aniel\Services\SendOrders;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
 
-class OrderServiceController extends Controller
+class OrderServiceV2Controller extends Controller
 {
     public function __invoke()
     {
-        return $this->importData();
+        return $this->store();
     }
 
 
-    public function importData(Request $request)
+    public function __construct()
     {
-        set_time_limit(20000);
+        $this->user = env('ANIEL_USER');
+        $this->password = env('ANIEL_PASSWORD');
+        $this->token = env('ANIEL_TOKEN');
+        $this->dataEmail = [
+            'services' => [],
+            'errors' => []
+        ];
+        $this->response = [];
+    }
 
-        $this->req = $request;
-
-
-        $query = $this->getQuery();
-
-
-
-
-
-        $result = DB::connection('pgsql')->select($query);
-        $addressFormatted = '';
+    public function getOrder($id)
+    {
         $client = new Client();
 
-
-
-        foreach($result as $key => $value) {
-
-
-            $query = 'select DATE(s.start_date), EXTRACT(HOUR FROM s.start_date) as "hour" from erp.schedules s where s.assignment_id = '.$value->assignment_id.' order by s.id desc limit 1';
-
-            $consult = DB::connection('pgsql')->select($query);
-
-
-            if(!empty($consult)) {
-//                $result[$key]->Data_Agendamento = $consult[0]->date;
-
-
-
-                if($consult[0]->hour >= '06' && $consult[0]->hour < '12') {
-                    $result[$key]->Periodo = 'Manhã';
-                } else if($consult[0]->hour >= '12' && $consult[0]->hour < '18') {
-                    $result[$key]->Periodo = 'Tarde';
-                } else if($consult[0]->hour >= '18' && $consult[0]->hour < '23') {
-                    $result[$key]->Periodo = 'Noite';
-                } else {
-                    $result[$key]->Periodo = 'SEM TURNO MARCADO';
-                }
-
-            } else {
-//                $result[$key]->Data_Agendamento = null;
-            }
-
-
-            unset($result[$key]->assignment_id);
-        }
-
-
-        foreach($result as $key => $value) {
-
-
-            $addressFormatted = "$value->Endereço $value->Numero $value->Bairro $value->Cidade";
-            $addressFormatted = str_replace(' ', '+', $addressFormatted);
-
-            // Faz a requisição POST usando o cliente Guzzle HTTP
-                $response = $client->get('https://maps.googleapis.com/maps/api/geocode/json?address='.$addressFormatted.'&key=AIzaSyAU22qEwlrC4cLLyTAFviFZGBG3ZIrpCKM', [
-                'headers' => [
-                    'Content-Type' => 'application/json'
-                ]
-            ]);
-            $body = $response->getBody();
-
-            $response = json_decode($body);
-
-            if(!empty($response->results)) {
-                $value->Latitude =  $response->results[0]->geometry->location->lat;
-                $value->Longitude = $response->results[0]->geometry->location->lng;
-            } else {
-                $result[$key]->Latitude = null;
-                $result[$key]->Longitude = null;
-            }
-
-        }
-
-
-        $headers  = [
-            'Contrato',
-            'Numero do Cliente',
-            'Protocolo',
-            'Bairro',
-            'CEP',
-            'CPF/CNPJ',
-            'Cidade',
-            'Cliente',
-            'Complemento',
-            'Abertura',
-            'E-mail',
-            'Latitude',
-            'Endereço',
-            'Longitude',
-            'Numero',
-            'Tel Celular',
-            'Tel Residencial',
-            'Tipo de Imovel',
-            'Tipo de Serviço',
-            'Node',
-            'Área de Despacho',
-            'Observação',
-            'Grupo',
-            'Data Agendamento',
-            'Período'
+        $data = [
+            "num_Obra_Original" => $id,
+            "settings" => [
+                "user" => $this->user,
+                "password" => $this->password,
+                "token" => $this->token
+            ]
         ];
 
+        $client =  $client->post('https://cliente01.sinapseinformatica.com.br/AGE/Servicos/API_Aniel/api/OsApiController/ConsultarOS', [
+            'json' => $data
+        ]);
 
+        $response = json_decode($client->getBody()->getContents());
 
-        return \Maatwebsite\Excel\Facades\Excel::download(new ReportExport($result, $headers), 'import_orders.xlsx');
-
-
-
+        return $response;
 
     }
 
-    private function importAniel()
+    public function store()
+    {
+        set_time_limit(200000);
+
+        $result = DB::connection('pgsql')->select($this->getQuery());
+
+
+        foreach($result as $key => $data) {
+            $client = new Client();
+
+            $order = $this->getOrder($data->protocol);
+
+            if(! empty($order->data)) {
+
+                $this->dataEmail['errors'][] = [
+                    'protocol' => $data->protocol,
+                    'typeService' => $data->type_service,
+                    'error' => 'Ordem de serviço já cadastrada'
+                ];
+
+                continue;
+            }
+
+
+
+            $response = $this->getLatLong($data->address, $data->number, $data->neighborhood, $data->city);
+
+
+            if (!empty($response->results) && is_array($response->results) && isset($response->results[0])) {
+                $lat = $response->results[0]->geometry->location->lat;
+                $lng = $response->results[0]->geometry->location->lng;
+            } else {
+                $lat = null;
+                $lng = null;
+            }
+
+            $form = [
+                "cpf" => $data->doc,
+                "codigoIntegratorTipoServico" => "",
+                "tipoServico" => $data->type_service,
+                "subTipoServico" => $data->type_service,
+                "plano" => "",
+                "descricaoPlanoProduto" => "",
+                "origem" => 0,
+                "projeto" => "CASA CLIENTE",
+                "codCt" => "OP01",
+                "numOS" => $data->protocol,//$data->protocol,
+                "uni" => "",
+                "dataHoraAgendamento" => Carbon::parse($data->schedule_date)->format('Y-m-d\TH:i:s.v\Z'),
+                "tipoImovel" => "INDIFERENTE",
+                "grupoArea" => $data->group,
+                "area" => $data->dispatch_area,
+                "localidade" => $data->Node,
+                "endereco" => $data->address,
+                "numeroEndereco" => $data->number,
+                "cep" => $data->cep,
+                "complemento" => $data->complement,
+                "bairro" => $data->neighborhood,
+                "cidade" => $data->city,
+                "pontoReferencia" => "",
+                "uf" => "DF",
+                "observacao" => $data->observation,
+                "facilidade" => "",
+                "latitude" => $lat,
+                "longitude" => $lng,
+                "tecnico" => "",
+                "nomeCliente" => $data->client_name,
+                "telefoneCelularCliente" => $data->cell_phone,
+                "telefoneFixoCliente" => $data->cell_phone_2,
+                "emailCliente" => $data->email,
+                "loginRadius" => "",
+                "senhaRadius" => "",
+                "contratoCliente" => $data->contract_id,
+                "categoriaCliente" => "",
+                "numDoc" => $data->protocol,
+                "settings" => [
+                    "user" => $this->user,
+                    "password" => $this->password,
+                    "token" => $this->token
+                ]
+            ];
+
+
+            $client = $client->post('https://cliente01.sinapseinformatica.com.br/AGE/Servicos/API_Aniel/api/OsApiController/CriarOrdemServico', [
+                'json' => $form
+            ]);
+
+            $response = json_decode($client->getBody()->getContents());
+
+
+
+            $status = $response->error == '' ? 1 : 0;
+
+            if(! $status) {
+
+                $this->dataEmail['errors'][] = [
+                    'protocol' => $data->protocol,
+                    'typeService' => $data->type_service,
+                    'error' => trim(explode(":", explode('|', $response->error)[0])[1])
+                ];
+            }
+
+            $serviceFound = false;
+
+            if (!empty($this->dataEmail['services'])) {
+                foreach ($this->dataEmail['services'] as &$item) {
+
+                    if ($item['typeService'] == $data->type_service) {
+                        $item['count']++;
+                        $item['successfuly'] += $status ? 1 : 0;
+                        $item['error'] += $status ? 0 : 1;
+                        $serviceFound = true;
+                        break;
+                    }
+                }
+                // Importante: Desvincular a referência para evitar problemas posteriores
+                unset($item);
+            }
+
+            if (!$serviceFound) {
+
+
+                $this->dataEmail['services'][] = [
+                    'typeService' => $data->type_service,
+                    'count' => 1,
+                    'successfuly' => $status ? 1 : 0,
+                    'error' => $status ? 0 : 1,
+                ];
+            }
+        }
+
+        return $this->dataEmail;
+
+    }
+
+    private function getLatLong($address, $number, $neighborhood, $city)
+    {
+        $client = new Client();
+
+        // Faz a requisição POST usando o cliente Guzzle HTTP
+        $response = $client->get("https://maps.googleapis.com/maps/api/geocode/json?address=$address+$number+$neighborhood+$city&key=AIzaSyAU22qEwlrC4cLLyTAFviFZGBG3ZIrpCKM", [
+            'headers' => [
+                'Content-Type' => 'application/json'
+            ]
+        ]);
+        $body = $response->getBody();
+
+        $response = json_decode($body);
+
+        return $response;
+    }
+
+
+    public function edit($id)
     {
 
+        $client = new Client();
+        $form = [
+            "os" => "123456789",
+            "contrato" => "OP01",
+            "projeto" => "CASA CLIENTE",
+            "codigoCliente" => 123456789,
+            "data" => "2023-11-22",
+            "janela" => "Manhã",
+            "settings" => [
+                "user" => $this->user,
+                "password" => $this->password,
+                "token" => $this->token
+            ]
+        ];
+
+        $client = $client->post('https://cliente01.sinapseinformatica.com.br/AGE/Servicos/API_Aniel/api/OsApiController/AgendarOs', [
+            'json' => $form
+        ]);
+
+        $response = $client->getBody()->getContents();
+
+        return $response;
+
     }
-
-    private function getQuery () {
-
-        $hour = Carbon::now();
-
-
-
+    private function getQuery() : string
+    {
         $query = '
-         select distinct coalesce(contract_service_tags.contract_id, \'000000\') as "Contrato",
-        assignments.requestor_id as "Numero do Cliente",
-        assignment_incidents.protocol as "Protocolo",
-        (select max(pa.neighborhood) from erp.people_addresses pa where pa.person_id = cliente.id limit 1) AS "Bairro",
-        (select max(pa.postal_code) from erp.people_addresses pa where pa.person_id = cliente.id limit 1) AS "CEP",
-        cliente.tx_id as "CPF/CNPJ",
-        (select max(pa.city) from erp.people_addresses pa where pa.person_id = cliente.id limit 1)  AS "Cidade",
-        cliente.name as "Cliente",
-        (select max(pa.address_complement) from erp.people_addresses pa where pa.person_id = cliente.id limit 1) AS "Complemento",
-        TO_CHAR(assignments.beginning_date::DATE,\'YYYY-MM-DD\') as "Abertura",
-        people.email as "E-mail",
-        people.lat as "Latitude",
-        (select max(pa.street) from erp.people_addresses pa where pa.person_id = cliente.id limit 1)  AS "Endereço",
-        people.lng as "Longitude",
-        cliente.number AS "Numero",
-        cliente.cell_phone_1 as "Tel Celular",
-        cliente.phone as  "Tel Residencial",
-        \'INDIFERENTE\' as "Tipo de Imovel",
-        incident_types.title as "Tipo de Serviço",
+         select distinct coalesce(contract_service_tags.contract_id, \'000000\') as "contract_id",
+        assignments.requestor_id as "client_id",
+        assignment_incidents.protocol as "protocol",
+        (select max(pa.neighborhood) from erp.people_addresses pa where pa.person_id = cliente.id limit 1) AS "neighborhood",
+        (select max(pa.postal_code) from erp.people_addresses pa where pa.person_id = cliente.id limit 1) AS "cep",
+        cliente.tx_id as "doc",
+        (select max(pa.city) from erp.people_addresses pa where pa.person_id = cliente.id limit 1)  AS "city",
+        cliente.name as "client_name",
+        (select max(pa.address_complement) from erp.people_addresses pa where pa.person_id = cliente.id limit 1) AS "complement",
+        TO_CHAR(assignments.beginning_date::DATE,\'YYYY-MM-DD\') as "beginning_date",
+        people.email as "email",
+        people.lat as "latitude",
+        (select max(pa.street) from erp.people_addresses pa where pa.person_id = cliente.id limit 1)  AS "address",
+        people.lng as "longitude",
+        cliente.number AS "number",
+        cliente.cell_phone_1 as "cell_phone",
+        cliente.phone as  "cell_phone_2",
+        \'INDIFERENTE\' as "type_immobile",
+        incident_types.title as "type_service",
         case WHEN cliente.neighborhood = \'Recanto das Emas\' THEN \'RECANTO DAS EMAS\'
         WHEN cliente.neighborhood = \'Samambaia Sul (Samambaia)\' THEN \'Samambaia\'
         WHEN cliente.neighborhood = \'Ceilândia Norte (Ceilândia)\' THEN \'Ceilândia Norte\'
@@ -295,11 +383,11 @@ class OrderServiceController extends Controller
         WHEN cliente.neighborhood IN (\'SOL NASCENTE\', \'SH Sol Nascente QCS 2 Conj. I - Ceilândia, Brasília - DF\', \'Setor Residencial Leste Buritis 4 \', \'  SETOR P SUL \', \'INGRA - CEILANDIA \', \'Expansão do Setor O Ceilândia Norte (Ceilândia)\', \'Expansão do setor O\', \'Condomínio Vencedor- sol nascente\', \'Condominio Prive Lucena Roriz Ceilandia\', \'Ceilndia Norte Ceilndia\', \'Ceilândia Sul (Ceilândia) Vila Madureira\', \'Ceilândia Sul (Ceilândia)  Sol nascente\', \'Ceilandia Sul Ceilandia\', \'CEILANDIA SUL\', \'Ceilândia P Sul \', \'Ceilândia Norte (Ceilândia) Setor O\', \'CEILÂNDIA NORTE (CEILÂNDIA)\', \'Ceilândia NORTE (Ceilândia)\', \'Ceilândia norte (Ceilândia)\', \'Ceilandia Norte Ceilândia\', \'Ceilândia Norte \', \'CEILANDIA NORTE\', \'Ceilandia Norte \', \'Ceilandia Norte\', \'Ceilandia \', \'Área de Desenvolvimento Econômico (Ceilândia)\', \'Ceilândia Norte (Ceilândia)\', \'Ceilândia Norte\', \'Ceilândia Sul\', \'Ceilândia Centro (Ceilândia)\',\'Setor Habitacional Sol Nascente (Ceilândia)\', \'Condomínio Privê Lucena Roriz (Ceilândia)\') THEN \'Ceilândia\'
         WHEN cliente.neighborhood IN (\'Riacho Fundo 2\', \'riacho fundo 2\', \'SETOR RESIDENCIAL NORTE\', \'RIACHO II\', \'riacho fundo l\', \'RIACHO FUNDO II\', \'Riacho Fundo I ( COLONIA AGRÍCOLA SUCUPIRA)\', \'RIACHO FUNDO I\', \'Riacho Fundo 2 \', \'Riacho Fundo 2\'\', riacho fundo 2\', \'Riacho Fundo\', \'Riacho Fundo I\', \'Riacho Fundo II\', \'Riacho Fundo\') THEN \'Riacho Fundo\' WHEN cliente.neighborhood IN (\'Vicente Pires\', \'Setor Habitacional Vicente Pires\') THEN \'Vicente Pires\' WHEN cliente.neighborhood IN (\'Recanto das Emas\', \'RECANTO DAS EMAS\') THEN \'Recanto das Emas\' WHEN cliente.neighborhood IN (\'Setor sul (Gama) area verde\', \'SETOR SUL GAMA\', \'Setor Sul Gama\', \'Setor Oeste(Gama)\',\'Setor Oeste - Gama\', \'Setor Oeste Gama\', \'Setor oeste (Gama)\', \'Setor oeste (Gama)\', \'setor oeste (Gama)\', \'Setor Norte (Gama)\', \'Setor Noroeste\', \'Setorl Sul(Gama)\', \'Setor Leste Gama \', \'Setor Leste Gama\', \'SETOR LESTE \', \'Setor Industrial (Gama Leste)\', \'Setor Industrial Gama\', \'Setor Central (Gama) \', \'Setor Central Gama\', \'PONTE ALTA\', \'Setor Central (Gama)\', \'Setor Oeste (Gama)\', \'Ponte Alta Norte (Gama)\', \'Setor Sul (Gama)\', \'Setor leste (Gama)\', \'N. RURAL PONTE ALTA NORTE\', \'GAMA SETOR SUL\', \'GAMA ( PONTE ALTA)\', \'GAMA OESTE\', \'Gama Oeste\', \'GAMA LESTE\', \'GAMA\', \'Gama\', \'Ponte Alta (Gama)\', \'GAMA\', \' Ponte Alta Norte Gama DF\', \'PONTE ALTA NORTE GAMA \', \'PONTE ALTA NORTE GAMA\', \'Ponte Alta Norte (Gama) \', \'Ponte Alta Norte Gama\', \'ponte alta norte do Gama\', \'PONTE ALTA NORTE\', \'PONTE ALTA \', \'Ponte Alta \', \' NÚCLERO RURAL GAMA \', \'Engenho das Lages (Gama)\', \'GAMA\', \'PONTE ALTA (GAMA)\', \'Setor Oeste (Gama)\', \'Setor Sul (Gama)\', \'Setor Central (Gama)\',\'Setor Industrial (Gama)\', \'Setor Leste (Gama)\') THEN \'Gama\' WHEN cliente.neighborhood IN (\'SIG\', \'Setor Norte (Vila Estrutural)\', \'Setor Leste (Vila Estrutural)\', \'Guará\', \'Guará II\', \'Guará I\') THEN \'Guará\' WHEN cliente.neighborhood IN (\'Estrutural\', \'Cidade do Automóvel\') THEN \'Estrutural\' WHEN cliente.neighborhood IN (\'Sudoeste\', \'Octogonal\') THEN \'Sudoeste\' WHEN cliente.neighborhood IN (\'Setor de Mansões Dom Bosco (Lago Sul)\',\'Setor de Habitações Individuais Sul / LAGO SUL \', \'Setor de Habitações Individuais Sul - Lago Sul\', \'Lago Sul\', \'Lake Side\') THEN \'Lago Sul\' WHEN cliente.neighborhood IN (\'Cruzeiro Velho\', \'Cruzeiro\', \'Cruzeiro Novo\') THEN \'Cruzeiro\' WHEN cliente.neighborhood IN (\'Vila Varjão do Torto\', \'varjão do torto\', \'VARJÃO\', \'Varjão\', \'Varjao\', \'Setor de Habitacoes Individuais Sul\', \'Setor de Habitações Individuais Norte/Vila Varjão do Torto\', \'Setor de Habitações Individuais Norte - Varjão \', \'Setor de Habitações Individuais Norte\', \'Varjão\', \'Setor de Habitacoes Individuais Norte\') THEN \'Varjão\' WHEN cliente.neighborhood IN (\'Setor Oeste Sobradinho II\', \'Setor Oeste (Sobradinho I)\', \'Setor Oeste sobradinho\', \'Setor Industrial (Sobradinho)\', \'Setor de Mansões de Sobradinho 2\', \'Serra Azul (Sobradinho)\', \'Região dos Lagos (Sobradinho)\', \'Núcleo Rural Lago Oeste (Sobradinho)\',\'Sobradinho\',\'Alto da Boa Vista (Sobradinho)\', \'Sobradinho I\', \'Sobradinho II\', \'Condomínio Mansões Sobradinho (Sobradinho)\', \'Setor Habitacional Contagem (Sobradinho)\') THEN \'Sobradinho\' WHEN cliente.neighborhood IN (\'Taguatinha Sul\', \'Taguatinga SUL (Taguatinga)\', \'Taguatinga Sul Taguatinga\', \'Taguatinga Sul Taguatinga\', \'TAGUATINGA NORTE (TAGUATINGA)\', \'Taguatinga NORTE (Taguatinga)\', \'Taguatinga Norte Taguatinga\', \'Taguatinga Norte (aguatinga\', \'TAGUATINGA NORTE\', \'Taguatinga - DF\', \'TAGUATINGA\', \'Taguatinga \', \'Taguatinga\', \'Setor de Desenvolvimento Econômico (Taguatinga)\', \'Taguatinga\', \'Taguatinga Norte\', \'Taguatinga Sul\', \'taguatinga Norte\', \'Setor Habitacional Vereda Grande (Taguatinga)\', \'Taguatinga Centro (Taguatinga)\', \'Taguatinga Sul\') THEN \'Taguatinga\' WHEN cliente.neighborhood IN (\'São Sebastião\', \'Setor Tradicional (São Sebastião)\') THEN \'São Sebastião\' WHEN cliente.neighborhood IN (\'Park Way\') THEN \'Park Way\' WHEN cliente.neighborhood IN (\'Candangolândia\') THEN \'Candangolândia\' WHEN cliente.neighborhood IN (\'Sul (Águas Claras)\', \'Norte (Águas Claras)\', \'Areal (Águas Claras - Taguatinga Sul)\', \'AGUAS CLARAS\', \'Aguas Claras\', \'Areal\', \'Areal (Águas Claras)\', \'Área de Desenvolvimento Econômico (Águas Claras)\', \'Setor Habitacional Arniqueira (Águas Claras)\') THEN \'Águas Claras\' WHEN cliente.neighborhood = \'Vila Planalto\' THEN \'Vila Planalto\' WHEN cliente.neighborhood IN (\'Noroeste\') THEN \'Noroeste\' WHEN cliente.neighborhood IN (\'Setor Industrial (Ceilândia)\', \'Sol Nascente\', \'Pôr do Sol\') THEN \'Ceilândia\' WHEN cliente.neighborhood IN (\'Arniqueiras - Colônia Agrícola\', \'ARNIQUEIRAS\', \'Arniqueiras \', \'Área de Desenvolvimento Econômico (ARNIQUEIRA )\', \'Área de Desenvolvimento Econômico (Águas Claras) \', \'Arniqueira\', \'Arniqueiras\', \'Area de Desenvolvimento Econômico aguas Claras\') THEN \'Águas Claras\' WHEN cliente.neighborhood IN (\'Brazlândia\') THEN \'Brazlândia\' WHEN cliente.neighborhood IN (\'Villa Rabello \', \'Vila Vicentina (Planaltina)\', \'Vila Vicentina\', \'Vila Dimas (Planaltina)\', \'vila buritis - Planaltina df \',\'Veneza I (Planaltina)\', \'Veneza II (Planaltina)\', \'Veneza III (Planaltina)\', \'Veneza I Arapoanga (Planaltina)\', \'Taquara (Planaltina)\', \'Setor tradicional (Planaltina)\', \'Setor Sul (Planaltina)\', \'Setor Residencial Oeste (Planaltina)\', \'Setor Residencial Norte (Planaltina)\', \'Setor Mansões Itiquira (Planaltina)\', \'Setor Hospitalar (Planaltina)\', \'Setor de Mansões Mestre D armas (Planaltina)\',\'Setor de Hotéis e Diversões (Planaltina)\', \'Setor de Educação (Planaltina)\', \'Residencial Sarandy (Planaltina)\', \'Residencial São Francisco I (Planaltina)\', \'Residencial São Francisco II (Planaltina)\', \'Residencial Sandray (Planaltina)\', \'Residencial Paiva I\', \'Residencial Nova Planaltina (Planaltina)\', \'Residencial Nova Esperança (Planaltina)\', \'Residencial Jardim Coimbra\', \'Residencial Flamboyant (Planaltina)\', \'Residencial Condomínio Marissol (Planaltina)\', \'Residencial Bica do DER (Gleba B - Planaltina)\', \'Quintas do Amanhecer III (Planaltina)\', \'Portal do Amanhecer V (Privê - Planaltina)\', \'Portal do Amanhecer V (Planaltina)\', \'Portal do Amanhecer (Planaltina)\', \'Portal do Amanhecer I (Planaltina)\', \'PLANALTINA DF\', \' PLANALTINA - DF\', \'Planaltina DF \', \'Planaltina - DF\', \'Planaltina Arapoanga\', \'PLANALTINA\', \'Planaltina \', \' (Planaltina)\', \'Planaltina\', \'Planalatina\', \'Nossa Senhora de Fátima (Planaltina)\', \'Mansões do Amanhecer (Planaltina)\', \'Arapoanga \', \'Arapongas - Planaltina \', \'ARAPOANGAS\', \'ARAPOANGA\', \'ARAPOANGA (Planaltina)\', \'Planaltina\', \'Quintas do Amanhecer II (Planaltina)\', \'Jardim Roriz (Planaltina)\', \'Estância Planaltina (Planaltina)\', \'Setor Tradicional (Planaltina)\') THEN \'Planaltina\' WHEN cliente.neighborhood IN (\'Setor de Mansões do Lago Norte\', \'Lago Norte\', \'Setor Habitacional Taquari (Lago Norte)\') THEN \'Lago Norte\' WHEN cliente.neighborhood IN (\'Taquari\') THEN \'Ceilândia\' WHEN cliente.neighborhood IN (\'Vila Cauhy (Núcleo Bandeirante)\', \'Vila cauhy núcleo bandeirante\',\'Setor de Postos e Motéis Sul (Núcleo Bandeirante)\', \'Nucleo bandeirante\', \'Núcleo Bandeirante\', \'Nucleo Bandeirante\', \'Vila Cauhy\', \'Nucleo bandeirante , \'\'Núcleo Bandeirante\',\'Área de Desenvolvimento Econômico (Núcleo Bandeirante)\', \'Setor Placa da Mercedes (Núcleo Bandeirante)\', \'Setor de Indústrias Bernardo Sayão (Núcleo Bandeirante)\', \'Metropolitana (Núcleo Bandeirante)\') THEN \'Núcleo Bandeirante\' WHEN cliente.neighborhood IN (\'Setor Habitacional Tororó (Jardim Botânico)\', \'Setor Habitacional Jardim Botânico 3\', \'Setor Habitacional Jardim Botanico\', \'Jardins Mangueiral (Jardim Botânico)\', \'Setor Habitacional Jardim Botânico\') THEN \'Jardim Botânico\' WHEN cliente.neighborhood IN (\'Zumbi dos Palmares - São Sebastião \', \'Vila do Boa (São Sebastião)\', \'Setor Sudoeste\', \'SETOR RESIDENCIAL OESTE (SÃO SEBASTIÃO)\', \'Sebastião/DF\', \'SÃO SEBASTIÃO\', \'São Sebastião\', \'(São Sebastião)\', \'São Gabriel (São Sebastião)\', \'São Francisco (São Sebastião)\', \'São Bartolomeu (São Sebastião)\', \'Residencial Vitória (São Sebastião)\', \'Residencial Morro da Cruz (São Sebastião)\', \'Residencial do Bosque (São Sebastião)\', \'MORRO AZUL (SÃO SEBASTIÃO)\', \'Morro Azul (São Sebastião)\', \'Morro azul(São Sebastião)\', \'João Cândido (São Sebastião)\', \'Crixá (São Sebastião)\', \'Bonsucesso (São Sebastião)\', \'Bela Vista (São Sebastião)\', \'BAIRRO CENTRO (São Sebastião)\', \'Setor Residencial Oeste (São Sebastião)\', \'Vila Nova (São Sebastião)\', \'Vila São José (São Sebastião)\', \'Centro (São Sebastião)\') THEN \'São Sebastião\' WHEN cliente.neighborhood IN (\'Setor Meireles Santa Maria\', \'Setor Meireles (Santa Maria)\', \'Polo JK\',\'Setor Habitacional Ribeirao Santa Maria\', \'Santa Maria Sul \', \'Santa Maria - Sul\', \'Santa Maria Sul\', \'Santa Maria sul \', \'Santa Maria sul\', \'Santa Maria Norte \', \'Santa Maria Norte\', \'Santa Maria norte\', \'Santa Maria - Condomínio Porto Rico\', \'SANTA MARIA \', \'SANTA MARIA\', \'Santa Maria\', \'Residencial Santos Dumont (Santa Maria)\', \'Núcleo Rural Santa Maria\', \'Núcleo Rural Alagados (Santa Maria)\', \'Condomínio Residencial Santa Maria (Santa Maria)\', \'CONDOMÍNIO PORTO RICO SANTA MARIA\', \'Cidade Nova (Santa Maria)\', \'Área Rural de São Sebastião\', \'Setor Habitacional Ribeirão (Santa Maria)\') THEN \'Santa Maria\' WHEN cliente.neighborhood = \'PADRE MIGUEL\' THEN \'PADRE MIGUEL\' WHEN cliente.neighborhood in (\'Setor Tradicional (Brazlândia)\', \'Setor Sul (Brazlândia)\', \'Setor Norte (Brazlândia)\',\'Veredas (Brazlândia)\', \'Vila São José (Brazlândia)\') then \'Brazlândia\' WHEN cliente.neighborhood in (\'Vila São José (Vicente Pires)\', \'Vila São Jose Vicente Pires\', \'VILA SAO JOSE (VICENTE PIRES)\', \'VILA SÃO JOSÉ \', \'Vila São José\', \'Vicente Pires DF\', \'VICENTE PIRES \', \'VICENTE PIRES\', \'Vicente Pires\', \'Vicente pires\', \'Setor Habitacional Vicente Pires - Trecho 3 \', \'Setor Habitacional Vicente Pires Trecho 1\', \'Setor Habitacional Vicente Pires - Trecho 1\', \'Setor Habitacional Vicente Pires- CONDOMINIO ATHENAS\', \'Setor Habitacional Vicente Pires / COL SAMAMBAIA\', \'SETOR HABITACIONAL VICENTE PIRES \', \'Setor Habitacional VICENTE PIRES\', \'Setor Habitacional Samambaia (Vicente Pires)\', \'Setor Habitacional Vicente Pires - Trecho 3\') then \'Vicente Pires\'
         ELSE cliente.neighborhood
-    	END as "Área de Despacho",
-        regexp_replace(assignments.description, \'<[^>]+>\', \'\', \'g\') as "Observação",
-    	\'DISTRITO FEDERAL\' as "Grupo",
+    	END as "dispatch_area",
+        regexp_replace(assignments.description, \'<[^>]+>\', \'\', \'g\') as "observation",
+    	\'DISTRITO FEDERAL\' as "group",
     	assignments.id as "assignment_id",
-    	TO_CHAR(s.start_date::DATE, \'YYYY-MM-DD\') as "Data Agendamento"
+    	s.start_date as "schedule_date"
         from erp.assignments
         inner join erp.assignment_incidents on (assignment_incidents.assignment_id = assignments.id )
         inner join erp.incident_types on (incident_types.id = assignment_incidents.incident_type_id)
@@ -313,30 +401,16 @@ class OrderServiceController extends Controller
         left join erp.contracts on (contracts.client_id = people.id)
         inner join erp.schedules s on s.assignment_id = assignments.id
         where incident_types.active = \'1\' and assignments.deleted = \'0\' and incident_types.deleted = \'0\'
-        and TO_CHAR( s.start_date, \'%Y-%m-%d\' ) <> \'0000-00-00\' and people.deleted = \'0\'
-        and people.deleted = \'0\'
-         and people.deleted = \'0\' and incident_status.id <> \'8\'
-         and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\')
-
-        ';
-
-
-        if($this->req->has('protocols')) {
-            $protocols = implode(', ', $this->req->protocols);
-            if($protocols != '') {
-
-                $query .= ' and assignment_incidents.protocol in ('.$protocols.') ';
-            } else {
-                $query .= ' and s.created between to_timestamp(current_date || \' '.Carbon::now()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\') and to_timestamp(current_date || \' '.Carbon::now()->addHour()->format('H').':00:00\', \'YYYY-MM-DD HH24:MI:SS\')';
-            }
-
-        }
+        and incident_status.id <> \'8\'
+        and (
+        select DATE(s.start_date) from erp.schedules s where s.assignment_id = assignments.id order by s.id desc limit 1
+        ) between \'2023-11-20\' and \'2023-11-21\'
+        and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1086\',\'1020\')
+        order by 2 desc';
 
 
-        $query .= 'order by 2 desc';
         return $query;
 
-
-
     }
+
 }

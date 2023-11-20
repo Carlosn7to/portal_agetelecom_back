@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:billing-rule')->weekdays()->dailyAt('12:30');
         $schedule->command('send:suspension')->weekdays()->everyThreeHours();
         $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
-
+        $schedule->command('export:order')->everyFiveMinutes();
     }
 
     /**
