@@ -88,10 +88,6 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
-        $aniel = new OrderServiceV2Controller();
-
-        return $aniel->store();
-
 //        $import = new OrderServiceController();
 //
 //
@@ -132,7 +128,7 @@ class TestController extends Controller
                 AND frt.finished IS FALSE
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
-                and (current_date - frt.expiration_date) >= 317
+                and (current_date - frt.expiration_date) >= 324
             limit 20000
             ';
 
@@ -146,7 +142,6 @@ class TestController extends Controller
 
 
 //        $result = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
-
 
 
         try {
