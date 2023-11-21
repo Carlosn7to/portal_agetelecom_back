@@ -404,7 +404,7 @@ class OrderServiceV2Controller extends Controller
         and incident_status.id <> \'8\'
         and (
         select DATE(s.start_date) from erp.schedules s where s.assignment_id = assignments.id order by s.id desc limit 1
-        ) between \''.Carbon::now()->subDays(7)->format('Y-m-d').'\' and \''.Carbon::now()->format('Y-m-d').'\'
+        ) between \''.Carbon::now()->format('Y-m-d').'\' and \''.Carbon::now()->addDays(5)->format('Y-m-d').'\'
         and incident_types.id in (\'1074\', \'1090\', \'1080\', \'1081\', \'1082\', \'1088\', \'1071\', \'1087\',\'1058\',\'1067\', \'1036\', \'1091\', \'1094\', \'1011\', \'1026\', \'1027\', \'1028\', \'1029\',\'1086\',\'1020\',\'1085\')
         order by 2 desc';
 
