@@ -13,6 +13,7 @@ use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 
 class BuilderController extends Controller
 {
@@ -40,15 +41,16 @@ class BuilderController extends Controller
         $data = DB::connection('pgsql')->select($query);
 
 
-        $whatsapp = $this->sendMessage($data);
-        $email = $this->sendEmail($data);
-        $sms = $this->sendSMS($data);
+
+//        $whatsapp = $this->sendMessage($data);
+          return $this->sendEmail($data);
+//        $sms = $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [
-            'whatsapp' => $whatsapp,
+//            'whatsapp' => $whatsapp,
             'email' => $email,
-            'sms' => $sms
+//            'sms' => $sms
         ], []);
     }
 
@@ -283,6 +285,8 @@ class BuilderController extends Controller
 
     private function sendEmail($dataEmail)
     {
+
+
         $templates = [
             0 => [
                 'template' => 'after_expiration_75d',
@@ -353,7 +357,7 @@ class BuilderController extends Controller
             11 => [
                 'template' => 'today',
                 'subject' => 'Último dia! Pague seu boleto hoje.',
-                'rule' => 0,
+                'rule' => 78,
                 'sendings' => 0
             ],
             12 => [
@@ -373,6 +377,7 @@ class BuilderController extends Controller
 
 
         $data = collect($dataEmail);
+
 
         $data = $data->unique('email');
 
@@ -427,6 +432,7 @@ class BuilderController extends Controller
 
         $dateFormatted = "$dia de $mes de $ano";
 
+
         try  {
 //             Defina o número máximo de iterações por segundo
             $maxIterationsPerSecond = 150;
@@ -436,8 +442,49 @@ class BuilderController extends Controller
             // Tempo inicial do loop
             $startTime = microtime(true);
 
+            $client = new Client();
+
+            $data = [
+                "grant_type" => "client_credentials",
+                "scope" => "syngw",
+                "client_id" => env('VOALLE_API_CLIENT_ID'),
+                "client_secret" => env('VOALLE_API_CLIENT_SECRET'),
+                "syndata" => env('VOALLE_API_SYNDATA')
+            ];
+
+            $response = $client->post('https://erp.agetelecom.com.br:45700/connect/token', [
+                'headers' => [
+                    'Content-Type' => 'application/x-www-form-urlencoded'
+                ],
+                'form_params' => $data
+            ]);
+
+            $access = json_decode($response->getBody()->getContents());
+
+
             foreach ($data as $key => $value) {
                 try {
+
+//                    $responseBillet = $client->get('https://erp.agetelecom.com.br:45715/external/integrations/thirdparty/GetBillet/3957492',[
+//                        'headers' => [
+//                            'Authorization' => 'Bearer '.$access->access_token
+//                        ]
+//                    ]);
+//
+//
+//                    // Verifique se a requisição foi bem-sucedida (código de status 200)
+//                    if ($responseBillet->getStatusCode() == 200) {
+//                        // Obtenha o conteúdo do PDF
+//                        $pdfContent = $responseBillet->getBody()->getContents();
+//
+//                        // Especifique o caminho onde você deseja salvar o arquivo no seu computador
+//                        $billetPath = storage_path('app/pdf/boleto.pdf');
+//
+//                        // Salve o arquivo no caminho especificado
+//                        file_put_contents($billetPath, $pdfContent);
+//
+//
+//                    }
 
 
                     if($value->days_until_expiration == 30) {
@@ -451,23 +498,27 @@ class BuilderController extends Controller
                         ];
 
 
-                        $mail = Mail::mailer('fat')->to($value->email)
+                        $mail = Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
                             ->send(new SendSCPC($value->name, $value->tx_id, $debits, $dateFormatted));
+
+//                        unlink($billetPath);
 
 
                     }
 
-                    return $value;
-                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
+                    if (filter_var('carlos.neto@agetelecom.com.br', FILTER_VALIDATE_EMAIL)) {
                         foreach ($templates as $k => $v) {
+
                             if ($value->days_until_expiration == $v['rule']) {
 
                                 $templates[$k]['sendings']++;
 
-                                Mail::mailer('fat')->to($value->email)
-                                    ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
+
+                                Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
+                                    ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode, $billetPath));
 
 
+//                                unlink($billetPath);
 
                                 $sendings['success'][] = [
                                     'template' => $v['template'],
@@ -483,9 +534,10 @@ class BuilderController extends Controller
                                     $templates[$k]['sendings']++;
 
 
-                                    Mail::mailer('fat')->to($value->email)
+                                    Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
                                         ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
 
+//                                    unlink($billetPath);
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
@@ -518,6 +570,7 @@ class BuilderController extends Controller
                 $startTime = microtime(true);
 
             }
+
         } catch (\Exception $e) {
             $e;
         }
@@ -711,6 +764,7 @@ class BuilderController extends Controller
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
                 and frt.typeful_line is not null
+            limit 1
             ';
 //
 //        $query = '

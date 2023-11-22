@@ -24,12 +24,13 @@ class SendMailBillingRule extends Mailable
      *
      * @return void
      */
-    public function __construct($viewName, $subject, $name_client = 'teste', $barcode = 'teste')
+    public function __construct($viewName, $subject, $name_client, $barcode, $billetPath)
     {
         $this->viewName = $viewName;
         $this->subjectMail = $subject;
         $this->name_client = $name_client;
         $this->barcode = $barcode;
+        $this->billetPath= $billetPath;
     }
 
     /**
@@ -52,7 +53,7 @@ class SendMailBillingRule extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.ageCommunicate.base.manutence.' . $this->viewName,
+            view: 'mail.ageCommunicate.base.billingRule.' . $this->viewName,
             with: ['name_client' => $this->name_client, 'barcode' => $this->barcode],
         );
     }
@@ -64,6 +65,6 @@ class SendMailBillingRule extends Mailable
      */
     public function attachments()
     {
-        return [];
+        return $this->billetPath;
     }
 }

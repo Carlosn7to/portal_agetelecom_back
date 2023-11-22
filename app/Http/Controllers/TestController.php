@@ -88,6 +88,57 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
+        $client = new Client();
+
+        $data = [
+            "grant_type" => "client_credentials",
+            "scope" => "syngw",
+            "client_id" => "7d787633-b8d5-45d3-84a1-714d6185399d",
+            "client_secret" => "4e1ac5c5-14ef-49c0-ae14-c0e16e798489",
+            "syndata" => "TWpNMU9EYzVaakk1T0dSaU1USmxaalprWldFd00ySTFZV1JsTTJRMFptUT06WlhsS1ZHVlhOVWxpTTA0d1NXcHZhVTFxUVRKTWFrbDNUa00wZVU1RVozVlBSRmxwVEVOS1ZHVlhOVVZaYVVrMlNXMVNhVnBYTVhkTlJFRXdUMFJyYVdaUlBUMD06WlRoa01qTTFZamswWXpsaU5ETm1aRGczTURsa01qWTJZekF4TUdNM01HVT0="
+        ];
+
+        $response = $client->post('https://erp.agetelecom.com.br:45700/connect/token', [
+            'headers' => [
+                'Content-Type' => 'application/x-www-form-urlencoded'
+            ],
+            'form_params' => $data
+        ]);
+
+        $access = json_decode($response->getBody()->getContents());
+
+
+        $responseBillet = $client->get('https://erp.agetelecom.com.br:45715/external/integrations/thirdparty/GetBillet/3957492',[
+            'headers' => [
+               'Authorization' => 'Bearer '.$access->access_token
+            ]
+        ]);
+
+        // Verifique se a requisição foi bem-sucedida (código de status 200)
+        if ($responseBillet->getStatusCode() == 200) {
+            // Obtenha o conteúdo do PDF
+            $pdfContent = $responseBillet->getBody()->getContents();
+
+            // Especifique o caminho onde você deseja salvar o arquivo no seu computador
+            $caminhoSalvamento = storage_path('app/pdf/boleto_'.Str::random(5).'.pdf');
+
+            // Salve o arquivo no caminho especificado
+            file_put_contents($caminhoSalvamento, $pdfContent);
+
+
+            Mail::mailer('portal')->to('diego.lima@agetelecom.com.br')
+                ->send(new SendClientDay('Carlos', $caminhoSalvamento));
+
+            // Retorne uma resposta ou faça o que for necessário aqui
+            return response()->json(['message' => 'PDF salvo com sucesso']);
+        } else {
+            // Se a requisição não for bem-sucedida, trate conforme necessário
+            return response()->json(['error' => 'Falha ao obter o PDF'], $responseBillet->getStatusCode());
+        }
+
+
+        return true;
+
 //        $import = new OrderServiceController();
 //
 //

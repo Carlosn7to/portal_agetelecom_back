@@ -20,9 +20,10 @@ class SendClientDay extends Mailable
      *
      * @return void
      */
-    public function __construct($name)
+    public function __construct($name, $pdf)
     {
         $this->name = $name;
+        $this->pdf = $pdf;
     }
 
     /**
@@ -57,6 +58,6 @@ class SendClientDay extends Mailable
      */
     public function attachments()
     {
-        return [];
+        return $this->pdf;
     }
 }
