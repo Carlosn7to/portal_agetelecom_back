@@ -40,6 +40,7 @@ class AuthController extends Controller
 
         ]);
 
+
         $message = '';
 
         try {

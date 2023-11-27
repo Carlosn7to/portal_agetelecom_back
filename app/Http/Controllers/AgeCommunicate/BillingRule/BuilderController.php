@@ -40,8 +40,6 @@ class BuilderController extends Controller
 
         $data = DB::connection('pgsql')->select($query);
 
-
-
 //        $whatsapp = $this->sendMessage($data);
           return $this->sendEmail($data);
 //        $sms = $this->sendSMS($data);
@@ -357,7 +355,7 @@ class BuilderController extends Controller
             11 => [
                 'template' => 'today',
                 'subject' => 'Último dia! Pague seu boleto hoje.',
-                'rule' => 78,
+                'rule' => 0,
                 'sendings' => 0
             ],
             12 => [
@@ -444,7 +442,7 @@ class BuilderController extends Controller
 
             $client = new Client();
 
-            $data = [
+            $dataForm = [
                 "grant_type" => "client_credentials",
                 "scope" => "syngw",
                 "client_id" => env('VOALLE_API_CLIENT_ID'),
@@ -456,35 +454,38 @@ class BuilderController extends Controller
                 'headers' => [
                     'Content-Type' => 'application/x-www-form-urlencoded'
                 ],
-                'form_params' => $data
+                'form_params' => $dataForm
             ]);
 
             $access = json_decode($response->getBody()->getContents());
 
 
+            $limit = 0;
             foreach ($data as $key => $value) {
+
                 try {
 
-//                    $responseBillet = $client->get('https://erp.agetelecom.com.br:45715/external/integrations/thirdparty/GetBillet/3957492',[
-//                        'headers' => [
-//                            'Authorization' => 'Bearer '.$access->access_token
-//                        ]
-//                    ]);
-//
-//
-//                    // Verifique se a requisição foi bem-sucedida (código de status 200)
-//                    if ($responseBillet->getStatusCode() == 200) {
-//                        // Obtenha o conteúdo do PDF
-//                        $pdfContent = $responseBillet->getBody()->getContents();
-//
-//                        // Especifique o caminho onde você deseja salvar o arquivo no seu computador
-//                        $billetPath = storage_path('app/pdf/boleto.pdf');
-//
-//                        // Salve o arquivo no caminho especificado
-//                        file_put_contents($billetPath, $pdfContent);
-//
-//
-//                    }
+                    $responseBillet = $client->get('https://erp.agetelecom.com.br:45715/external/integrations/thirdparty/GetBillet/'.$value->frt_id,[
+                        'headers' => [
+                            'Authorization' => 'Bearer '.$access->access_token
+                        ]
+                    ]);
+
+                    $billetPath = [];
+
+                    // Verifique se a requisição foi bem-sucedida (código de status 200)
+                    if ($responseBillet->getStatusCode() == 200) {
+                        // Obtenha o conteúdo do PDF
+                        $pdfContent = $responseBillet->getBody()->getContents();
+
+                        // Especifique o caminho onde você deseja salvar o arquivo no seu computador
+                        $billetPath = storage_path('app/pdf/boleto.pdf');
+
+                        // Salve o arquivo no caminho especificado
+                        file_put_contents($billetPath, $pdfContent);
+
+
+                    }
 
 
                     if($value->days_until_expiration == 30) {
@@ -501,24 +502,24 @@ class BuilderController extends Controller
                         $mail = Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
                             ->send(new SendSCPC($value->name, $value->tx_id, $debits, $dateFormatted));
 
-//                        unlink($billetPath);
+                        unlink($billetPath);
 
 
                     }
 
-                    if (filter_var('carlos.neto@agetelecom.com.br', FILTER_VALIDATE_EMAIL)) {
+                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
                         foreach ($templates as $k => $v) {
 
                             if ($value->days_until_expiration == $v['rule']) {
 
                                 $templates[$k]['sendings']++;
 
-
-                                Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
+//
+                                Mail::mailer('fat')->to($value->email)
                                     ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode, $billetPath));
 
 
-//                                unlink($billetPath);
+                                unlink($billetPath);
 
                                 $sendings['success'][] = [
                                     'template' => $v['template'],
@@ -533,11 +534,11 @@ class BuilderController extends Controller
                                 if(in_array($value->days_until_expiration, $v['rule'])) {
                                     $templates[$k]['sendings']++;
 
+//
+                                    Mail::mailer('fat')->to($value->email)
+                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode, $billetPath));
 
-                                    Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
-                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode));
-
-//                                    unlink($billetPath);
+                                    unlink($billetPath);
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
@@ -568,7 +569,6 @@ class BuilderController extends Controller
 
                 // Atualiza o tempo inicial para a próxima iteração
                 $startTime = microtime(true);
-
             }
 
         } catch (\Exception $e) {
@@ -751,7 +751,8 @@ class BuilderController extends Controller
                 case
                     when frt.expiration_date > current_date then -(frt.expiration_date - current_date)
                     else (current_date - frt.expiration_date)
-                end as "days_until_expiration"
+                end as "days_until_expiration",
+                frt.id as "frt_id"
             FROM erp.contracts c
             LEFT JOIN erp.people p ON p.id = c.client_id
             LEFT JOIN erp.financial_receivable_titles frt ON frt.contract_id = c.id
@@ -764,7 +765,7 @@ class BuilderController extends Controller
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
                 and frt.typeful_line is not null
-            limit 1
+            limit 1000
             ';
 //
 //        $query = '

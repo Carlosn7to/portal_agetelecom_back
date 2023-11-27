@@ -24,11 +24,11 @@ class SendMailBillingRule extends Mailable
      *
      * @return void
      */
-    public function __construct($viewName, $subject, $name_client, $barcode, $billetPath)
+    public function __construct($viewName, $subject, $name_client, $barcode, $billetPath = [])
     {
         $this->viewName = $viewName;
         $this->subjectMail = $subject;
-        $this->name_client = $name_client;
+        $this->name_client = mb_convert_case($name_client, MB_CASE_TITLE, "UTF-8");
         $this->barcode = $barcode;
         $this->billetPath= $billetPath;
     }

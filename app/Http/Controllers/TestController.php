@@ -88,56 +88,95 @@ class TestController extends Controller
     {
         set_time_limit(200000000);
 
+        $order = new OrderServiceV2Controller();
+
+        $result = $order->store();
+
+        return $result;
+
         $client = new Client();
-
         $data = [
-            "grant_type" => "client_credentials",
-            "scope" => "syngw",
-            "client_id" => "7d787633-b8d5-45d3-84a1-714d6185399d",
-            "client_secret" => "4e1ac5c5-14ef-49c0-ae14-c0e16e798489",
-            "syndata" => "TWpNMU9EYzVaakk1T0dSaU1USmxaalprWldFd00ySTFZV1JsTTJRMFptUT06WlhsS1ZHVlhOVWxpTTA0d1NXcHZhVTFxUVRKTWFrbDNUa00wZVU1RVozVlBSRmxwVEVOS1ZHVlhOVVZaYVVrMlNXMVNhVnBYTVhkTlJFRXdUMFJyYVdaUlBUMD06WlRoa01qTTFZamswWXpsaU5ETm1aRGczTURsa01qWTJZekF4TUdNM01HVT0="
-        ];
+                "id" => uniqid(),
+                "to" => "556199889451@wa.gw.msging.net",
+                "type" => "application/json",
+                "content" => [
+                    "type" => "template",
+                    "template" => [
+                        "namespace" => "0c731938_5304_4f41_9ccf_f0942721dd48",
+                        "name" => "black_november",
+                        "language" => [
+                            "code" => "PT_BR",
+                            "policy" => "deterministic"
+                        ],
+                        "components" => [
+                            [
+                                "type" => "header",
+                                "parameters" => [
+                                    [
+                                        "type" => "image",
+                                        "image" => [
+                                            "link" => "https://docs.google.com/uc?export=download&id=1JfTFYexsKL_2wdwDAKDvzDll4VNgqLHn"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+            ];
 
-        $response = $client->post('https://erp.agetelecom.com.br:45700/connect/token', [
+        $response = $client->post('https://agetelecom.http.msging.net/messages', [
             'headers' => [
-                'Content-Type' => 'application/x-www-form-urlencoded'
+                'Content-Type' => 'application/json',
+                'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
             ],
-            'form_params' => $data
+            'json' => $data
         ]);
 
-        $access = json_decode($response->getBody()->getContents());
 
 
-        $responseBillet = $client->get('https://erp.agetelecom.com.br:45715/external/integrations/thirdparty/GetBillet/3957492',[
+
+        // Cria o array com os dados a serem enviados
+        $data = [
+            "id" => uniqid(),
+            "to" => "postmaster@msging.net",
+            "method" => "set",
+            "uri" => "/contexts/556199889451@wa.gw.msging.net/Master-State",
+            "type" => "text/plain",
+            "resource" => "contatoativoenviodefatura"
+        ];
+
+        // Faz a requisição POST usando o cliente Guzzle HTTP
+        $response = $client->post('https://agetelecom.http.msging.net/commands', [
+            'json' => $data,
             'headers' => [
-               'Authorization' => 'Bearer '.$access->access_token
+                'Content-Type' => 'application/json',
+                'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
             ]
         ]);
 
-        // Verifique se a requisição foi bem-sucedida (código de status 200)
-        if ($responseBillet->getStatusCode() == 200) {
-            // Obtenha o conteúdo do PDF
-            $pdfContent = $responseBillet->getBody()->getContents();
+        $data = [
+            "id" => uniqid(),
+            "to" => "postmaster@msging.net",
+            "method" => "set",
+            "uri" => "/contexts/556199889451@wa.gw.msging.net/stateid@684abf3b-a37b-4c29-bb28-4600739efde0",
+            "type" => "text/plain",
+            "resource" => "b1814ddb-4d3b-4857-904f-cd5a0a6a9c5e"
+        ];
 
-            // Especifique o caminho onde você deseja salvar o arquivo no seu computador
-            $caminhoSalvamento = storage_path('app/pdf/boleto_'.Str::random(5).'.pdf');
+        // Faz a requisição POST usando o cliente Guzzle HTTP
+        $response = $client->post('https://agetelecom.http.msging.net/commands', [
+            'json' => $data,
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
+            ]
+        ]);
 
-            // Salve o arquivo no caminho especificado
-            file_put_contents($caminhoSalvamento, $pdfContent);
+        // Obtém o corpo da resposta
+        $body = $response->getBody();
 
-
-            Mail::mailer('portal')->to('diego.lima@agetelecom.com.br')
-                ->send(new SendClientDay('Carlos', $caminhoSalvamento));
-
-            // Retorne uma resposta ou faça o que for necessário aqui
-            return response()->json(['message' => 'PDF salvo com sucesso']);
-        } else {
-            // Se a requisição não for bem-sucedida, trate conforme necessário
-            return response()->json(['error' => 'Falha ao obter o PDF'], $responseBillet->getStatusCode());
-        }
-
-
-        return true;
+        return $body;
 
 //        $import = new OrderServiceController();
 //

@@ -26,7 +26,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')->hourly();
 
         $schedule->command('update:tables')->dailyAt('3:00');
-//        $schedule->command('send:billing-rule')->weekdays()->dailyAt('12:30');
+        $schedule->command('send:billing-rule')->weekdays()->dailyAt('13:00');
         $schedule->command('send:suspension')->weekdays()->everyThreeHours();
         $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
         $schedule->command('export:order')->everyFiveMinutes();
