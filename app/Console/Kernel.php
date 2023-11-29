@@ -9,6 +9,7 @@ use App\Http\Controllers\DataWarehouse\Voalle\ContractsTypeController;
 use App\Http\Controllers\DataWarehouse\Voalle\PeoplesController;
 use App\Http\Controllers\DataWarehouse\Voalle\ServiceProductsController;
 use App\Http\Controllers\TestController;
+use App\Http\Controllers\Voalle\ContractFineController;
 use App\Models\AgeRv\VoalleSales;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -30,6 +31,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:suspension')->weekdays()->everyThreeHours();
         $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
         $schedule->command('export:order')->everyFiveMinutes();
+        $schedule->call(function () {
+            $warning = new ContractFineController();
+            $warning->verifyTime();
+        })->everyMinute();
     }
 
     /**

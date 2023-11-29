@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Voalle;
 
 use App\Http\Controllers\Controller;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use MongoDB\Driver\Session;
 
 class ContractFineController extends Controller
 {
@@ -16,6 +18,8 @@ class ContractFineController extends Controller
         if($token !== 'FiU4HdzsLJ5yRADjB5uLVV8nJhAor') {
             return response()->json('Token inválido', 401);
         }
+
+        $this->startSession();
 
         set_time_limit(200000000);
 
@@ -51,5 +55,112 @@ class ContractFineController extends Controller
         } else {
             return response()->json(false, 200);
         }
+    }
+
+    private function startSession()
+    {
+        $keySession = 'contador_sessao';
+
+        // Armazena a data e hora atual na sessão
+        Session::put($keySession, now());
+    }
+
+    public function verifyTime()
+    {
+        // Define a chave da sessão
+        $keySession = 'contador_sessao';
+
+        // Verifica se a sessão existe
+        if (Session::has($keySession)) {
+            // Obtém a data e hora armazenadas na sessão
+            $lastReq = Session::get($keySession);
+
+            // Calcula a diferença em minutos entre a data e hora atual e a última requisição
+            $diffMinutes = now()->diffInMinutes($lastReq);
+
+            // Verifica se o tempo expirou
+            if ($diffMinutes >= 1) {
+                // Tempo expirou, retorna false ou executa alguma ação desejada
+
+                return $this->warningSms();
+            }
+
+        }
+    }
+
+    private function warningSms() : void
+    {
+
+        if(Session::has('warning_sms')) {
+
+            // Obtém a data e hora armazenadas na sessão
+            $lastReq = Session::get($keySession);
+
+            // Calcula a diferença em minutos entre a data e hora atual e a última requisição
+            $diffMinutes = now()->diffInMinutes($lastReq);
+
+            // Verifica se o tempo expirou
+            if ($diffMinutes >= 5) {
+                // Tempo expirou, retorna false ou executa alguma ação desejada
+
+
+                $client = new Client();
+
+                $numbers = ['61984700440', '61993419869', '61991210156'];
+
+
+                foreach ($numbers as $key => $value) {
+
+                    $data = [
+                        "id" => uniqid(),
+                        "to" => "+55$value@sms.gw.msging.net",
+                        "type" => "text/plain",
+                        "content" => "Aviso: Automação de cancelamento de contratos falhou. Favor verificar."
+                    ];
+
+                    // Faz a requisição POST usando o cliente Guzzle HTTP
+                    $response = $client->post('https://agetelecom.http.msging.net/messages', [
+                        'headers' => [
+                            'Content-Type' => 'application/json',
+                            'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+                        ],
+                        'json' => $data
+                    ]);
+
+                }
+            }
+
+        } else {
+            $keySessionWarning = 'warning_sms';
+            Session::put($keySessionWarning, now());
+
+
+            $client = new Client();
+
+            $numbers = ['61984700440', '61993419869', '61991210156'];
+
+
+            foreach ($numbers as $key => $value) {
+
+                $data = [
+                    "id" => uniqid(),
+                    "to" => "+55$value@sms.gw.msging.net",
+                    "type" => "text/plain",
+                    "content" => "Aviso: Automação de cancelamento de contratos falhou. Favor verificar."
+                ];
+
+                // Faz a requisição POST usando o cliente Guzzle HTTP
+                $response = $client->post('https://agetelecom.http.msging.net/messages', [
+                    'headers' => [
+                        'Content-Type' => 'application/json',
+                        'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+                    ],
+                    'json' => $data
+                ]);
+
+            }
+        }
+
+
     }
 }
