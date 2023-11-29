@@ -25,7 +25,9 @@ class ContractFineController extends Controller
         }
 
 
-        $this->startSession();
+        session_start();
+
+        $_SESSION['contador_sessao'] = now();
 
 
         set_time_limit(200000000);
@@ -64,12 +66,6 @@ class ContractFineController extends Controller
         }
     }
 
-    private function startSession()
-    {
-        session_start();
-
-        $_SESSION['contador_sessao'] = now();
-    }
 
     public function verifyTime()
     {
@@ -93,7 +89,7 @@ class ContractFineController extends Controller
 
 
             // Verifica se o tempo expirou
-            if ($diffMinutes >= 1) {
+            if ($diffMinutes >= 5) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
 
 
@@ -128,7 +124,7 @@ class ContractFineController extends Controller
 
 
             // Verifica se  o tempo expirou
-            if ($diffMinutes >= 2) {
+            if ($diffMinutes >= 30) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
 
                 $client = new Client();
