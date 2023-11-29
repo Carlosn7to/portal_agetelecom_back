@@ -87,10 +87,11 @@ class ContractFineController extends Controller
             $lastReq = $_SESSION['contador_sessao'];
 
 
+            return $lastReq;
+
             // Calcula a diferença em minutos entre a data e hora atual e a última requisição
             $diffMinutes = now()->diffInMinutes($lastReq);
 
-            return $diffMinutes;
 
 
             // Verifica se o tempo expirou
