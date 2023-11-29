@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use MongoDB\Driver\Session;
+use Illuminate\Support\Facades\Session;
 
 class ContractFineController extends Controller
 {
