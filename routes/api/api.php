@@ -242,4 +242,5 @@ Route::prefix('indique')->group(function() {
     Route::post('/leads', [\App\Http\Controllers\AgeIndicate\LeadsController::class, 'store']);
 });
 
-Route::get('teste-email', [\App\Http\Controllers\Mail\TestController::class, 'index']);
+//Route::get('teste-email', [\App\Http\Controllers\Mail\TestController::class, 'index']);
+Route::get('validate-status-contract/{token}/{contractId}', [\App\Http\Controllers\Voalle\ContractFineController::class, 'getStatus']);
