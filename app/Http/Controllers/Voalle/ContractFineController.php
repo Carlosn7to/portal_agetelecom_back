@@ -25,9 +25,8 @@ class ContractFineController extends Controller
         }
 
 
-//        $this->startSession();
+        $this->startSession();
 
-        return $this->verifyTime();
 
         set_time_limit(200000000);
 
