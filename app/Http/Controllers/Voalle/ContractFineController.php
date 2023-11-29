@@ -23,8 +23,6 @@ class ContractFineController extends Controller
 
         $this->startSession();
 
-        return $this->verifyTime();
-
 
         set_time_limit(200000000);
 
@@ -87,15 +85,13 @@ class ContractFineController extends Controller
             $lastReq = $_SESSION['contador_sessao'];
 
 
-            return $lastReq;
-
             // Calcula a diferença em minutos entre a data e hora atual e a última requisição
             $diffMinutes = now()->diffInMinutes($lastReq);
 
 
 
             // Verifica se o tempo expirou
-            if ($diffMinutes >= 5) {
+            if ($diffMinutes >= 1) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
 
                 return $this->warningSms();
