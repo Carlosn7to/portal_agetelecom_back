@@ -79,9 +79,6 @@ class ContractFineController extends Controller
             session_start();
         }
 
-        $session = $_SESSION['contador_sessao'];
-
-
 
 
         // Verifica se a sessão existe
