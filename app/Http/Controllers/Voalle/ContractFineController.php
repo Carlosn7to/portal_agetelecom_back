@@ -23,7 +23,7 @@ class ContractFineController extends Controller
 
         $this->startSession();
 
-        $this->verifyTime();
+        return $this->verifyTime();
 
 
         set_time_limit(200000000);
@@ -90,6 +90,8 @@ class ContractFineController extends Controller
             // Calcula a diferença em minutos entre a data e hora atual e a última requisição
             $diffMinutes = now()->diffInMinutes($lastReq);
 
+            return $diffMinutes;
+
 
             // Verifica se o tempo expirou
             if ($diffMinutes >= 5) {
@@ -125,7 +127,6 @@ class ContractFineController extends Controller
             $diffMinutes = now()->diffInMinutes($lastReq);
 
 
-
             // Verifica se  o tempo expirou
             if ($diffMinutes >= 30) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
@@ -139,7 +140,7 @@ class ContractFineController extends Controller
 
                     $data = [
                         "id" => uniqid(),
-                        "to" => "5561984700440@wa.gw.msging.net",
+                        "to" => "55$value@wa.gw.msging.net",
                         "type" => "application/json",
                         "content" => [
                             "type" => "template",
@@ -194,7 +195,7 @@ class ContractFineController extends Controller
 
                 $data = [
                     "id" => uniqid(),
-                    "to" => "5561984700440@wa.gw.msging.net",
+                    "to" => "55$value@wa.gw.msging.net",
                     "type" => "application/json",
                     "content" => [
                         "type" => "template",
