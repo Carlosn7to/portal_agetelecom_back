@@ -19,7 +19,11 @@ class ContractFineController extends Controller
             return response()->json('Token inválido', 401);
         }
 
+
         $this->startSession();
+
+        $this->verifyTime();
+
 
         set_time_limit(200000000);
 
@@ -59,27 +63,32 @@ class ContractFineController extends Controller
 
     private function startSession()
     {
-        $keySession = 'contador_sessao';
+        session_start();
 
-        // Armazena a data e hora atual na sessão
-        Session::put($keySession, now());
+        $_SESSION['contador_sessao'] = now();
     }
 
     public function verifyTime()
     {
-        // Define a chave da sessão
-        $keySession = 'contador_sessao';
+        session_start();
+
+
+        $session = $_SESSION['contador_sessao'];
+
 
         // Verifica se a sessão existe
-        if (Session::has($keySession)) {
+        if (isset($_SESSION['contador_sessao'])){
+
             // Obtém a data e hora armazenadas na sessão
-            $lastReq = Session::get($keySession);
+            $lastReq = $_SESSION['contador_sessao'];
+
 
             // Calcula a diferença em minutos entre a data e hora atual e a última requisição
             $diffMinutes = now()->diffInMinutes($lastReq);
 
+
             // Verifica se o tempo expirou
-            if ($diffMinutes >= 1) {
+            if ($diffMinutes >= 5) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
 
                 return $this->warningSms();
@@ -91,22 +100,22 @@ class ContractFineController extends Controller
     private function warningSms()
     {
 
+
         $client = new Client();
 
-        $numbers = ['61984700440', '61993419869', '61991210156'];
+        $numbers = ['61984700440', '61993419869'];
 
 
-
-        if(Session::has('warning_sms')) {
+        if(isset($_SESSION['warning_sms'])) {
 
             // Obtém a data e hora armazenadas na sessão
-            $lastReq = Session::get($keySession);
+            $lastReq = $_SESSION['warning_sms'];
 
             // Calcula a diferença em minutos entre a data e hora atual e a última requisição
             $diffMinutes = now()->diffInMinutes($lastReq);
 
             // Verifica se o tempo expirou
-            if ($diffMinutes >= 5) {
+            if ($diffMinutes >= 30) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
 
 
@@ -157,8 +166,8 @@ class ContractFineController extends Controller
             }
 
         } else {
-            $keySessionWarning = 'warning_sms';
-            Session::put($keySessionWarning, now());
+
+            $_SESSION['warning_sms'] = now();
 
 
             foreach($numbers as $key => $value) {
