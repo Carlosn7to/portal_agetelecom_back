@@ -88,8 +88,14 @@ class ContractFineController extends Controller
         }
     }
 
-    private function warningSms() : void
+    private function warningSms()
     {
+
+        $client = new Client();
+
+        $numbers = ['61984700440', '61993419869', '61991210156'];
+
+
 
         if(Session::has('warning_sms')) {
 
@@ -104,29 +110,49 @@ class ContractFineController extends Controller
                 // Tempo expirou, retorna false ou executa alguma ação desejada
 
 
-                $client = new Client();
 
-                $numbers = ['61984700440', '61993419869', '61991210156'];
-
-
-                foreach ($numbers as $key => $value) {
+                foreach($numbers as $key => $value) {
 
                     $data = [
                         "id" => uniqid(),
-                        "to" => "+55$value@sms.gw.msging.net",
-                        "type" => "text/plain",
-                        "content" => "Aviso: Automação de cancelamento de contratos falhou. Favor verificar."
+                        "to" => "55$value@wa.gw.msging.net",
+                        "type" => "application/json",
+                        "content" => [
+                            "type" => "template",
+                            "template" => [
+                                "namespace" => "0c731938_5304_4f41_9ccf_f0942721dd48",
+                                "name" => "avisos_sistemicos",
+                                "language" => [
+                                    "code" => "PT_BR",
+                                    "policy" => "deterministic"
+                                ],
+                                "components" => [
+                                    [
+                                        "type" => "body",
+                                        "parameters" => [
+                                            [
+                                                "type" => "text",
+                                                "text" => "Voalle"
+                                            ],
+                                            [
+                                                "type" => "text",
+                                                "text" => "Automação de cancelamento de contratos falhou. Favor verificar. - *TESTE*"
+                                            ]
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
                     ];
 
                     // Faz a requisição POST usando o cliente Guzzle HTTP
                     $response = $client->post('https://agetelecom.http.msging.net/messages', [
                         'headers' => [
                             'Content-Type' => 'application/json',
-                            'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+                            'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
                         ],
                         'json' => $data
                     ]);
-
                 }
             }
 
@@ -135,29 +161,48 @@ class ContractFineController extends Controller
             Session::put($keySessionWarning, now());
 
 
-            $client = new Client();
-
-            $numbers = ['61984700440', '61993419869', '61991210156'];
-
-
-            foreach ($numbers as $key => $value) {
+            foreach($numbers as $key => $value) {
 
                 $data = [
                     "id" => uniqid(),
-                    "to" => "+55$value@sms.gw.msging.net",
-                    "type" => "text/plain",
-                    "content" => "Aviso: Automação de cancelamento de contratos falhou. Favor verificar."
+                    "to" => "55$value@wa.gw.msging.net",
+                    "type" => "application/json",
+                    "content" => [
+                        "type" => "template",
+                        "template" => [
+                            "namespace" => "0c731938_5304_4f41_9ccf_f0942721dd48",
+                            "name" => "avisos_sistemicos",
+                            "language" => [
+                                "code" => "PT_BR",
+                                "policy" => "deterministic"
+                            ],
+                            "components" => [
+                                [
+                                    "type" => "body",
+                                    "parameters" => [
+                                        [
+                                            "type" => "text",
+                                            "text" => "Voalle"
+                                        ],
+                                        [
+                                            "type" => "text",
+                                            "text" => "Automação de cancelamento de contratos falhou. Favor verificar. - *TESTE*"
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
                 ];
 
                 // Faz a requisição POST usando o cliente Guzzle HTTP
                 $response = $client->post('https://agetelecom.http.msging.net/messages', [
                     'headers' => [
                         'Content-Type' => 'application/json',
-                        'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+                        'Authorization' => env('AUTHORIZATION_WHATSAPP_BLIP')
                     ],
                     'json' => $data
                 ]);
-
             }
         }
 
