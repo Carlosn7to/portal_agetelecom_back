@@ -70,8 +70,11 @@ class ContractFineController extends Controller
 
     public function verifyTime()
     {
-        session_start();
 
+        if (session_status() == PHP_SESSION_NONE) {
+            // A sessão não foi iniciada ainda
+            session_start();
+        }
 
         $session = $_SESSION['contador_sessao'];
 
