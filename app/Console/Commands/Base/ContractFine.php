@@ -31,7 +31,7 @@ class ContractFine extends Command
 
         $warning = new ContractFineController();
 
-        $warning->verifyTime();
+        $warning->__invoke();
 
         return Command::SUCCESS;
     }
