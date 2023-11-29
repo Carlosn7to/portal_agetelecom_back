@@ -13,7 +13,7 @@ class ContractFineController extends Controller
     public function getStatus($token, $contractId)
     {
 
-        if($token !== 'FiU%4HdzsLJ5yRAD$j%B5uLVV8nJhAor') {
+        if($token !== 'FiU4HdzsLJ5yRADjB5uLVV8nJhAor') {
             return response()->json('Token inválido', 401);
         }
 
