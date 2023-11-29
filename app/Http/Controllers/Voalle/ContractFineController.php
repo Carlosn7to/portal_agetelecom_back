@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Session;
 class ContractFineController extends Controller
 {
 
+    public function __invoke()
+    {
+        return $this->verifyTime();
+    }
 
     public function getStatus($token, $contractId)
     {
@@ -21,8 +25,9 @@ class ContractFineController extends Controller
         }
 
 
-        $this->startSession();
+//        $this->startSession();
 
+        return $this->verifyTime();
 
         set_time_limit(200000000);
 
@@ -78,6 +83,8 @@ class ContractFineController extends Controller
         $session = $_SESSION['contador_sessao'];
 
 
+
+
         // Verifica se a sessão existe
         if (isset($_SESSION['contador_sessao'])){
 
@@ -89,10 +96,10 @@ class ContractFineController extends Controller
             $diffMinutes = now()->diffInMinutes($lastReq);
 
 
-
             // Verifica se o tempo expirou
             if ($diffMinutes >= 1) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
+
 
                 return $this->warningSms();
             }
@@ -125,7 +132,7 @@ class ContractFineController extends Controller
 
 
             // Verifica se  o tempo expirou
-            if ($diffMinutes >= 30) {
+            if ($diffMinutes >= 2) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
 
                 $client = new Client();
