@@ -31,10 +31,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:suspension')->weekdays()->everyThreeHours();
         $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
         $schedule->command('export:order')->everyFiveMinutes();
-        $schedule->call(function () {
-            $warning = new ContractFineController();
-            $warning->verifyTime();
-        })->everyMinute();
+        $schedule->command('send:warning')->everyMinute();
+
     }
 
     /**
