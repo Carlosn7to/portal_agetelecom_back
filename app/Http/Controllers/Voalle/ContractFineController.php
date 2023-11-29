@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Voalle;
 
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -103,13 +104,19 @@ class ContractFineController extends Controller
     private function warningSms()
     {
 
+        if (session_status() == PHP_SESSION_NONE) {
+            // A sessão não foi iniciada ainda
+            session_start();
+        }
 
-        $client = new Client();
 
-        $numbers = ['61984700440', '61993419869'];
+
+        $numbers = ['61984700440', '61993419869', '61991210156'];
+
 
 
         if(isset($_SESSION['warning_sms'])) {
+
 
             // Obtém a data e hora armazenadas na sessão
             $lastReq = $_SESSION['warning_sms'];
@@ -117,17 +124,22 @@ class ContractFineController extends Controller
             // Calcula a diferença em minutos entre a data e hora atual e a última requisição
             $diffMinutes = now()->diffInMinutes($lastReq);
 
-            // Verifica se o tempo expirou
+
+
+            // Verifica se  o tempo expirou
             if ($diffMinutes >= 30) {
                 // Tempo expirou, retorna false ou executa alguma ação desejada
+
+                $client = new Client();
 
 
 
                 foreach($numbers as $key => $value) {
 
+
                     $data = [
                         "id" => uniqid(),
-                        "to" => "55$value@wa.gw.msging.net",
+                        "to" => "5561984700440@wa.gw.msging.net",
                         "type" => "application/json",
                         "content" => [
                             "type" => "template",
@@ -144,11 +156,11 @@ class ContractFineController extends Controller
                                         "parameters" => [
                                             [
                                                 "type" => "text",
-                                                "text" => "Voalle"
+                                                "text" => "Cancelamento de contratos"
                                             ],
                                             [
                                                 "type" => "text",
-                                                "text" => "Automação de cancelamento de contratos falhou. Favor verificar. - *TESTE*"
+                                                "text" => "Nenhuma requisição recebida - última em " . Carbon::parse($_SESSION['contador_sessao'])->format('d/m/Y H:i:s')
                                             ]
                                         ]
                                     ]
@@ -165,19 +177,24 @@ class ContractFineController extends Controller
                         ],
                         'json' => $data
                     ]);
+
                 }
+
+                unset($_SESSION['warning_sms']);
             }
 
         } else {
 
             $_SESSION['warning_sms'] = now();
 
+            $client = new Client();
 
             foreach($numbers as $key => $value) {
 
+
                 $data = [
                     "id" => uniqid(),
-                    "to" => "55$value@wa.gw.msging.net",
+                    "to" => "5561984700440@wa.gw.msging.net",
                     "type" => "application/json",
                     "content" => [
                         "type" => "template",
@@ -194,11 +211,11 @@ class ContractFineController extends Controller
                                     "parameters" => [
                                         [
                                             "type" => "text",
-                                            "text" => "Voalle"
+                                            "text" => "Cancelamento de contratos"
                                         ],
                                         [
                                             "type" => "text",
-                                            "text" => "Automação de cancelamento de contratos falhou. Favor verificar. - *TESTE*"
+                                            "text" => "Nenhuma requisição recebida - última em " . Carbon::parse($_SESSION['contador_sessao'])->format('d/m/Y H:i:s')
                                         ]
                                     ]
                                 ]
@@ -215,7 +232,10 @@ class ContractFineController extends Controller
                     ],
                     'json' => $data
                 ]);
+
             }
+
+
         }
 
 
