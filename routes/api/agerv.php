@@ -79,6 +79,8 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::resource('/voalle-sales', \App\Http\Controllers\AgeRv\VoalleSalesController::class);
         });
 
+        Route::get('sales-api', [\App\Http\Controllers\AgeRv\TCC\DiegoApiController::class, 'index']);
+
     });
 
 
