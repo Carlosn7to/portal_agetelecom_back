@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class DiegoApiController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $data1 = [
             'lastSales' => [
@@ -180,6 +180,11 @@ class DiegoApiController extends Controller
                     31 => 1,
                 ]
             ]
+        ];
+
+        return [
+          $request->all(),
+          $data1
         ];
     }
 }
