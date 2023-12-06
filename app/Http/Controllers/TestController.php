@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Exports\ReportExport;
 use App\Exports\UsersExport;
 use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\SendingWhatsapp;
+use App\Http\Controllers\AgeCommunicate\BillingRule\BuilderController;
 use App\Http\Controllers\AgeCommunicate\BlockedClients\BlockedClientsController;
 use App\Http\Controllers\AgeCommunicate\Suspension\SuspensionController;
 use App\Http\Controllers\AgeRv\_aux\sales\Calendar;
@@ -86,7 +87,44 @@ class TestController extends Controller
 
     public function index(Request $request)
     {
-        set_time_limit(200000000);
+
+        $client = new Client();
+
+
+        $billing = new BuilderController();
+
+        return $billing->build();
+
+
+
+        // Cria o array com os dados a serem enviados
+        $data = [
+            "id" => uniqid(),
+            "to" => "+5561984700440@sms.gw.msging.net",
+            "type" => "text/plain",
+            "content" => "Ola \nteste"
+        ];
+
+        // Faz a requisição POST usando o cliente Guzzle HTTP
+        $response = $client->post('https://agetelecom.http.msging.net/messages', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
+            ],
+            'json' => $data
+        ]);
+
+        // Obtém o corpo da resposta
+        $body = $response->getBody();
+
+
+        return $body;
+
+//        $b2b = new Seller();
+//
+//        $result = $b2b->response();
+//
+//        return $result;
 
         $order = new OrderServiceV2Controller();
 

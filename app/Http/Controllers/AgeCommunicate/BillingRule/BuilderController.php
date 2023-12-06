@@ -40,20 +40,22 @@ class BuilderController extends Controller
 
         $data = DB::connection('pgsql')->select($query);
 
-//        $whatsapp = $this->sendMessage($data);
-          return $this->sendEmail($data);
-//        $sms = $this->sendSMS($data);
+
+        $whatsapp = $this->sendMessage($data);
+        $email = $this->sendEmail($data);
+        $sms = $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [
-//            'whatsapp' => $whatsapp,
+            'whatsapp' => $whatsapp,
             'email' => $email,
-//            'sms' => $sms
+            'sms' => $sms
         ], []);
     }
 
     private function sendMessage($dataWhatsapp)
     {
+
 
 
         $templates = [
@@ -214,7 +216,6 @@ class BuilderController extends Controller
         $data = $data->unique('phone');
 
 
-
         try {
             // Defina o número máximo de iterações por segundo
             $maxIterationsPerSecond = 150;
@@ -227,8 +228,13 @@ class BuilderController extends Controller
             foreach ($data as $key => $value) {
                 try {
                     if (isset($value->phone)) {
+
+
                         foreach ($templates as $k => $v) {
+
+
                             if ($value->days_until_expiration == $v['d']) {
+
 
                                 $templates[$k]['sendings']++;
 
@@ -241,8 +247,10 @@ class BuilderController extends Controller
                                         'client' => $value
                                     ];
                                 } else {
-                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
+
+                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], '61984700440');
                                      $sendingWhatsapp->builder();
+
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
@@ -379,6 +387,7 @@ class BuilderController extends Controller
 
         $data = $data->unique('email');
 
+
         $date = Carbon::now();
         $carbonDate = Carbon::parse($date);
 
@@ -460,6 +469,7 @@ class BuilderController extends Controller
             $access = json_decode($response->getBody()->getContents());
 
 
+
             $limit = 0;
             foreach ($data as $key => $value) {
 
@@ -488,6 +498,7 @@ class BuilderController extends Controller
                     }
 
 
+
                     if($value->days_until_expiration == 30) {
 
                         $debits = [];
@@ -499,8 +510,8 @@ class BuilderController extends Controller
                         ];
 
 
-                        $mail = Mail::mailer('fat')->to('carlos.neto@agetelecom.com.br')
-                            ->send(new SendSCPC($value->name, $value->tx_id, $debits, $dateFormatted));
+                        $mail = Mail::mailer('fat')->to($value->email)
+                            ->send(new SendSCPC($value->name, $value->tx_id, $debits, $dateFormatted, $billetPath));
 
                         unlink($billetPath);
 
@@ -513,6 +524,7 @@ class BuilderController extends Controller
                             if ($value->days_until_expiration == $v['rule']) {
 
                                 $templates[$k]['sendings']++;
+
 
 //
                                 Mail::mailer('fat')->to($value->email)
@@ -765,39 +777,7 @@ class BuilderController extends Controller
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
                 and frt.typeful_line is not null
-            limit 1000
             ';
-//
-//        $query = '
-//            SELECT
-//                c.contract_id  AS "contract_id",
-//                p.email AS "email",
-//                p.v_name AS "name",
-//                CASE
-//                    WHEN p.cell_phone_1 IS NOT NULL THEN p.cell_phone_1
-//                    ELSE p.cell_phone_2
-//                END AS "phone",
-//                frt.typeful_line AS "barcode",
-//                frt.expiration_date AS "expiration_date",
-//                frt.competence AS "competence",
-//                case
-//                    when frt.expiration_date > current_date then -(frt.expiration_date - current_date)
-//                    else (current_date - frt.expiration_date)
-//                end as "days_until_expiration"
-//            FROM datawarehouse.dwd_contracts c
-//            LEFT JOIN datawarehouse.dwd_people p ON p.people_id = c.client_id
-//            LEFT JOIN datawarehouse.dwf_financial_receivable_titles frt ON frt.contract_id = c.contract_id
-//            left join datawarehouse.dwf_financial_receipt_titles dfrt on dfrt.financial_receivable_title_id = frt.financial_receivable_title_id
-//            WHERE
-//                c.v_stage = \'Aprovado\'
-//                and c.v_status != \'Cancelado\'
-//                AND frt.competence >= \'2023-05-01\'
-//                AND frt.deleted IS FALSE
-//                AND frt.finished IS FALSE
-//                AND frt.title LIKE \'%FAT%\'
-//                and frt.p_is_receivable is true
-//                and dfrt.receipt_date is null limit 100
-//        ';
 
         return $query;
 
