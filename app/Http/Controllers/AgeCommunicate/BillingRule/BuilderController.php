@@ -41,13 +41,13 @@ class BuilderController extends Controller
         $data = DB::connection('pgsql')->select($query);
 
 
-//        $whatsapp = $this->sendMessage($data);
+        $whatsapp = $this->sendMessage($data);
         $email = $this->sendEmail($data);
         $sms = $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [
-//            'whatsapp' => $whatsapp,
+            'whatsapp' => $whatsapp,
             'email' => $email,
             'sms' => $sms
         ], []);
