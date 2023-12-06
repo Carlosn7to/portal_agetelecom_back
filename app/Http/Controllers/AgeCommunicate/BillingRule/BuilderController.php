@@ -41,13 +41,13 @@ class BuilderController extends Controller
         $data = DB::connection('pgsql')->select($query);
 
 
-        $whatsapp = $this->sendMessage($data);
+//        $whatsapp = $this->sendMessage($data);
         $email = $this->sendEmail($data);
         $sms = $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [
-            'whatsapp' => $whatsapp,
+//            'whatsapp' => $whatsapp,
             'email' => $email,
             'sms' => $sms
         ], []);
@@ -248,7 +248,7 @@ class BuilderController extends Controller
                                     ];
                                 } else {
 
-                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], '61984700440');
+                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
                                      $sendingWhatsapp->builder();
 
 
