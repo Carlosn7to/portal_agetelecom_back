@@ -58,6 +58,7 @@ class OrderServiceV2Controller extends Controller
 
         $result = DB::connection('pgsql')->select($this->getQuery());
 
+        return $result;
 
 
         foreach($result as $key => $data) {
@@ -457,11 +458,11 @@ assignments.description as \"observation\",
       inner join erp.people on (assignments.requestor_id = people.id)
       left join erp.contracts contratos on (contratos.client_id = people.id)
       inner join erp.schedules s on s.assignment_id = assignments.id
-      and s.start_date between '2023-12-23' and '2023-12-28'
       where incident_types.active = '1' and assignments.deleted = '0' and incident_types.deleted = '0'
       and TO_CHAR( s.start_date, '%Y-%m-%d' ) <> '0000-00-00' and people.deleted = '0'
       and TO_CHAR( assignment_incidents.responsible_final_date, '%Y-%m-%d' ) <> '0000-00-00' and people.deleted = '0'
       and incident_status.id <> '8'
+      and assignment_incidents.protocol in (916217,916247,916289)
       and incident_types.id in ('1074', '1090', '1080', '1081', '1082', '1088', '1071', '1087','1058','1067', '1036', '1091', '1094', '1011', '1026', '1027', '1028', '1029','1086','1089','1020')
       order by assignment_incidents.protocol, s.start_date desc";
 
