@@ -59,10 +59,11 @@ class OrderServiceV2Controller extends Controller
         $result = DB::connection('pgsql')->select($this->getQuery());
 
 
+
         foreach($result as $key => $data) {
             $client = new Client();
 
-            $order = $this->getOrder($data->protocol);
+//            $order = $this->getOrder($data->protocol);
 
 
             if(! empty($order->data)) {
@@ -103,7 +104,7 @@ class OrderServiceV2Controller extends Controller
                 "uni" => "",
                 "dataHoraAgendamento" => Carbon::parse($data->schedule_date)->format('Y-m-d\TH:i:s.v\Z'),
                 "tipoImovel" => "INDIFERENTE",
-                "grupoArea" => $data->node,
+                "grupoArea" => 'DISTRITO FEDERAL',
                 "area" => $data->dispatch_area,
                 "localidade" => $data->node,
                 "endereco" => $data->address,
@@ -134,6 +135,7 @@ class OrderServiceV2Controller extends Controller
                     "token" => $this->token
                 ]
             ];
+
 
 
 
@@ -460,10 +462,11 @@ assignments.description as \"observation\",
       where incident_types.active = '1' and assignments.deleted = '0' and incident_types.deleted = '0'
       and TO_CHAR( s.start_date, '%Y-%m-%d' ) <> '0000-00-00' and people.deleted = '0'
       and TO_CHAR( assignment_incidents.responsible_final_date, '%Y-%m-%d' ) <> '0000-00-00' and people.deleted = '0'
-      and incident_status.id <> '8' and
+      and incident_status.id <> '8'
+      and
       (
        select DATE(s.start_date) from erp.schedules s where s.assignment_id = assignments.id order by s.id desc limit 1
-      ) between '".Carbon::now()->format('Y-m-d')."' and '".Carbon::now()->addDays(10)->format('Y-m-d')."'
+      ) between '".Carbon::now()->subDay(1)->format('Y-m-d')."' and '".Carbon::now()->addDays(10)->format('Y-m-d')."'
       and incident_types.id in ('1074', '1090', '1080', '1081', '1082', '1088', '1071', '1087','1058','1067', '1036', '1091', '1094', '1011', '1026', '1027', '1028', '1029','1086','1089','1020')
       order by assignment_incidents.protocol, s.start_date desc";
 
