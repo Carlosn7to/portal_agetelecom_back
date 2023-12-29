@@ -100,7 +100,7 @@ class OrderServiceV2Controller extends Controller
                 "origem" => 0,
                 "projeto" => "CASA CLIENTE",
                 "codCt" => "OP01",
-                "numOS" => $data->protocol,//$data->protocol,
+                "numOS" => $data->protocol,
                 "uni" => "",
                 "dataHoraAgendamento" => Carbon::parse($data->schedule_date)->format('Y-m-d\TH:i:s.v\Z'),
                 "tipoImovel" => "INDIFERENTE",
