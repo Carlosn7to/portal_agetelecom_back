@@ -58,6 +58,7 @@ class OrderServiceV2Controller extends Controller
 
         $result = DB::connection('pgsql')->select($this->getQuery());
 
+        return $result;
 
 
         foreach($result as $key => $data) {
@@ -135,6 +136,7 @@ class OrderServiceV2Controller extends Controller
                     "token" => $this->token
                 ]
             ];
+
 
 
             $client = $client->post('https://cliente01.sinapseinformatica.com.br:4383/AGE/Servicos/API_Aniel/api/OsApiController/CriarOrdemServico', [
@@ -238,7 +240,7 @@ class OrderServiceV2Controller extends Controller
     {
         $query = "select distinct on (assignment_incidents.protocol)
       coalesce(contract_service_tags.contract_id, '000000') as \"contract_id\",
-      TO_CHAR(s.start_date::DATE, 'YYYY-MM-DD') as \"schedule_date\",
+      s.start_date as \"schedule_date\",
       assignment_incidents.protocol as \"protocol\",
       (select max(pa.neighborhood) from erp.people_addresses pa where pa.id = contratos.people_address_id limit 1) AS \"neighborhood\",
       (select max(pa.postal_code) from erp.people_addresses pa where pa.id = contratos.people_address_id limit 1) AS \"cep\",
