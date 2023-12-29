@@ -58,8 +58,6 @@ class OrderServiceV2Controller extends Controller
 
         $result = DB::connection('pgsql')->select($this->getQuery());
 
-        return $result;
-
 
         foreach($result as $key => $data) {
             $client = new Client();
