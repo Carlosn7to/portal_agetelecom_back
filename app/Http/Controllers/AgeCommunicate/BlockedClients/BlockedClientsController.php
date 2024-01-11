@@ -24,6 +24,7 @@ class BlockedClientsController extends Controller
 
         $response = $this->sendEmail();
 
+        return $response;
 
     }
 
@@ -68,11 +69,11 @@ class BlockedClientsController extends Controller
     {
 
         $query = '
-            select distinct ce."date", extract(HOUR FROM ce."date") as hour, count(*) as units from erp.contract_events ce
+            select distinct ce."date", extract(HOUR FROM ce."date" + INTERVAL \'30 seconds\') as hour, count(*) as units from erp.contract_events ce
                 left join erp.contracts c on c.id = ce.contract_id
                 --left join erp.contract_event_types cet on cet.id = ce.contract_event_type_id
                 --left join erp.people p on p.id = c.client_id
-                where ce.contract_event_type_id = 40 and DATE(ce."date") = DATE(now())
+                where ce.contract_event_type_id = 40 and DATE(ce."date") = \'2023-12-12\'
                 group by ce."date"
         ';
 

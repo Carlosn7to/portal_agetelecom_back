@@ -195,24 +195,32 @@ class CollaboratorMetaController extends Controller
 
         foreach($collabs as $key => $value) {
             if(str_contains($value['channel'],"VENDEDOR (A) P.A.P") ||
-                str_contains($value['channel'], "VENDEDOR (A) DE LOJA") ||
                 $value['channel'] === 'Comercial') {
 
-                if($value['admmission'] === '08') {
+                if($value['admmission'] === '09') {
                     $collabs[$key]['meta'] = $meta * 0.75;
-                } elseif ($value['admmission'] === '09') {
+                } elseif ($value['admmission'] === '10') {
                     $collabs[$key]['meta'] = $meta * 0.5;
                 }
 
+            }
+
+            if(str_contains($value['channel'], "VENDEDOR (A) DE LOJA")) {
+
+                    if($value['admmission'] === '09') {
+                        $collabs[$key]['meta'] = 12 * 0.75;
+                    } elseif ($value['admmission'] === '10') {
+                        $collabs[$key]['meta'] = 12 * 0.5;
+                    }
             }
 
 
             if(str_contains($value['channel'],"OPERADOR(A) DE MCV")) {
 
                 if($value['admmission'] === '08') {
-                    $collabs[$key]['meta'] = 113 * 0.75;
+                    $collabs[$key]['meta'] = 131 * 0.75;
                 } elseif ($value['admmission'] === '09') {
-                    $collabs[$key]['meta'] = 113 * 0.5;
+                    $collabs[$key]['meta'] = 131 * 0.5;
                 }
 
         }

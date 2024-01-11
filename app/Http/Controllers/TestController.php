@@ -38,6 +38,8 @@ use App\Mail\SendOutstandingDebts;
 use App\Models\AgeBoard\AccessPermission;
 use App\Models\AgeBoard\DashboardPermitted;
 use App\Models\AgeBoard\ItemPermitted;
+use App\Models\AgeCommunicate\Base\BillingRule\Sending;
+use App\Models\AgeCommunicate\Base\BillingRule\Template;
 use App\Models\AgeReport\Report;
 use App\Models\AgeRv\Channel;
 use App\Models\AgeRv\Collaborator;
@@ -88,14 +90,167 @@ class TestController extends Controller
     public function index(Request $request)
     {
 
+//        $client = new Client();
+//
+//
+//        $os = [
+//            916644, 916635, 916634, 916628, 916626, 916619, 916608, 916606, 916605, 916591,
+//            916590, 916589, 916581, 916579, 916578, 916576, 916572, 916567, 916563, 916562,
+//            916558, 916544, 916543, 916542, 916258, 916240, 916235, 916230, 916220, 916187,
+//            916175, 916172, 916164, 916159, 916151, 916137, 916128, 916124, 916108, 916082,
+//            916077, 916075, 916057, 916043, 916037, 916012, 916005, 916004, 916001, 915987,
+//            915968, 915967, 915948, 915944, 915931, 915831, 915793, 915765, 915728, 915688,
+//            915683, 915679, 914301, 915351, 915216, 915136, 915098, 914990, 914943, 914742,
+//            914679, 914632, 914612, 914460, 914213, 914158, 914115, 914074, 914031, 912471,
+//            895190, 905314, 909473, 911909
+//        ];
+//
+//        foreach($os as $key) {
+//            $client = new Client();
+//
+//            $data = [
+//                "num_Obra_Original" => $key,
+//                "settings" => [
+//                    "user" => env('ANIEL_USER'),
+//                    "password" => env('ANIEL_PASSWORD'),
+//                    "token" => env('ANIEL_TOKEN'),
+//                ]
+//            ];
+//
+//
+//            $client =  $client->post('https://cliente01.sinapseinformatica.com.br:4383/AGE/Servicos/API_Aniel/api/OsApiController/ConsultarOS', [
+//                'json' => $data
+//            ]);
+//
+//            $response = json_decode($client->getBody()->getContents());
+//
+//
+//
+//
+//            $client = new Client();
+//
+//            $form = [
+//                "os" => "916644",
+//                "contrato" => "OP01",
+//                "projeto" => "CASA CLIENTE",
+//                "codigoCliente" => "48724",
+//                "settings" => [
+//                    "user" => env('ANIEL_USER'),
+//                    "password" => env('ANIEL_PASSWORD'),
+//                    "token" => env('ANIEL_TOKEN'),
+//                ]
+//            ];
+//
+//            $client =  $client->post('https://cliente01.sinapseinformatica.com.br:4383/AGE/Servicos/API_Aniel/api/OsApiController/ExcluirServico', [
+//                'json' => $data
+//            ]);
+//
+//            return json_decode($client->getBody()->getContents());
+//
+//
+//        }
+//
+//
+//        return true;
+
+//        $os = new OrderServiceV2Controller();
+//
+//        return $os->store();
+
+        $billing = new \App\Http\Controllers\AgeCommunicate\Base\BillingRule\BuilderController();
+
+        return $billing->builder();
+
+        $token = 'YWdldGVsZWNvbXJvdXRlcjpYdlBjZWNRaUs0VTdKT2RNT2VmdQ==';
+        $userIdentity = '5561984700440@wa.gw.msging.net';
+
+
+        $response = $client->request('POST', "https://agetelecom.http.msging.net/commands", [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Key ' . $token,
+            ],
+            'json' => [
+                'id' => uniqid(),
+                'method' => 'get',
+                'to' => 'postmaster@msging.net',
+                'uri' => "/threads/{$userIdentity}?refreshExpiredMedia=true",
+            ],
+        ]);
+
+
+
+        $response1 = json_decode($response->getBody(), true);
+
+
+        $idReq = $response1['resource']['items'][0]['id'];
+
+        return $response1;
+
         $client = new Client();
 
+        $response = $client->request('POST', "https://agetelecom.http.msging.net/commands", [
+            'headers' => [
+                'Content-Type' => 'application/json',
+                'Authorization' => 'Key ' . $token,
+            ],
+            'json' => [
+                'id' => uniqid(),
+                'to' => 'postmaster@msging.net',
+                'method' => 'get',
+                'uri' => '/notifications?id='.$idReq.'',
+            ],
+        ]);
 
-        $billing = new BuilderController();
 
-        return $billing->build();
+        return $response->getBody()->getContents();
 
 
+        $client = new Client();
+        $headers = [
+            'Content-Type' => 'application/json'
+        ];
+
+        $body = '{
+            "codigo": "02703072228",
+            "callerid": "xxxxxxxxxx",
+            "token": "4d0e415e-0bd0-11ea-a050-90b11c2d743a"
+        }';
+
+
+        $response = $client->post('https://erp.agetelecom.com.br//pbx/pbx/events/default/CLIENT_VALIDATE', [
+            'headers' => $headers,
+            'body' => $body
+        ]);
+
+        $result = json_decode($response->getBody()->getContents(), true);
+
+
+        $idClient = $result['clients'][0]['client_id'];
+
+        $client = new Client();
+
+        $headers = [
+            'Content-Type' => 'application/json',
+            'Authorization-Token' => '4d0e415e-0bd0-11ea-a050-90b11c2d743a'
+        ];
+
+        $body = '{
+            "data_billets_from_contract": "110482",
+            "data_billets_filter": false,
+            "get_all_billets": false
+        }';
+
+        $response = $client->post('https://erp.agetelecom.com.br:443/api/api/events/get_billets_from_contract', [
+            'headers' => $headers,
+            'body' => $body
+        ]);
+
+        $result = json_decode($response->getBody()->getContents(), true);
+
+        return $result;
+
+        $client = new Client();
 
         // Cria o array com os dados a serem enviados
         $data = [
@@ -115,7 +270,9 @@ class TestController extends Controller
         ]);
 
         // Obtém o corpo da resposta
-        $body = $response->getBody();
+        $body = $response;
+
+        dd($body);
 
 
         return $body;
@@ -240,7 +397,8 @@ class TestController extends Controller
                 p.tx_id,
                 CASE
                     WHEN p.cell_phone_1 IS NOT NULL THEN p.cell_phone_1
-                    ELSE p.cell_phone_2
+                    WHEN p.cell_phone_2 IS NOT NULL THEN p.cell_phone_2
+                    ELSE p.phone
                 END AS "phone",
                 frt.typeful_line AS "barcode",
                 frt.expiration_date AS "expiration_date",

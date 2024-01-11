@@ -218,12 +218,12 @@ class BuilderController extends Controller
 
         try {
             // Defina o número máximo de iterações por segundo
-            $maxIterationsPerSecond = 150;
-            $microsecondsPerSecond = 1000000;
-            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
-
-//                 Tempo inicial do loop
-            $startTime = microtime(true);
+//            $maxIterationsPerSecond = 15000;
+//            $microsecondsPerSecond = 1000000;
+//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+//
+////                 Tempo inicial do loop
+//            $startTime = microtime(true);
 
             foreach ($data as $key => $value) {
                 try {
@@ -240,7 +240,7 @@ class BuilderController extends Controller
 
                                 if ($v['variable'] === true) {
                                      $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone, ['d' => $v['d']]);
-                                     $sendingWhatsapp->builder();
+//                                     $sendingWhatsapp->builder();
 
                                     $sendings['success'][] = [
                                         'template' => $v['template'],
@@ -248,8 +248,8 @@ class BuilderController extends Controller
                                     ];
                                 } else {
 
-                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
-                                     $sendingWhatsapp->builder();
+//                                     $sendingWhatsapp = new SendingWhatsapp($v['template'], $value->phone);
+//                                     $sendingWhatsapp->builder();
 
 
                                     $sendings['success'][] = [
@@ -269,15 +269,15 @@ class BuilderController extends Controller
                     $e;
                 }
 
-                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-                $elapsedTime = microtime(true) - $startTime;
-                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
-                if ($remainingMicroseconds > 0) {
-                    usleep($remainingMicroseconds);
-                }
-
-//                 Atualiza o tempo inicial para a próxima iteração
-                $startTime = microtime(true);
+//                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+//                $elapsedTime = microtime(true) - $startTime;
+//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+//                if ($remainingMicroseconds > 0) {
+//                    usleep($remainingMicroseconds);
+//                }
+//
+////                 Atualiza o tempo inicial para a próxima iteração
+//                $startTime = microtime(true);
 
             }
         } catch (\Exception $e) {
@@ -374,12 +374,6 @@ class BuilderController extends Controller
             ],
         ];
 
-        $sendings = [
-            'success' => [],
-            'count' => 0,
-            'error' => []
-        ];
-
 
 
         $data = collect($dataEmail);
@@ -442,60 +436,60 @@ class BuilderController extends Controller
 
         try  {
 //             Defina o número máximo de iterações por segundo
-            $maxIterationsPerSecond = 150;
-            $microsecondsPerSecond = 1000000;
-            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
-
-            // Tempo inicial do loop
-            $startTime = microtime(true);
+//            $maxIterationsPerSecond = 15000;
+//            $microsecondsPerSecond = 1000000;
+//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+//
+//            // Tempo inicial do loop
+//            $startTime = microtime(true);
 
             $client = new Client();
-
-            $dataForm = [
-                "grant_type" => "client_credentials",
-                "scope" => "syngw",
-                "client_id" => env('VOALLE_API_CLIENT_ID'),
-                "client_secret" => env('VOALLE_API_CLIENT_SECRET'),
-                "syndata" => env('VOALLE_API_SYNDATA')
-            ];
-
-            $response = $client->post('https://erp.agetelecom.com.br:45700/connect/token', [
-                'headers' => [
-                    'Content-Type' => 'application/x-www-form-urlencoded'
-                ],
-                'form_params' => $dataForm
-            ]);
-
-            $access = json_decode($response->getBody()->getContents());
-
-
-
-            $limit = 0;
+//
+//            $dataForm = [
+//                "grant_type" => "client_credentials",
+//                "scope" => "syngw",
+//                "client_id" => env('VOALLE_API_CLIENT_ID'),
+//                "client_secret" => env('VOALLE_API_CLIENT_SECRET'),
+//                "syndata" => env('VOALLE_API_SYNDATA')
+//            ];
+//
+//            $response = $client->post('https://erp.agetelecom.com.br:45700/connect/token', [
+//                'headers' => [
+//                    'Content-Type' => 'application/x-www-form-urlencoded'
+//                ],
+//                'form_params' => $dataForm
+//            ]);
+//
+//            $access = json_decode($response->getBody()->getContents());
+//
+//
+//
+//            $limit = 0;
             foreach ($data as $key => $value) {
 
                 try {
-
-                    $responseBillet = $client->get('https://erp.agetelecom.com.br:45715/external/integrations/thirdparty/GetBillet/'.$value->frt_id,[
-                        'headers' => [
-                            'Authorization' => 'Bearer '.$access->access_token
-                        ]
-                    ]);
-
-                    $billetPath = [];
-
-                    // Verifique se a requisição foi bem-sucedida (código de status 200)
-                    if ($responseBillet->getStatusCode() == 200) {
-                        // Obtenha o conteúdo do PDF
-                        $pdfContent = $responseBillet->getBody()->getContents();
-
-                        // Especifique o caminho onde você deseja salvar o arquivo no seu computador
-                        $billetPath = storage_path('app/pdf/boleto.pdf');
-
-                        // Salve o arquivo no caminho especificado
-                        file_put_contents($billetPath, $pdfContent);
-
-
-                    }
+//
+//                    $responseBillet = $client->get('https://erp.agetelecom.com.br:45715/external/integrations/thirdparty/GetBillet/'.$value->frt_id,[
+//                        'headers' => [
+//                            'Authorization' => 'Bearer '.$access->access_token
+//                        ]
+//                    ]);
+//
+//                    $billetPath = [];
+//
+//                    // Verifique se a requisição foi bem-sucedida (código de status 200)
+//                    if ($responseBillet->getStatusCode() == 200) {
+//                        // Obtenha o conteúdo do PDF
+//                        $pdfContent = $responseBillet->getBody()->getContents();
+//
+//                        // Especifique o caminho onde você deseja salvar o arquivo no seu computador
+//                        $billetPath = storage_path('app/pdf/boleto.pdf');
+//
+//                        // Salve o arquivo no caminho especificado
+//                        file_put_contents($billetPath, $pdfContent);
+//
+//
+//                    }
 
 
 
@@ -510,10 +504,10 @@ class BuilderController extends Controller
                         ];
 
 
-                        $mail = Mail::mailer('fat')->to($value->email)
-                            ->send(new SendSCPC($value->name, $value->tx_id, $debits, $dateFormatted, $billetPath));
+//                        $mail = Mail::mailer('fat')->to($value->email)
+//                            ->send(new SendSCPC($value->name, $value->tx_id, $debits, $dateFormatted, $billetPath));
 
-                        unlink($billetPath);
+//                        unlink($billetPath);
 
 
                     }
@@ -527,17 +521,13 @@ class BuilderController extends Controller
 
 
 //
-                                Mail::mailer('fat')->to($value->email)
-                                    ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode, $billetPath));
+//                                Mail::mailer('fat')->to($value->email)
+//                                    ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode, $billetPath));
 
 
-                                unlink($billetPath);
+//                                unlink($billetPath);
 
-                                $sendings['success'][] = [
-                                    'template' => $v['template'],
-                                    'client' => $value
-                                ];
-                                $sendings['count']++;
+
                             }
 
 
@@ -547,16 +537,12 @@ class BuilderController extends Controller
                                     $templates[$k]['sendings']++;
 
 //
-                                    Mail::mailer('fat')->to($value->email)
-                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode, $billetPath));
+//                                    Mail::mailer('fat')->to($value->email)
+//                                        ->send(new SendMailBillingRule($v['template'], $v['subject'], $value->name, $value->barcode, $billetPath));
 
-                                    unlink($billetPath);
+//                                    unlink($billetPath);
 
-                                    $sendings['success'][] = [
-                                        'template' => $v['template'],
-                                        'client' => $value
-                                    ];
-                                    $sendings['count']++;
+
                                 }
 
                             }
@@ -572,15 +558,15 @@ class BuilderController extends Controller
                     $e;
                 }
 
-//                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-                $elapsedTime = microtime(true) - $startTime;
-                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
-                if ($remainingMicroseconds > 0) {
-                    usleep($remainingMicroseconds);
-                }
-
-                // Atualiza o tempo inicial para a próxima iteração
-                $startTime = microtime(true);
+////                 Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+//                $elapsedTime = microtime(true) - $startTime;
+//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+//                if ($remainingMicroseconds > 0) {
+//                    usleep($remainingMicroseconds);
+//                }
+//
+//                // Atualiza o tempo inicial para a próxima iteração
+//                $startTime = microtime(true);
             }
 
         } catch (\Exception $e) {
@@ -589,7 +575,7 @@ class BuilderController extends Controller
 
 
 
-//        return $templates;
+        return $templates;
 
     }
 
@@ -654,12 +640,12 @@ class BuilderController extends Controller
 
         try {
 //             Defina o número máximo de iterações por segundo
-            $maxIterationsPerSecond = 150;
-            $microsecondsPerSecond = 1000000;
-            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
-
-//                 Tempo inicial do loop
-            $startTime = microtime(true);
+//            $maxIterationsPerSecond = 15000;
+//            $microsecondsPerSecond = 1000000;
+//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+//
+////                 Tempo inicial do loop
+//            $startTime = microtime(true);
 
             foreach ($data as $key => $value) {
 
@@ -704,11 +690,6 @@ class BuilderController extends Controller
                                     $body = $response->getBody();
 
 
-                                    $sendings['success'][] = [
-                                        'template' => $template,
-                                        'client' => $value->name
-                                    ];
-                                    $sendings['count']++;
                                 }
 
                             }
@@ -722,15 +703,15 @@ class BuilderController extends Controller
                     $e;
                 }
 
-                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
-                $elapsedTime = microtime(true) - $startTime;
-                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
-                if ($remainingMicroseconds > 0) {
-                    usleep($remainingMicroseconds);
-                }
-
-                // Atualiza o tempo inicial para a próxima iteração
-                $startTime = microtime(true);
+//                // Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+//                $elapsedTime = microtime(true) - $startTime;
+//                $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+//                if ($remainingMicroseconds > 0) {
+//                    usleep($remainingMicroseconds);
+//                }
+//
+//                // Atualiza o tempo inicial para a próxima iteração
+//                $startTime = microtime(true);
 
             }
         } catch (\Exception $e) {
@@ -777,6 +758,7 @@ class BuilderController extends Controller
                 AND frt.title LIKE \'%FAT%\'
                 and frt.p_is_receivable is true
                 and frt.typeful_line is not null
+            limit 1000
             ';
 
         return $query;

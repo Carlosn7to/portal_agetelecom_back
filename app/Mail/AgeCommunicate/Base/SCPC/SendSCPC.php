@@ -72,7 +72,7 @@ class SendSCPC extends Mailable
      */
     public function attachments()
     {
-        return [];
+        return $this->billetPath;
     }
 }
 
