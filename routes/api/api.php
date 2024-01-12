@@ -247,4 +247,4 @@ Route::post('teste', [\App\Http\Controllers\TestController::class, 'index']);
 
 
 
-Route::post('open-door/eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTUsInVzZXJuYW1lIjoiYWRtaW4iLCJleHAiOjE1NjY0N', [\App\Http\Controllers\AccessPort::class, 'index']);
+Route::post('open-door', [\App\Http\Controllers\AccessPort::class, 'index']);

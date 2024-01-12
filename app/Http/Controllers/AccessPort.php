@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
+use Illuminate\Http\Request;
 
 class AccessPort
 {
 
+    private $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTUsInVzZXJuYW1lIjoiYWRtaW4iLCJleHAiOjE1NjY0N';
 
-    public function index()
+    public function index(Request $request)
     {
 
+
+        return response($request->getContent(), 200);
 
 
 
