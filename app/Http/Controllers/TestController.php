@@ -90,6 +90,12 @@ class TestController extends Controller
     public function index(Request $request)
     {
 
+
+        $aniel = new OrderServiceV2Controller();
+
+        return $aniel->store();
+
+
 //        $client = new Client();
 //
 //
