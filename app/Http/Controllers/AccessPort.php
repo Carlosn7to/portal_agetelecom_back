@@ -10,15 +10,12 @@ class AccessPort
 
     private  $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTUsInVzZXJuYW1lIjoiYWRtaW4iLCJleHAiOjE1NjY0N';
 
-    public function index(Request $request)
+    public function index()
     {
 
-        return response()->json($request->all());
+        return $this->token;
 
-        if($request->token != $this->token) {
 
-            return false;
-        }
 
 
         $client = new Client();
