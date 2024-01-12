@@ -14,9 +14,12 @@ class AccessPort
     {
 
 
-        return response($request->getContent(), 200);
+        $token = json_decode($request->getContent(), true);
 
 
+        if($this->token != $token['token']){
+            return response()->json(['error' => 'Unauthorized'], 401);
+        }
 
         $client = new Client();
 
