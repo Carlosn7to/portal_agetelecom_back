@@ -10,10 +10,11 @@ class AccessPort
 
     private  $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTUsInVzZXJuYW1lIjoiYWRtaW4iLCJleHAiOjE1NjY0N';
 
-    public function index()
+    public function index(Request $request)
     {
 
-        return $this->token;
+
+        return $request->getBody();
 
 
 
