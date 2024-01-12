@@ -91,9 +91,9 @@ class TestController extends Controller
     {
 
 
-        $aniel = new OrderServiceV2Controller();
 
-        return $aniel->store();
+
+        return true;
 
 
 //        $client = new Client();

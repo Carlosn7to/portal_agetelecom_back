@@ -38,6 +38,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('export:order')->everyFiveMinutes();
         $schedule->command('send:warning')->everyMinute();
 
+
+
     }
 
     /**
