@@ -13,6 +13,8 @@ class AccessPort
     public function index(Request $request)
     {
 
+        return response()->json($request->all());
+
         if($request->token != $this->token) {
 
             return false;
