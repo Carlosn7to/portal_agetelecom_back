@@ -8,13 +8,9 @@ use GuzzleHttp\Psr7\Request;
 class AccessPort
 {
 
-    private  $token = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpZCI6MTUsInVzZXJuYW1lIjoiYWRtaW4iLCJleHAiOjE1NjY0N';
 
-    public function index(Request $request)
+    public function index()
     {
-
-
-        return $request->getBody();
 
 
 
