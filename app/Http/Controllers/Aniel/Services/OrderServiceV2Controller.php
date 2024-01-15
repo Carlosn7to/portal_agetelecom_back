@@ -445,7 +445,7 @@ class OrderServiceV2Controller extends Controller
       WHEN (select max(pa.neighborhood) from erp.people_addresses pa where pa.id = contratos.people_address_id limit 1) in ('Vila São José (Vicente Pires)', 'Vila São Jose Vicente Pires', 'VILA SAO JOSE (VICENTE PIRES)', 'VILA SÃO JOSÉ ', 'Vila São José', 'Vicente Pires DF', 'VICENTE PIRES ', 'VICENTE PIRES', 'Vicente Pires', 'Vicente pires', 'Setor Habitacional Vicente Pires - Trecho 3 ', 'Setor Habitacional Vicente Pires Trecho 1', 'Setor Habitacional Vicente Pires - Trecho 1', 'Setor Habitacional Vicente Pires-  CONDOMINIO ATHENAS', 'Setor Habitacional Vicente Pires / COL SAMAMBAIA', 'SETOR HABITACIONAL VICENTE PIRES ', 'Setor Habitacional VICENTE PIRES', 'Setor Habitacional Samambaia (Vicente Pires)', 'Setor Habitacional Vicente Pires - Trecho 3') then 'Vicente Pires'
       ELSE (select max(pa.neighborhood) from erp.people_addresses pa where pa.id = contratos.people_address_id limit 1)
     END as \"dispatch_area\",
-assignments.description as \"observation\",
+    assignments.description as \"observation\",
       assignments.id as \"assignment_id\"
       from erp.assignments
       inner join erp.assignment_incidents on (assignment_incidents.assignment_id = assignments.id )
@@ -463,6 +463,7 @@ assignments.description as \"observation\",
       and TO_CHAR( s.start_date, '%Y-%m-%d' ) <> '0000-00-00' and people.deleted = '0'
       and TO_CHAR( assignment_incidents.responsible_final_date, '%Y-%m-%d' ) <> '0000-00-00' and people.deleted = '0'
       and incident_status.id <> '8'
+      and contract_service_tags.contract_id = contratos.id
       and
       (
        select DATE(s.start_date) from erp.schedules s where s.assignment_id = assignments.id order by s.id desc limit 1
