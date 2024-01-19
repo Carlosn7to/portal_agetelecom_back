@@ -36,11 +36,11 @@ class Kernel extends ConsoleKernel
             ->when(function () {
                 return now()->hour < 22;
             });
-        $schedule->command('send:welcome')->dailyAt('08:00')->everyFiveMinutes();
+        $schedule->command('send:welcome')->dailyAt('15:02')->everyFiveMinutes();
         $schedule->call(function () {
            $report = new WelcomeController();
            $report->sendReport();
-        })->dailyAt('15:00');
+        })->dailyAt('22:00');
         $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
         $schedule->command('export:order')->everyFiveMinutes();
         $schedule->command('send:warning')->everyMinute();
