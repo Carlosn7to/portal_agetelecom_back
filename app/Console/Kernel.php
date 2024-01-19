@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Http\Controllers\AgeCommunicate\Base\Welcome\WelcomeController;
 use App\Http\Controllers\AgeRv\VoalleSalesController;
 use App\Http\Controllers\DataWarehouse\Voalle\AuthenticationContractsController;
 use App\Http\Controllers\DataWarehouse\Voalle\ContractsController;
@@ -34,11 +35,15 @@ class Kernel extends ConsoleKernel
             ->everyThreeHours()
             ->when(function () {
                 return now()->hour < 22;
-            });        $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
+            });
+        $schedule->command('send:welcome')->dailyAt('08:00')->everyFiveMinutes();
+        $schedule->call(function () {
+           $report = new WelcomeController();
+           $report->sendReport();
+        })->dailyAt('22:00');
+        $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
         $schedule->command('export:order')->everyFiveMinutes();
         $schedule->command('send:warning')->everyMinute();
-
-
 
     }
 
@@ -52,7 +57,6 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__.'/Commands');
 
         require base_path('routes/console.php');
-
 
 
     }

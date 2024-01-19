@@ -24,7 +24,7 @@ class AuthController extends Controller
 
     public function login_ad(Request $request)
     {
-        $connection = new Connection([
+            $connection = new Connection([
             'hosts' => ['10.25.0.1'],
             'base_dn' => 'dc=tote, dc=local',
             'username' => 'ldap',

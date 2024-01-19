@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\ReportExport;
 use App\Exports\UsersExport;
+use App\Http\Controllers\AgeCommunicate\Base\Welcome\WelcomeController;
 use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\SendingWhatsapp;
 use App\Http\Controllers\AgeCommunicate\BillingRule\BuilderController;
 use App\Http\Controllers\AgeCommunicate\BlockedClients\BlockedClientsController;
@@ -90,8 +91,9 @@ class TestController extends Controller
     public function index(Request $request)
     {
 
+        $welcome = new WelcomeController();
 
-
+        return $welcome->sendReport();
 
         return true;
 

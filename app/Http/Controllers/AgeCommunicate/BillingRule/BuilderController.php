@@ -43,13 +43,13 @@ class BuilderController extends Controller
 
         $whatsapp = $this->sendMessage($data);
         $email = $this->sendEmail($data);
-        $sms = $this->sendSMS($data);
+//        $sms = $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [
             'whatsapp' => $whatsapp,
             'email' => $email,
-            'sms' => $sms
+//            'sms' => $sms
         ], []);
     }
 
@@ -60,41 +60,41 @@ class BuilderController extends Controller
 
         $templates = [
             // Pré-vencimento
-            0 => [
-                'd' => -5,
-                'template' => 'pre_vencimento__1',
-                'variable' => true,
-                'sendings' => 0
-            ],
-            1 => [
-                'd' => -4,
-                'template' => 'pre_vencimento__1',
-                'variable' => true,
-                'sendings' => 0
-
-            ],
-            2 => [
-                'd' => -1,
-                'template' => 'pre_vencimento_2',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
-            3 => [
-                'd' => -0,
-                'template' => 'pre_vencimento_2',
-                'variable' => false,
-                'sendings' => 0
-
-            ],
-            // Pós-vencimento
-            4 => [
-                'd' => 3,
-                'template' => 'pos_vencimento_1',
-                'variable' => true,
-                'sendings' => 0
-
-            ],
+//            0 => [
+//                'd' => -5,
+//                'template' => 'pre_vencimento__1',
+//                'variable' => true,
+//                'sendings' => 0
+//            ],
+//            1 => [
+//                'd' => -4,
+//                'template' => 'pre_vencimento__1',
+//                'variable' => true,
+//                'sendings' => 0
+//
+//            ],
+//            2 => [
+//                'd' => -1,
+//                'template' => 'pre_vencimento_2',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
+//            3 => [
+//                'd' => -0,
+//                'template' => 'pre_vencimento_2',
+//                'variable' => false,
+//                'sendings' => 0
+//
+//            ],
+//            // Pós-vencimento
+//            4 => [
+//                'd' => 3,
+//                'template' => 'pos_vencimento_1',
+//                'variable' => true,
+//                'sendings' => 0
+//
+//            ],
 //            5 => [
 //                'd' => 4,
 //                'template' => 'pos_vencimento__1',
@@ -110,33 +110,33 @@ class BuilderController extends Controller
 //
 //            ],
             6 => [
-                'd' => 7,
+                'd' => 6,
                 'template' => 'pos_vencimento_1',
                 'variable' => true,
                 'sendings' => 0
 
             ],
             7 => [
-                'd' => 12,
+                'd' => 7,
+                'template' => 'pos_vencimento_1',
+                'variable' => true,
+                'sendings' => 0
+
+            ],
+            8 => [
+                'd' => 14,
                 'template' => 'pos_vencimento_2_',
                 'variable' => false,
                 'sendings' => 0
 
             ],
-            8 => [
-                'd' => 13,
-                'template' => 'pos_vencimentos_3',
+            9 => [
+                'd' => 15,
+                'template' => 'pos_vencimento_3',
                 'variable' => false,
                 'sendings' => 0
 
             ],
-//            8 => [
-//                'd' => 20,
-//                'template' => 'pos_vencimento__4',
-//                'variable' => false,
-//                'sendings' => 0
-//
-//            ],
 //            9 => [
 //                'd' => 21,
 //                'template' => 'pos_vencimento__4',
