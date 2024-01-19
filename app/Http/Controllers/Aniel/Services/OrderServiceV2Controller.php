@@ -59,7 +59,6 @@ class OrderServiceV2Controller extends Controller
         $result = DB::connection('pgsql')->select($this->getQuery());
 
 
-
         foreach($result as $key => $data) {
             $client = new Client();
 
@@ -78,17 +77,20 @@ class OrderServiceV2Controller extends Controller
             }
 
 
+//
+//            $response = $this->getLatLong($data->address, $data->number, $data->neighborhood, $data->city);
+//
+//
+//            if (!empty($response->results) && is_array($response->results) && isset($response->results[0])) {
+//                $lat = $response->results[0]->geometry->location->lat;
+//                $lng = $response->results[0]->geometry->location->lng;
+//            } else {
+//                $lat = null;
+//                $lng = null;
+//            }
 
-            $response = $this->getLatLong($data->address, $data->number, $data->neighborhood, $data->city);
-
-
-            if (!empty($response->results) && is_array($response->results) && isset($response->results[0])) {
-                $lat = $response->results[0]->geometry->location->lat;
-                $lng = $response->results[0]->geometry->location->lng;
-            } else {
-                $lat = null;
-                $lng = null;
-            }
+            $lat = null;
+            $lng = null;
 
             $form = [
                 "cpf" => $data->doc,
@@ -464,6 +466,7 @@ class OrderServiceV2Controller extends Controller
       and TO_CHAR( assignment_incidents.responsible_final_date, '%Y-%m-%d' ) <> '0000-00-00' and people.deleted = '0'
       and incident_status.id <> '8'
       and contract_service_tags.contract_id = contratos.id
+      and assignment_incidents.protocol = 943154
       and
       (
        select DATE(s.start_date) from erp.schedules s where s.assignment_id = assignments.id order by s.id desc limit 1
