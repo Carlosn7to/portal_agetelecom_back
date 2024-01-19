@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
             ->when(function () {
                 return now()->hour < 22;
             });
-        $schedule->command('send:welcome')->dailyAt('15:02')->everyFiveMinutes();
+        $schedule->command('send:welcome')->dailyAt('8:00')->everyFiveMinutes();
         $schedule->call(function () {
            $report = new WelcomeController();
            $report->sendReport();
