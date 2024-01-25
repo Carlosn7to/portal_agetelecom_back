@@ -470,7 +470,7 @@ class OrderServiceV2Controller extends Controller
       (
        select DATE(s.start_date) from erp.schedules s where s.assignment_id = assignments.id order by s.id desc limit 1
       ) between '".Carbon::now()->subDay(1)->format('Y-m-d')."' and '".Carbon::now()->addDays(10)->format('Y-m-d')."'
-      and incident_types.id in ('1074', '1090', '1095', '1096', '1080', '1081', '1082', '1088', '1071', '1087','1058','1067', '1036', '1091', '1094', '1011', '1026', '1027', '1028', '1029','1086','1089','1020')
+      and incident_types.id in ('1085','1074', '1090', '1095', '1096', '1080', '1081', '1082', '1088', '1071', '1087','1058','1067', '1036', '1091', '1094', '1011', '1026', '1027', '1028', '1029','1086','1089','1020')
       order by assignment_incidents.protocol, s.start_date desc";
 
 
