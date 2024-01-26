@@ -29,13 +29,7 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('update:tables')->dailyAt('3:00');
         $schedule->command('send:billing-rule')->weekdays()->dailyAt('11:30');
-        $schedule->command('send:suspension')
-            ->weekdays()
-            ->dailyAt('08:00')
-            ->everyThreeHours()
-            ->when(function () {
-                return now()->hour < 22;
-            });
+        $schedule->command('send:suspension')->weekdays()->dailyAt('9:00');
         $schedule->command('send:welcome')->everyFiveMinutes();
         $schedule->call(function () {
            $report = new WelcomeController();
