@@ -91,11 +91,20 @@ class TestController extends Controller
     public function index(Request $request)
     {
 
-        $welcome = new WelcomeController();
+        $b2b = new Seller();
 
-        return $welcome->sendReport();
+        return $b2b->response();
 
-        return true;
+//        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+//
+//        $client = new SendClientDay();
+
+
+//        $welcome = new WelcomeController();
+//
+//        return $welcome->sendReport();
+//
+//        return true;
 
 
 //        $client = new Client();

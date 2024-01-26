@@ -20,10 +20,8 @@ class SendClientDay extends Mailable
      *
      * @return void
      */
-    public function __construct($name, $pdf)
+    public function __construct()
     {
-        $this->name = $name;
-        $this->pdf = $pdf;
     }
 
     /**
@@ -34,7 +32,7 @@ class SendClientDay extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Feliz Dia do Cliente! 🎉' ,
+            subject: 'Pague sua fatura em um clique- baixe o App Age!' ,
         );
     }
 
@@ -46,8 +44,7 @@ class SendClientDay extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.ageCommunicate.base.sendClientDay',
-            with: ['name' => $this->name]
+            view: 'mail.ageCommunicate.base.sendClientDay'
         );
     }
 
@@ -58,6 +55,6 @@ class SendClientDay extends Mailable
      */
     public function attachments()
     {
-        return $this->pdf;
+        return [];
     }
 }

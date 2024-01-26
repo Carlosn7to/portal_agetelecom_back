@@ -82,7 +82,7 @@ class WelcomeController extends Controller
 
 
         if (filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
-//            Mail::mailer('contact')->to($data->email)->send(new SendWelcomeRule($data, $template['subject'], $template['template']));
+            Mail::mailer('contact')->to($data->email)->send(new SendWelcomeRule($data, $template['subject'], $template['template']));
         }
 
         $saveData = new Welcome();
@@ -203,8 +203,8 @@ class WelcomeController extends Controller
         $excel->getFile()->move($storagePath, 'relatorio_boas_vindas.xlsx');
 
 
-        Mail::mailer('portal')->to('carlos.neto@agetelecom.com.br')
-            ->send(new SendAlert('Relatório de Envio de E-mails de Boas-Vindas', $data, $filePath))
+        Mail::mailer('portal')->to('boasvindas@agetelecom.com.br')
+            ->send(new SendAlert('[TESTE] - Relatório de Envio de E-mails de Boas-Vindas', $data, $filePath))
         ;
 
         unlink($filePath);
