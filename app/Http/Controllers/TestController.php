@@ -91,9 +91,9 @@ class TestController extends Controller
     public function index(Request $request)
     {
 
-        $b2b = new Seller();
+        $welcome = new WelcomeController();
 
-        return $b2b->response();
+        return $welcome->builder();
 
 //        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 //

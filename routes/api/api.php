@@ -41,6 +41,7 @@ Route::middleware('LogAccess', \App\Http\Middleware\LogAccess::class)->group(fun
     });
 
     Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('teste', [\App\Http\Controllers\TestController::class, 'index']);
 
         Route::get('aniel/order', [\App\Http\Controllers\Aniel\Services\OrderServiceController::class,'importData']);
 
@@ -243,7 +244,6 @@ Route::prefix('indique')->group(function() {
 
 //Route::get('teste-email', [\App\Http\Controllers\Mail\TestController::class, 'index']);
 Route::get('validate-status-contract/{token}/{contractId}', [\App\Http\Controllers\Voalle\ContractFineController::class, 'getStatus']);
-Route::post('teste', [\App\Http\Controllers\TestController::class, 'index']);
 
 
 

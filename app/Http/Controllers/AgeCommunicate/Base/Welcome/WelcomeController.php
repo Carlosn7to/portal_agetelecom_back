@@ -31,8 +31,12 @@ class WelcomeController extends Controller
     public function builder()
     {
 
+        set_time_limit(2000000000);
+
         $result = DB::connection('pgsql')->select($this->getQuery());
         $sendingsData = Welcome::where('created_at', '>=', Carbon::now()->subDays(17))->get(['contrato_id', 'regra']);
+
+
 
         foreach($result as $key => $value) {
             $response = null;
@@ -40,6 +44,7 @@ class WelcomeController extends Controller
             // Verifica se existe um registro com os mesmos valores em contrato_id e regra
             if($sendingsData->where('contrato_id', $value->contract_id)->where('regra', $value->date)->count() > 0) {
                 // Se existir, não faz o envio
+
                 continue;
             }
 
@@ -84,7 +89,7 @@ class WelcomeController extends Controller
         if (filter_var($data->email, FILTER_VALIDATE_EMAIL)) {
             Mail::mailer('contact')->to($data->email)->send(new SendWelcomeRule($data, $template['subject'], $template['template']));
         }
-
+//
         $saveData = new Welcome();
 
         $saveData->create([
@@ -135,11 +140,11 @@ class WelcomeController extends Controller
 
     private function getQuery()
     {
-        $query = "select c.id as contract_id,
-        c.v_stage, c.v_status, (DATE(now()) - DATE(c.approval_date)) as date,
-        c.approval_date, p.email,  p.name as nameClient from erp.contracts c
-         left join erp.people p on p.id = c.client_id
-         where c.v_stage = 'Aprovado' and (DATE(now()) - DATE(c.approval_date)) <= 15 and c.v_status != 'Cancelado'
+            $query = "select c.id as contract_id,
+            c.v_stage, c.v_status, (DATE(now()) - DATE(c.approval_date)) as date,
+            c.approval_date, p.email,  p.name as nameClient from erp.contracts c
+             left join erp.people p on p.id = c.client_id
+             where c.v_stage = 'Aprovado' and (DATE(now()) - DATE(c.approval_date)) <= 15 and c.v_status != 'Cancelado'
         ";
         return $query;
 
