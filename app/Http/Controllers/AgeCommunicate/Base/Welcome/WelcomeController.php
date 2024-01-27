@@ -209,7 +209,7 @@ class WelcomeController extends Controller
 
 
         Mail::mailer('portal')->to('boasvindas@agetelecom.com.br')
-            ->send(new SendAlert('[TESTE] - Relatório de Envio de E-mails de Boas-Vindas', $data, $filePath))
+            ->send(new SendAlert('Relatório de Envio de E-mails de Boas-Vindas', $data, $filePath))
         ;
 
         unlink($filePath);
