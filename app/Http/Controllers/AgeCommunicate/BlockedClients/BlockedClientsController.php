@@ -73,7 +73,7 @@ class BlockedClientsController extends Controller
                 left join erp.contracts c on c.id = ce.contract_id
                 --left join erp.contract_event_types cet on cet.id = ce.contract_event_type_id
                 --left join erp.people p on p.id = c.client_id
-                where ce.contract_event_type_id = 40
+                where ce.contract_event_type_id = 40 and ce."date"::date = current_date
                 group by ce."date"
         ';
 
