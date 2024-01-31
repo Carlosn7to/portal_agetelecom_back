@@ -43,7 +43,7 @@ class BuilderController extends Controller
 
         $whatsapp = $this->sendMessage($data);
         $email = $this->sendEmail($data);
-//        $sms = $this->sendSMS($data);
+        $sms = $this->sendSMS($data);
 
 
         return $this->response->constructResponse(200, 'sucesso', [
@@ -684,24 +684,27 @@ class BuilderController extends Controller
 
                                     // Cria o array com os dados a serem enviados
 
+
                                     $data = [
-                                        "id" => uniqid(),
-                                        "to" => "+55$value->phone@sms.gw.msging.net",
-                                        "type" => "text/plain",
-                                        "content" => "$template"
+                                        "CodigoIntegracao" => uniqid('TALK'),
+                                        "NB" => "55$value->phone",
+                                        "DataInicio" => "2023-01-30 16:13:00",
+                                        "Mensagem" => "$template",
+                                        "ApiKey" => env('SMSTALK_API_KEY')
                                     ];
 
+
                                     // Faz a requisição POST usando o cliente Guzzle HTTP
-                                    $response = $client->post('https://agetelecom.http.msging.net/messages', [
+                                    $response = $client->post('https://secure.talktelecom.com.br/api/EnvioSimples/EnviarJson', [
                                         'headers' => [
                                             'Content-Type' => 'application/json',
-                                            'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o='
                                         ],
                                         'json' => $data
                                     ]);
 
                                     // Obtém o corpo da resposta
                                     $body = $response->getBody();
+
 
 
                                     $sendings['success'][] = [

@@ -91,9 +91,31 @@ class TestController extends Controller
     public function index(Request $request)
     {
 
-        $welcome = new WelcomeController();
 
-        return $welcome->builder();
+        $client = new Client();
+
+
+//        $data = [
+//            "CodigoIntegracao" => uniqid('TALK'),
+//            "NB" => "5561984700440",
+//            "DataInicio" => "2023-01-30 16:13:00",
+//            "Mensagem" => "Olá, estamos testando.",
+//            "ApiKey" => env('SMSTALK_API_KEY')
+//        ];
+//
+//
+//        // Faz a requisição POST usando o cliente Guzzle HTTP
+//        $response = $client->post('https://secure.talktelecom.com.br/api/EnvioSimples/EnviarJson', [
+//            'headers' => [
+//                'Content-Type' => 'application/json',
+//            ],
+//            'json' => $data
+//        ]);
+//
+//        // Obtém o corpo da resposta
+//        $body = $response->getBody();
+//
+//        return $body;
 
 //        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 //
