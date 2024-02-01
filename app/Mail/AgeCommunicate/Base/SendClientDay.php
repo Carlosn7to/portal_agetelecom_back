@@ -32,7 +32,7 @@ class SendClientDay extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Pague sua fatura em um clique- baixe o App Age!' ,
+            subject: 'Pague sua fatura em um clique - baixe o App Age!' ,
         );
     }
 

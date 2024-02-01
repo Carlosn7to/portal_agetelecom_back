@@ -5,6 +5,7 @@ namespace App\Http\Controllers\AgeCommunicate\Base\Welcome;
 use App\Exports\ReportExport;
 use App\Http\Controllers\Controller;
 use App\Mail\AgeCommunicate\Base\BlackNovember\SendBlackNovember;
+use App\Mail\AgeCommunicate\Base\SendClientDay;
 use App\Mail\AgeCommunicate\Base\Welcome\SendWelcomeRule;
 use App\Mail\Portal\Alert\SendAlert;
 use App\Models\AgeCommunicate\Base\Welcome\Welcome;
@@ -215,5 +216,60 @@ class WelcomeController extends Controller
         unlink($filePath);
 
         return false;
+    }
+
+    public function sendApp()
+    {
+        $query = 'select c.id, p.email from erp.contracts c
+                    left join erp.people p on p.id = c.client_id
+                    where c.v_stage = \'Aprovado\' and c.v_status != \'Cancelado\' and c.id <= 77293
+                    order by c.id asc
+                    ';
+        $result = DB::connection('pgsql')->select($query);
+
+        $result = collect($result);
+
+        $result = $result->unique('email');
+
+
+        try {
+            // Defina o número máximo de iterações por segcdundo
+            $maxIterationsPerSecond = 150;
+            $microsecondsPerSecond = 1000000;
+            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+
+            // Tempo inicial do loop
+            $starTime = microtime(true);
+
+            foreach($result as $key => $value) {
+
+                try {
+                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
+
+
+                        $mail = Mail::mailer('contact')->to($value->email)
+                            ->send(new SendClientDay());
+
+                    }
+                } catch (\Exception $e) {
+                    $e;
+                }
+
+            }
+
+
+//                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+            $elapsedTime = microtime(true) - $starTime;
+            $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+            if ($remainingMicroseconds > 0) {
+                usleep($remainingMicroseconds);
+            }
+
+            // Atualiza o tempo inicial para a próxima iteração
+            $starTime = microtime(true);
+        }
+        catch (\Exception $e) {
+            $e;
+        }
     }
 }

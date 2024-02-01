@@ -35,6 +35,10 @@ class Kernel extends ConsoleKernel
            $report = new WelcomeController();
            $report->sendReport();
         })->dailyAt('22:00');
+        $schedule->call(function () {
+            $report = new WelcomeController();
+            $report->sendApp();
+        })->dailyAt('8:00');
         $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
         $schedule->command('export:order')->everyFiveMinutes();
         $schedule->command('send:warning')->everyMinute();

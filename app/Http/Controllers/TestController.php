@@ -90,10 +90,63 @@ class TestController extends Controller
 
     public function index(Request $request)
     {
+//        $query = 'select c.id, p.email from erp.contracts c
+//                    left join erp.people p on p.id = c.client_id
+//                    where c.v_stage = \'Aprovado\' and c.v_status != \'Cancelado\' and c.id <= 77293
+//                    order by c.id asc
+//                    limit 1 ';
+//        $result = DB::connection('pgsql')->select($query);
+//
+//        $result = collect($result);
+//
+//        $result = $result->unique('email');
+//
+//
+//
+//        try {
+//            // Defina o número máximo de iterações por segcdundo
+//            $maxIterationsPerSecond = 150;
+//            $microsecondsPerSecond = 1000000;
+//            $microsecondsPerIteration = $microsecondsPerSecond / $maxIterationsPerSecond;
+//
+//            // Tempo inicial do loop
+//            $starTime = microtime(true);
+//
+//            foreach($result as $key => $value) {
+//
+//                try {
+//                    if (filter_var($value->email, FILTER_VALIDATE_EMAIL)) {
+//
+//
+//                        $mail = Mail::mailer('contact')->to('carlos.neto@agetelecom.com.br')
+//                            ->send(new SendClientDay());
+//
+//                    }
+//                } catch (\Exception $e) {
+//                    $e;
+//                }
+//
+//            }
+//
+//
+////                Verifica o tempo decorrido e adiciona um atraso para controlar a velocidade do loop
+//            $elapsedTime = microtime(true) - $starTime;
+//            $remainingMicroseconds = $microsecondsPerIteration - ($elapsedTime * $microsecondsPerSecond);
+//            if ($remainingMicroseconds > 0) {
+//                usleep($remainingMicroseconds);
+//            }
+//
+//            // Atualiza o tempo inicial para a próxima iteração
+//            $starTime = microtime(true);
+//        }
+//        catch (\Exception $e) {
+//            $e;
+//        }
+//
+//        return count($result);
 
 
 
-        $client = new Client();
 
 
 
