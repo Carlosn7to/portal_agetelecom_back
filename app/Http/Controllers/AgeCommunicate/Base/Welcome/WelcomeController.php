@@ -222,7 +222,7 @@ class WelcomeController extends Controller
     {
         $query = 'select c.id, p.email from erp.contracts c
                     left join erp.people p on p.id = c.client_id
-                    where c.v_stage = \'Aprovado\' and c.v_status != \'Cancelado\' and c.id <= 77293
+                    where c.v_stage = \'Aprovado\' and c.v_status != \'Cancelado\' and c.id > 77293
                     order by c.id asc
                     ';
         $result = DB::connection('pgsql')->select($query);
