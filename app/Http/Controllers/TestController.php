@@ -9,6 +9,7 @@ use App\Http\Controllers\AgeCommunicate\BillingRule\_aux\SendingWhatsapp;
 use App\Http\Controllers\AgeCommunicate\BillingRule\BuilderController;
 use App\Http\Controllers\AgeCommunicate\BlockedClients\BlockedClientsController;
 use App\Http\Controllers\AgeCommunicate\Suspension\SuspensionController;
+use App\Http\Controllers\AgeReport\NetworkManagement\NetworkManagementController;
 use App\Http\Controllers\AgeRv\_aux\sales\Calendar;
 use App\Http\Controllers\AgeRv\_aux\sales\Cancel;
 use App\Http\Controllers\AgeRv\_aux\sales\Meta;
@@ -90,6 +91,29 @@ class TestController extends Controller
 
     public function index(Request $request)
     {
+
+
+
+        return true;
+
+//        $client = new Client();
+//
+//        $response = $client->post('https://agetelecom.http.msging.net/messages', [
+//            'headers' => [
+//                'Authorization' => 'Key b3BlcmFjYW9ub2NiMmI6QTZzQ3Z4WUlxbjZqQ2NvSU1JR1o=',
+//                'Content-Type' => 'application/json',],
+//            'json' => [
+//                'id' => uniqid(),
+//                'to' => '+5561984700440@sms.gw.msging.net',
+//                'type' => 'text/plain',
+//                'content' => 'AGE Telecom: Sua fatura já está disponível. Acesse através do portal da AGE: https://encr.pw/qv4Ed. Se já pagou, desconsidere.'
+//            ]
+//        ]);
+//
+//        $body = $response->getBody();
+//
+//        return $body;
+
 //        $query = 'select c.id, p.email from erp.contracts c
 //                    left join erp.people p on p.id = c.client_id
 //                    where c.v_stage = \'Aprovado\' and c.v_status != \'Cancelado\' and c.id <= 77293

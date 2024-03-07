@@ -32,7 +32,7 @@ class ValueStar
                 $this->minMeta = 60;
             } elseif ($this->month >= '09' && $this->year === '2022') {
                 $this->minMeta = 70;
-            } elseif ($this->month >= '01' && $this->year === '2023') {
+            } elseif ($this->month >= '01' && $this->year === '2024') {
                 $this->minMeta = 70;
             }
 
@@ -82,7 +82,7 @@ class ValueStar
                 } elseif ($this->metaPercent >= 141) {
                     $this->valueStar = 8;
                 }
-            } elseif (($this->month >= '01') && $this->year === '2023') {
+            } elseif (($this->month >= '01') && $this->year === '2024') {
 
                 if ($this->metaPercent >= 70 && $this->metaPercent < 100) {
                     $this->valueStar = 2.50;
@@ -154,7 +154,7 @@ class ValueStar
                     $this->valueStar = 3;
                 }
 
-            } elseif ($this->month >= '01' && $this->year === '2023') {
+            } elseif ($this->month >= '01' && $this->year === '2024') {
 
                 if ($this->metaPercent >= 70 && $this->metaPercent < 100) {
                     $this->valueStar = 0.6;
@@ -168,7 +168,7 @@ class ValueStar
 
             }
         } elseif ($this->channelId === 6) {
-            if ($this->month >= '02' && $this->year === '2023') {
+            if ($this->month >= '02' && $this->year === '2024') {
                 if ($this->metaPercent >= 70 && $this->metaPercent < 100) {
                     $this->valueStar = 0.15;
                 } elseif ($this->metaPercent >= 100 && $this->metaPercent < 120) {

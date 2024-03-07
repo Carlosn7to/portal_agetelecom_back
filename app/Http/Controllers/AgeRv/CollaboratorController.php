@@ -111,7 +111,7 @@ class CollaboratorController extends Controller
 
             if($collaborators->isNotEmpty()) {
                 try {
-                    $users = User::select('name')->whereNotIn('id', $collaborators)->get();
+                    $users = User::select('name')->whereName('diego')->whereNotIn('id', $collaborators)->get();
 
                     if(! empty($users)) {return $users;}
                     else {throw new \Exception("Nenhum usuário corresponde a consulta.", 301);}

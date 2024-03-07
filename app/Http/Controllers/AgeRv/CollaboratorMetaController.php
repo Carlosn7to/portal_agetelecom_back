@@ -197,9 +197,9 @@ class CollaboratorMetaController extends Controller
             if(str_contains($value['channel'],"VENDEDOR (A) P.A.P") ||
                 $value['channel'] === 'Comercial') {
 
-                if($value['admmission'] === '10') {
+                if($value['admmission'] === '11') {
                     $collabs[$key]['meta'] = $meta * 0.75;
-                } elseif ($value['admmission'] === '11') {
+                } elseif ($value['admmission'] === '12') {
                     $collabs[$key]['meta'] = $meta * 0.5;
                 }
 
@@ -207,9 +207,9 @@ class CollaboratorMetaController extends Controller
 
             if(str_contains($value['channel'], "VENDEDOR (A) DE LOJA")) {
 
-                    if($value['admmission'] === '10') {
+                    if($value['admmission'] === '11') {
                         $collabs[$key]['meta'] = 11 * 0.75;
-                    } elseif ($value['admmission'] === '11') {
+                    } elseif ($value['admmission'] === '12') {
                         $collabs[$key]['meta'] = 11 * 0.5;
                     }
             }
@@ -217,10 +217,10 @@ class CollaboratorMetaController extends Controller
 
             if(str_contains($value['channel'],"OPERADOR(A) DE MCV")) {
 
-                if($value['admmission'] === '10') {
-                    $collabs[$key]['meta'] = 131 * 0.75;
-                } elseif ($value['admmission'] === '11') {
-                    $collabs[$key]['meta'] = 131 * 0.5;
+                if($value['admmission'] === '11') {
+                    $collabs[$key]['meta'] = 133 * 0.75;
+                } elseif ($value['admmission'] === '12') {
+                    $collabs[$key]['meta'] = 133 * 0.5;
                 }
 
         }
