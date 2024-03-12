@@ -92,6 +92,11 @@ class TestController extends Controller
     public function index(Request $request)
     {
 
+        $b2b = new Seller();
+
+        $result = $b2b->response();
+
+        return $result;
 
 
         return true;
