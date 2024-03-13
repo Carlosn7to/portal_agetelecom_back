@@ -26,6 +26,7 @@ use App\Http\Controllers\Ixc\Api\WebserviceClient;
 use App\Http\Controllers\Mail\Billing\EquipDivideController;
 use App\Http\Requests\AgeControl\ConductorStoreRequest;
 use App\Ldap\UserLdap;
+use App\Mail\AgeCommunicate\AppClient\SendToken;
 use App\Mail\AgeCommunicate\Base\BlackNovember\SendBlackNovember;
 use App\Mail\AgeCommunicate\Base\RA\SendRa;
 use App\Mail\AgeCommunicate\Base\SCPC\SendSCPC;
@@ -49,6 +50,7 @@ use App\Models\AgeRv\CollaboratorMeta;
 use App\Models\AgeRv\Commission;
 use App\Models\AgeRv\Plan;
 use App\Models\AgeRv\VoalleSales;
+use App\Models\AgeTools\Tools\Mailer\Mailer;
 use App\Models\AWS\Admin\Payroll;
 use App\Models\Test;
 use App\Models\User;
@@ -91,12 +93,6 @@ class TestController extends Controller
 
     public function index(Request $request)
     {
-
-        $b2b = new Seller();
-
-        $result = $b2b->response();
-
-        return $result;
 
 
         return true;

@@ -248,3 +248,8 @@ Route::get('validate-status-contract/{token}/{contractId}', [\App\Http\Controlle
 
 
 Route::post('open-door', [\App\Http\Controllers\AccessPort::class, 'index']);
+
+
+Route::prefix('appClient/token/')->controller(\App\Http\Controllers\AgeCommunicate\AppClient\TokenController::class)->group(function() {
+   Route::post('/', 'sendToken');
+});
