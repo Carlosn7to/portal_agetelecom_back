@@ -254,7 +254,7 @@ class OrderServiceV2Controller extends Controller
       people.lat as \"latitude\",
       (select max(pa.street) from erp.people_addresses pa where pa.id = contratos.people_address_id limit 1)  AS \"address\",
       people.lng as \"longitude\",
-      (select max(pa.number) from erp.people_addresses pa where pa.id = contratos.people_address_id limit 1),
+      (select max(pa.number) from erp.people_addresses pa where pa.id = contratos.people_address_id limit 1) as \"number\",
        case
           when extract (hour from assignment_incidents.responsible_final_date) between 6 and 11 then 'Manhã'
           when extract (hour from assignment_incidents.responsible_final_date) between 12 and 19 then 'Tarde'
