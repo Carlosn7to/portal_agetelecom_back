@@ -34,7 +34,7 @@ return [
     'aniel' => [
         'user' => ENV('ANIEL_USER'),
         'password' => ENV('ANIEL_PASSWORD'),
-        'url' => ENV('ANIEL_TOKEN'),
+        'token' => ENV('ANIEL_TOKEN'),
     ]
 
 ];
