@@ -148,6 +148,7 @@ class OrderServiceV2Controller extends Controller
             $response = json_decode($client->getBody()->getContents());
 
 
+            dd($response, $this->user, $this->token, $this->password);
 
             $status = $response->error == '' ? 1 : 0;
 
