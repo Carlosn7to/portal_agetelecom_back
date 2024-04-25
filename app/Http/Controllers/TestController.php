@@ -10,6 +10,7 @@ use App\Http\Controllers\AgeCommunicate\BillingRule\BuilderController;
 use App\Http\Controllers\AgeCommunicate\BlockedClients\BlockedClientsController;
 use App\Http\Controllers\AgeCommunicate\Suspension\SuspensionController;
 use App\Http\Controllers\AgeReport\NetworkManagement\NetworkManagementController;
+use App\Http\Controllers\AgeRv\_aux\sales\analytics\Master;
 use App\Http\Controllers\AgeRv\_aux\sales\Calendar;
 use App\Http\Controllers\AgeRv\_aux\sales\Cancel;
 use App\Http\Controllers\AgeRv\_aux\sales\Meta;
@@ -32,6 +33,7 @@ use App\Mail\AgeCommunicate\Base\RA\SendRa;
 use App\Mail\AgeCommunicate\Base\SCPC\SendSCPC;
 use App\Mail\AgeCommunicate\Base\SendClientDay;
 use App\Mail\AgeCommunicate\Base\SendMailBillingRule;
+use App\Mail\AgeCommunicate\Base\Welcome\SendWelcomeRule;
 use App\Mail\BaseManagement\SendPromotion;
 use App\Mail\Portal\SendNewUser;
 use App\Mail\SendBlackFiber;
@@ -91,8 +93,84 @@ class TestController extends Controller
 
     }
 
+    private function getRange($metaPercent)
+    {
+        $range = 0;
+
+        if ($metaPercent >= 70 && $metaPercent < 100) {
+            $range = 1;
+        } elseif ($metaPercent >= 100 && $metaPercent < 120) {
+            $range = 2;
+        } elseif ($metaPercent >= 120 && $metaPercent < 141) {
+            $range = 3;
+        } elseif ($metaPercent >= 141) {
+            $range = 4;
+        }
+
+        return $range;
+
+    }
+
     public function index(Request $request)
     {
+        set_time_limit(20000);
+
+
+        $aniel = new OrderServiceV2Controller();
+
+        return $aniel->store();
+
+        return true;
+
+
+        $client = new Client();
+
+        $data = [
+            "CodigoIntegracao" => uniqid('TALK'),
+            "NB" => "5561981069695",
+            "DataInicio" => "2024-04-18 11:08:00",
+            "Mensagem" => "Olá, estamos testando.",
+            "ApiKey" => env('SMSTALK_API_KEY')
+        ];
+
+
+        // Faz a requisição POST usando o cliente Guzzle HTTP
+        $response = $client->post('https://secure.talktelecom.com.br/api/EnvioSimples/EnviarJson', [
+            'headers' => [
+                'Content-Type' => 'application/json',
+            ],
+            'json' => $data
+        ]);
+
+        // Obtém o corpo da resposta
+        $body = $response->getBody();
+
+        return $body;
+
+
+//        $client = new Client();
+//
+//        $data = [
+//            "CodigoIntegracao" => uniqid('TALK'),
+//            "NB" => "5561985034988",
+//            "DataInicio" => "2023-01-30 16:13:00",
+//            "Mensagem" => "Verificar spam - Teste Age",
+//            "ApiKey" => env('SMSTALK_API_KEY')
+//        ];
+//
+//
+//        // Faz a requisição POST usando o cliente Guzzle HTTP
+//        $response = $client->post('https://secure.talktelecom.com.br/api/EnvioSimples/EnviarJson', [
+//            'headers' => [
+//                'Content-Type' => 'application/json',
+//            ],
+//            'json' => $data
+//        ]);
+//
+//        // Obtém o corpo da resposta
+//        $body = $response->getBody();
+//
+//        return $body;
 
 
         return true;
@@ -175,27 +253,7 @@ class TestController extends Controller
 
 
 
-//        $data = [
-//            "CodigoIntegracao" => uniqid('TALK'),
-//            "NB" => "5561984700440",
-//            "DataInicio" => "2023-01-30 16:13:00",
-//            "Mensagem" => "Olá, estamos testando.",
-//            "ApiKey" => env('SMSTALK_API_KEY')
-//        ];
 //
-//
-//        // Faz a requisição POST usando o cliente Guzzle HTTP
-//        $response = $client->post('https://secure.talktelecom.com.br/api/EnvioSimples/EnviarJson', [
-//            'headers' => [
-//                'Content-Type' => 'application/json',
-//            ],
-//            'json' => $data
-//        ]);
-//
-//        // Obtém o corpo da resposta
-//        $body = $response->getBody();
-//
-//        return $body;
 
 //        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
 //

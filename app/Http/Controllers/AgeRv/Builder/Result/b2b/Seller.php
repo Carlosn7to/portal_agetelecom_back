@@ -20,7 +20,7 @@ class Seller
 
         $this->sellers = $this->data->get('vendedor')->unique('vendedor');
 
-        $months = $this->data->get(['mes_competencia', 'ano_competencia'])->unique('mes_competencia');
+        $months = $this->data->distinct()->get(['mes_competencia', 'ano_competencia']);
 
         foreach($months as $key => $value) {
             $this->month[] = [
@@ -74,13 +74,12 @@ class Seller
 
     private function getFat($contract, $dateActivation)
     {
-        $query = 'select frt2.title, frt.amount, frt2.competence from erp.financial_receipt_titles frt
-                    left join erp.financial_receivable_titles frt2 on frt2.id = frt.financial_receivable_title_id
-                    where frt2.contract_id = '.$contract.' and frt2.title like \'%FAT%\'
-                    and EXTRACT(MONTH FROM frt.receipt_date) >= \''.Carbon::parse($dateActivation)->format('m').'\'
-                    and frt2.deleted is false and frt2.finished is false
-                    order by frt2.id limit 2';
-
+        $query = 'SELECT frt2.title, frt.amount, frt2.competence FROM erp.financial_receipt_titles frt
+                      LEFT JOIN erp.financial_receivable_titles frt2 ON frt2.id = frt.financial_receivable_title_id
+                      WHERE frt2.contract_id = ' . $contract . ' AND frt2.title LIKE \'%FAT%\'
+                      AND EXTRACT(YEAR FROM frt.receipt_date) * 100 + EXTRACT(MONTH FROM frt.receipt_date) >= ' . (Carbon::parse($dateActivation)->format('Y') * 100 + Carbon::parse($dateActivation)->format('m')) . '
+                      AND frt2.deleted IS FALSE AND frt2.finished IS FALSE
+                      ORDER BY frt2.id LIMIT 2';
         $result = DB::connection('pgsql')->select($query);
 
         return $result;

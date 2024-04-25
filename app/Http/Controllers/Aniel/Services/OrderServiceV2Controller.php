@@ -18,9 +18,9 @@ class OrderServiceV2Controller extends Controller
 
     public function __construct()
     {
-        $this->user = env('ANIEL_USER');
-        $this->password = env('ANIEL_PASSWORD');
-        $this->token = env('ANIEL_TOKEN');
+        $this->user = config('services.aniel.user');
+        $this->password = config('services.aniel.password');
+        $this->token = config('services.aniel.token');
         $this->dataEmail = [
             'services' => [],
             'errors' => []

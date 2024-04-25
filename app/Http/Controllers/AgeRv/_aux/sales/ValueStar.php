@@ -71,7 +71,7 @@ class ValueStar
                 } elseif ($this->metaPercent >= 141) {
                     $this->valueStar = 10;
                 }
-            } elseif (($this->month >= '09') && $this->year === '2022') {
+            } elseif (($this->month >= '09') && $this->year === '2023') {
 
                 if ($this->metaPercent >= 70 && $this->metaPercent < 100) {
                     $this->valueStar = 2.50;

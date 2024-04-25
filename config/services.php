@@ -31,4 +31,10 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'aniel' => [
+        'user' => ENV('ANIEL_USER'),
+        'password' => ENV('ANIEL_PASSWORD'),
+        'url' => ENV('ANIEL_TOKEN'),
+    ]
+
 ];
