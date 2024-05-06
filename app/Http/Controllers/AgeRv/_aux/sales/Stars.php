@@ -29,6 +29,8 @@ class Stars
     {
         foreach($this->data as $key => $item) {
 
+            $item->plano = strtoupper($item->plano);
+
             // Se o mês do cadastro do contrato for MAIO para trás, executa esse bloco.
             if (Carbon::parse($item->data_contrato) < Carbon::parse('2022-06-01')) {
 
@@ -288,7 +290,7 @@ class Stars
                 } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + IP FIXO')) {
                     $this->stars += 20;
                 }
-            } elseif (Carbon::parse($item->data_contrato) >= Carbon::parse('2024-01-01')) {
+            } elseif (Carbon::parse($item->data_contrato) >= Carbon::parse('2024-01-01') && Carbon::parse($item->data_contrato) < Carbon::parse('2024-03-01')) {
                 // Verifica qual é o plano e atribui a estrela correspondente.
                 if (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM + DIRECTV GO')) {
                     $this->stars += 20;
@@ -344,7 +346,128 @@ class Stars
                     $this->stars += 12;
                 } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + IP FIXO')) {
                     $this->stars += 20;
+                } else if(str_contains($item->plano, 'PROMOCIONAL 480 MBPS')) {
+                    $this->stars += 9;
+                } else if(str_contains($item->plano, 'PROMOCIONAL 740 MBPS')) {
+                    $this->stars += 10;
+                } else if(str_contains($item->plano, 'PROMOCIONAL 1 GB')) {
+                    $this->stars += 10;
                 }
+
+            } elseif(Carbon::parse($item->data_contrato) > Carbon::parse('2024-03-01')) {
+
+                if (str_contains($item->plano, 'COMBO EMPRESARIAL 600 MEGA + 1 FIXO BRASIL SEM FIDELIDADE')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, 'COMBO EMPRESARIAL 800 MEGA + 1 FIXO BRASIL SEM FIDELIDADE')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE')) {
+                    $this->stars += 15;
+                } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER + HBO MAX + DR. AGE + DIRECTV GO')) {
+                    $this->stars += 22;
+                } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM')) {
+                    $this->stars += 12;
+                } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DEEZER PREMIUM + DIRECTV GO')) {
+                    $this->stars += 20;
+                } elseif (str_contains($item->plano, 'PLANO 1 GIGA FIDELIZADO + DIRECTV GO')) {
+                    $this->stars += 20;
+                } elseif (str_contains($item->plano, 'PLANO 1 GIGA NÃO FIDELIZADO + DEEZER PREMUUM')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, 'PLANO 120 MEGA')) {
+                    $this->stars += 9;
+                } elseif (str_contains($item->plano, 'PLANO 120 MEGA PROMOCAO LEVE 360 MEGA')) {
+                    $this->stars += 9;
+                } elseif (str_contains($item->plano, 'PLANO 240 MEGA')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, 'PLANO 240 MEGA PROMOCAO LEVE 720 MEGA + DEEZER PREMIUM')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, 'PLANO 240 MEGA PROMOCAO LEVE 960 MEGA')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, 'PLANO 360 MEGA')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, 'PLANO 400 MEGA FIDELIZADO')) {
+                    $this->stars += 12;
+                } elseif (str_contains($item->plano, 'PLANO 480 MEGA FIDELIZADO')) {
+                    $this->stars += 9;
+                } elseif (str_contains($item->plano, 'PLANO 480 MEGA FIDELIZADO + DIRECTV GO')) {
+                    $this->stars += 17;
+                } elseif (str_contains($item->plano, 'PLANO 480 MEGA NÃO FIDELZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, 'PLANO 740 MEGA FIDELIZADO')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, 'PLANO 740 MEGA FIDELIZADO + DIRECTV GO')) {
+                    $this->stars += 18;
+                } elseif (str_contains($item->plano, 'PLANO 740 MEGA NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, 'PLANO 800 MEGA FIDELIZADO')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, 'PLANO COLABORADOR 1 GIGA + DEEZER')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, 'PLANO COLABORADOR 1 GIGA + DEEZER + HBO MAX + DR. AGE')) {
+                    $this->stars += 12;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO + IP FIXO')) {
+                    $this->stars += 20;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 1 GIGA FIDELIZADO')) {
+                    $this->stars += 16;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 1 GIGA FIDELZADO + DEEZER PREMIUM')) {
+                    $this->stars += 16;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO')) {
+                    $this->stars += 9;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO + 1 FIXO')) {
+                    $this->stars += 12;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 600 MEGA NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 600 MEGA SEM FIDELIDADE')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO')) {
+                    $this->stars += 12;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE FIDELIZADO')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + TEL FIXO ILIMITADO BRASIL')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUB AGE + DEEZER NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUB AGE + TEL FIXO ILIMITADO BRASIL NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV')) {
+                    $this->stars += 11;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER')) {
+                    $this->stars += 11;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX')) {
+                    $this->stars += 15;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX + TEL FIXO BRASIL')) {
+                    $this->stars += 15;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + SKY+')) {
+                    $this->stars += 20;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY+')) {
+                    $this->stars += 20;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY + TEL FIXO BRASIL')) {
+                    $this->stars += 20;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX + TEL FIXO BRASIL NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + SKY+ NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY+ NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY + TEL FIXO BRASIL + NÃO FIDELIZADO')) {
+                    $this->stars += 0;
+                } else if(str_contains($item->plano, 'PROMOCIONAL 480 MBPS')) {
+                    $this->stars += 9;
+                } else if(str_contains($item->plano, 'PROMOCIONAL 740 MBPS')) {
+                    $this->stars += 10;
+                } else if(str_contains($item->plano, 'PROMOCIONAL 1 GB')) {
+                    $this->stars += 10;
+                }
+
             }
 
 
