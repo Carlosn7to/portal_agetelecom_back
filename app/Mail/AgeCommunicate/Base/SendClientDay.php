@@ -13,7 +13,6 @@ class SendClientDay extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private $name;
 
     /**
      * Create a new message instance.
@@ -32,7 +31,7 @@ class SendClientDay extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Pague sua fatura em um clique - baixe o App Age!' ,
+            subject: '[Comunicado Importante] - Central de Atendimento',
         );
     }
 
@@ -44,7 +43,7 @@ class SendClientDay extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.ageCommunicate.base.sendClientDay'
+            view: 'mail.test'
         );
     }
 
