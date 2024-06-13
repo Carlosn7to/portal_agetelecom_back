@@ -40,10 +40,12 @@ class ValueStar
             if ($this->metaPercent >= $this->minMeta && $this->metaPercent < 100) {
                 $this->valueStar = 0.90;
             } elseif ($this->metaPercent >= 100 && $this->metaPercent < 120) {
-                $this->valueStar = 1.20;
-            } elseif ($this->metaPercent >= 120 && $this->metaPercent < 141) {
+                $this->valueStar = 1.50;
+            } elseif ($this->metaPercent >= 120 && $this->metaPercent < 140) {
                 $this->valueStar = 2;
-            } elseif ($this->metaPercent >= 141) {
+            } elseif ($this->metaPercent >= 140 && $this->metaPercent < 180) {
+                $this->valueStar = 3;
+            } elseif ($this->metaPercent >= 180) {
                 $this->valueStar = 4.5;
             }
 
@@ -179,6 +181,19 @@ class ValueStar
                     $this->valueStar = 1.6;
                 }
             }
+        } elseif ($this->channelId === 8) {
+            if ($this->month >= '04' && $this->year === '2024') {
+                if ($this->metaPercent >= 70 && $this->metaPercent < 100) {
+                    $this->valueStar = 3.5;
+                } elseif ($this->metaPercent >= 100 && $this->metaPercent < 120) {
+                    $this->valueStar = 8.5;
+                } elseif ($this->metaPercent >= 120 && $this->metaPercent < 141) {
+                    $this->valueStar = 11;
+                } elseif ($this->metaPercent >= 141) {
+                    $this->valueStar = 15;
+                }
+            }
+
         }
 
     }

@@ -14,8 +14,8 @@
 <body>
 <div class="container">
     <img
-        style="width: 100vw; height: auto"
-        src="https://comunica23.s3.amazonaws.com/0800.jpeg" alt="comunicado">
+        style="width: 60vw; height: auto"
+        src="https://comunica23.s3.amazonaws.com/AVISO+MANUTEN%C3%87%C3%83O+SAMAMBAIA+(3).png" alt="comunicado">
 </div>
 </body>
 

@@ -31,7 +31,7 @@ class SendClientDay extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: '[Comunicado Importante] - Central de Atendimento',
+            subject: '[Comunicado Importante] - Manutenção Programada na Rede',
         );
     }
 

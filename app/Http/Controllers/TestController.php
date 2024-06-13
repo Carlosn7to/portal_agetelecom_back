@@ -113,33 +113,33 @@ class TestController extends Controller
 
     public function index(Request $request)
     {
-        set_time_limit(20000);
+        set_time_limit(2000000);
 
-        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
-
-
-        $erros = [];
-
-        foreach ($array[0] as $key => $value) {
-
-            if(filter_var($value[0], FILTER_VALIDATE_EMAIL)) {
-                try {
-                        Mail::mailer('contact')->to($value[0])
-                            ->send(new SendClientDay());
-
-                } catch (\Exception $e) {
-                    // Armazena o e-mail e a mensagem de erro no array
-                    $error[] = $e->getMessage();
-                }
-
-            } else {
-                $erros[] = $value[0];
-            }
+//        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+//
+//        $erros = [];
 
 
-        }
-
-        return $erros;
+//        foreach ($array[0] as $key => $value) {
+//
+//            if(filter_var($value[0], FILTER_VALIDATE_EMAIL)) {
+//                try {
+//                        Mail::mailer('contact')->to($value[0])
+//                            ->send(new SendClientDay());
+//
+//                } catch (\Exception $e) {
+//                    // Armazena o e-mail e a mensagem de erro no array
+//                    $error[] = $e->getMessage();
+//                }
+//
+//            } else {
+//                $erros[] = $value[0];
+//            }
+//
+//
+//        }
+//
+//        return $erros;
 
         $client = new Client();
 
