@@ -411,7 +411,7 @@ class Stars
                 } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 1 GIGA FIDELZADO + DEEZER PREMIUM')) {
                     $this->stars += 16;
                 } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO')) {
-                    $this->stars += 9;
+                    $this->stars += 9; // nao esquecer
                 } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 600 MEGA FIDELIZADO + 1 FIXO')) {
                     $this->stars += 12;
                 } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 600 MEGA NÃO FIDELIZADO')) {
@@ -421,7 +421,7 @@ class Stars
                 } elseif (str_contains($item->plano, 'PLANO EMPRESARIAL 800 MEGA FIDELIZADO')) {
                     $this->stars += 12;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE FIDELIZADO')) {
-                    $this->stars += 10;
+                    $this->stars += 10; // nao esquecer
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER')) {
                     $this->stars += 10;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + TEL FIXO ILIMITADO BRASIL')) {
@@ -433,7 +433,7 @@ class Stars
                 } elseif (str_contains($item->plano, '1 GB + CLUB AGE + TEL FIXO ILIMITADO BRASIL NÃO FIDELIZADO')) {
                     $this->stars += 0;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV')) {
-                    $this->stars += 11;
+                    $this->stars += 11;  // nao esquecer
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER')) {
                     $this->stars += 11;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX')) {

@@ -148,14 +148,14 @@ class OrderServiceV2Controller extends Controller
             $response = json_decode($client->getBody()->getContents());
 
 
-            $status = $response->error == '' ? 1 : 0;
+            $status = $response->ok;
 
             if(! $status) {
 
                 $this->dataEmail['errors'][] = [
                     'protocol' => $data->protocol,
                     'typeService' => $data->type_service,
-                    'error' => trim(explode(":", explode('|', $response->error)[0])[1])
+                    'error' => trim(explode(":", explode('|', $response->mensagem)[0])[1])
                 ];
             }
 

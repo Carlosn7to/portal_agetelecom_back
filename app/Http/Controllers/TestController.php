@@ -115,10 +115,60 @@ class TestController extends Controller
     {
         set_time_limit(2000000);
 
-//        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
-//
-//        $erros = [];
+        $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
+        $dbPhoto = new Commission();
+        $dbVoalle = new VoalleSales();
 
+        $data = $dbPhoto->where('mes_competencia', '04')
+            ->where('ano_competencia', '2024')
+            ->get();
+
+        $result = $data->pluck('id_contrato');
+        $result = $result->unique();
+
+
+        return response()->json($result);
+
+
+        foreach($array[0] as $key => $value) {
+            $result = $dbPhoto
+                ->where('mes_competencia', '04')
+                ->where('ano_competencia', '2024')
+                ->where('id_contrato', $value[0])
+                ->first();
+
+            if(isset($result->id)) {
+//                $update = $dbPhoto->find($result->id);
+//
+//                $update->update([
+//                    'vendedor' => $value[1],
+//                    'supervisor' => $value[2],
+//                ]);
+            } else {
+                $voalleData = $dbVoalle->where('id_contrato', $value[0])->first();
+
+                $dbPhoto->create([
+                    'mes_competencia' => '04',
+                    'ano_competencia' => '2024',
+                    'id_contrato' => $voalleData->id_contrato,
+                    'nome_cliente' => $voalleData->nome_cliente,
+                    'supervisor' => $value[2],
+                    'vendedor' => $value[1],
+                    'status' => $voalleData->status,
+                    'situacao' => $voalleData->situacao,
+                    'data_contrato' => $voalleData->data_contrato,
+                    'data_ativacao' => $voalleData->data_ativacao,
+                    'data_vigencia' => $voalleData->data_vigencia,
+                    'data_cancelamento' => $voalleData->data_cancelamento,
+                    'plano' => $voalleData->plano
+                ]);
+
+            }
+
+
+        }
+
+        return true;
 
 //        foreach ($array[0] as $key => $value) {
 //
