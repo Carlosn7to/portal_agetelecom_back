@@ -31,7 +31,7 @@ class SendRa extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Votação: Rumo à excelência',
+            subject: 'Novo plano de saúde',
         );
     }
 
@@ -43,7 +43,7 @@ class SendRa extends Mailable
     public function content()
     {
         return new Content(
-            view: 'mail.ageCommunicate.base.RA.ra',
+            view: 'mail.collaborators',
         );
     }
 

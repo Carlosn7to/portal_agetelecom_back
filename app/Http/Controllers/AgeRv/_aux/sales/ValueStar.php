@@ -84,7 +84,7 @@ class ValueStar
                 } elseif ($this->metaPercent >= 141) {
                     $this->valueStar = 8;
                 }
-            } elseif (($this->month >= '01') && $this->year === '2024') {
+            } elseif (($this->month <= '04') && $this->year === '2024') {
 
                 if ($this->metaPercent >= 70 && $this->metaPercent < 100) {
                     $this->valueStar = 2.50;
@@ -94,6 +94,17 @@ class ValueStar
                     $this->valueStar = 7;
                 } elseif ($this->metaPercent >= 141) {
                     $this->valueStar = 8;
+                }
+            } elseif (($this->month >= '05') && $this->year === '2024') {
+
+                if ($this->metaPercent >= 70 && $this->metaPercent < 100) {
+                    $this->valueStar = 2.50;
+                } elseif ($this->metaPercent >= 100 && $this->metaPercent < 120) {
+                    $this->valueStar = 5;
+                } elseif ($this->metaPercent >= 120 && $this->metaPercent < 141) {
+                    $this->valueStar = 5.50;
+                } elseif ($this->metaPercent >= 141) {
+                    $this->valueStar = 6.50;
                 }
             }
 

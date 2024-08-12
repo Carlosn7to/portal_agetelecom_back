@@ -115,6 +115,7 @@ class TestController extends Controller
     {
         set_time_limit(2000000);
 
+
         $array = \Maatwebsite\Excel\Facades\Excel::toArray(new \stdClass(), $request->file('excel'));
         $dbPhoto = new Commission();
         $dbVoalle = new VoalleSales();

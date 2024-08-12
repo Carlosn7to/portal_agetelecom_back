@@ -36,7 +36,7 @@ class Kernel extends ConsoleKernel
            $report->sendReport();
         })->dailyAt('22:00');
         $schedule->command('send:blockedClients')->weekdays()->dailyAt('17:00');
-        $schedule->command('export:order')->everyFiveMinutes();
+//        $schedule->command('export:order')->everyFiveMinutes();
         $schedule->command('send:warning')->everyMinute();
 
     }

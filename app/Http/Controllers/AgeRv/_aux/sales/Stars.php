@@ -422,7 +422,7 @@ class Stars
                     $this->stars += 12;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE FIDELIZADO')) {
                     $this->stars += 10; // nao esquecer
-                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER')) {
+                } elseif (str_contains($item->plano, '1 GB + CLUB AGE + DEEZER  FIDELIZADO')) {
                     $this->stars += 10;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + TEL FIXO ILIMITADO BRASIL')) {
                     $this->stars += 10;
@@ -432,19 +432,23 @@ class Stars
                     $this->stars += 0;
                 } elseif (str_contains($item->plano, '1 GB + CLUB AGE + TEL FIXO ILIMITADO BRASIL NÃO FIDELIZADO')) {
                     $this->stars += 0;
-                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV')) {
+                } elseif (str_contains($item->plano, '1 GB + CLUB AGE + TEL FIXO ILIMITADO BRASIL  FIDELIZADO')) {
+                    $this->stars += 10;
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV FIDELIZADO')) {
                     $this->stars += 11;  // nao esquecer
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER FIDELIZADO')) {
+                    $this->stars += 11;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER')) {
                     $this->stars += 11;
-                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX')) {
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX FIDELIZADO')) {
                     $this->stars += 15;
-                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX + TEL FIXO BRASIL')) {
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV + DEEZER + MAX + TEL FIXO BRASIL FIDELIZADO')) {
                     $this->stars += 15;
-                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + SKY+')) {
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + SKY+ FIDELIZADO')) {
                     $this->stars += 20;
-                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY+')) {
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY+ FIDELIZADO')) {
                     $this->stars += 20;
-                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY + TEL FIXO BRASIL')) {
+                } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + MAX + SKY + TEL FIXO BRASIL FIDELIZADO')) {
                     $this->stars += 20;
                 } elseif (str_contains($item->plano, '1 GB + CLUBE AGE + AGE TV NÃO FIDELIZADO')) {
                     $this->stars += 0;
@@ -466,6 +470,8 @@ class Stars
                     $this->stars += 10;
                 } else if(str_contains($item->plano, 'PROMOCIONAL 1 GB')) {
                     $this->stars += 10;
+                } else if(str_contains($item->plano, '1 GB + CLUBE AGE + DEEZER + SKY+')) {
+                    $this->stars += 20;
                 }
 
             }

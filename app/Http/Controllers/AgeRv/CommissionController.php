@@ -32,9 +32,10 @@ class CommissionController extends Controller
         $this->year = $request->input('year');
 
         $data = VoalleSales::where(function ($query) {
-            $query->whereMonth('data_ativacao','>=', ($this->month - 1))->whereMonth('data_vigencia', $this->month)->whereYear('data_ativacao', $this->year);
+            $query->whereMonth('data_ativacao','=', $this->month)->whereYear('data_ativacao', $this->year);
         })
             ->whereStatus('Aprovado')
+            ->where('supervisor', '!=', 'B2B')
             ->selectRaw('LOWER(supervisor) as supervisor, LOWER(vendedor) as vendedor,
                                                             id_contrato,
                                                             status, situacao,
